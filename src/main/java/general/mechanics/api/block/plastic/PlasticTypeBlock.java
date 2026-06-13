@@ -4,10 +4,10 @@ import general.mechanics.api.block.base.BaseBlock;
 import general.mechanics.api.item.plastic.PlasticType;
 import general.mechanics.registries.CoreSounds;
 import lombok.Getter;
+import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.*;
-import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
@@ -34,12 +34,13 @@ public class PlasticTypeBlock extends BaseBlock {
         }
     }
 
-    @Override
+	// TODO: Not Supported anymore
+    /*@Override
     public void appendHoverText(@NotNull ItemStack stack, @NotNull Item.TooltipContext context, List<Component> tooltipComponents, @NotNull TooltipFlag tooltipFlag) {
         tooltipComponents.add(Component.literal("§o" + plasticType.getAbbreviation()));
         tooltipComponents.add(Component.literal(String.format("§e" + plasticType.getFormula())));
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
-    }
+    }*/
 
     public ColoredPlasticBlock getColoredVariant(DyeColor color) {
         return coloredVariants.stream()
@@ -48,7 +49,7 @@ public class PlasticTypeBlock extends BaseBlock {
                 .orElse(null);
     }
 
-    public static int getColor(BlockState state, @Nullable BlockAndTintGetter getter, @Nullable BlockPos pos, int tintIndex) {
+    public static int getColor (BlockState state, @Nullable BlockAndTintGetter getter, @Nullable BlockPos pos, int tintIndex) {
         Block block = state.getBlock();
 
         if (block instanceof PlasticTypeBlock plasticTypeBlock) {

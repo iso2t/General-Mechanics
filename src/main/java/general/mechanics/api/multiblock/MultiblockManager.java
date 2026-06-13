@@ -17,6 +17,7 @@ import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -100,7 +101,7 @@ public class MultiblockManager {
     /**
      * Handle block break events and check for multiblock formation/destruction.
      */
-    private static void onBlockBreak(BlockEvent.BreakEvent event) {
+    private static void onBlockBreak(BreakBlockEvent event) {
         if (!(event.getLevel() instanceof ServerLevel serverLevel)) {
             return;
         }

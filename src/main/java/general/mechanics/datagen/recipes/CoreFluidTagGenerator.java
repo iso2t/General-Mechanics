@@ -7,18 +7,14 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.FluidTagsProvider;
 import net.minecraft.tags.FluidTags;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
 import javax.annotation.Nonnull;
-
-import org.jetbrains.annotations.Nullable;
-
 import java.util.concurrent.CompletableFuture;
 
 public class CoreFluidTagGenerator extends FluidTagsProvider implements IDataProvider {
 
-    public CoreFluidTagGenerator(PackOutput output, CompletableFuture<HolderLookup.Provider> provider, @Nullable ExistingFileHelper existingFileHelper) {
-        super(output, provider, GM.MODID, existingFileHelper);
+    public CoreFluidTagGenerator(PackOutput output, CompletableFuture<HolderLookup.Provider> provider) {
+        super(output, provider, GM.MODID);
     }
 
     @Override

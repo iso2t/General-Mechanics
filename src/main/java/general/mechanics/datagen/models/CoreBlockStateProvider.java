@@ -4,20 +4,16 @@ import com.google.gson.JsonPrimitive;
 import general.mechanics.GM;
 import general.mechanics.api.block.BlockDefinition;
 import general.mechanics.api.util.IDataProvider;
+import net.minecraft.client.data.models.blockstates.PropertyDispatch;
+import net.minecraft.client.renderer.block.dispatch.VariantMutator;
 import net.minecraft.core.Direction;
 import net.minecraft.data.PackOutput;
-import net.minecraft.data.models.blockstates.*;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.Property;
-import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 
 public abstract class CoreBlockStateProvider extends BlockStateProvider implements IDataProvider {
 
-    private static final VariantProperty<VariantProperties.Rotation> Z_ROT = new VariantProperty<>(GM.MODID + ":z", r -> new JsonPrimitive(r.ordinal() * 90));
+    private static final VariantProperty<VariantProperties.Rotation> Z_ROT = new VariantMutator.VariantProperty<>(GM.MODID + ":z", r -> new JsonPrimitive(r.ordinal() * 90));
     public ExistingFileHelper existingFileHelper;
 
     public CoreBlockStateProvider(PackOutput packOutput, String modid, ExistingFileHelper existingFileHelper) {
@@ -66,12 +62,6 @@ public abstract class CoreBlockStateProvider extends BlockStateProvider implemen
         };
     }
 
-    private static <T extends Comparable<T>> Condition addConditionTerm (Condition.TerminalCondition condition,
-                                                                         BlockState blockState,
-                                                                         Property<T> property) {
-        return condition.term(property, blockState.getValue(property));
-    }
-
     protected void simpleBlockAndItem (BlockDefinition<?> block) {
         var model = cubeAll(block.block());
         simpleBlock(block.block(), model);
@@ -87,10 +77,5 @@ public abstract class CoreBlockStateProvider extends BlockStateProvider implemen
         var model = models().cubeAll(block.id().getPath(), GM.getResource(textureName));
         simpleBlock(block.block(), model);
         simpleBlockItem(block.block(), model);
-    }
-
-    @Override
-    public @NotNull String getName() {
-        return super.getName() + " " + getClass().getName();
     }
 }

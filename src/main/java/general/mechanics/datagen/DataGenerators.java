@@ -5,7 +5,7 @@ import general.mechanics.datagen.data.SoundProvider;
 import general.mechanics.datagen.language.CoreEnLangProvider;
 import general.mechanics.datagen.loot.CoreLootTableProvider;
 import general.mechanics.datagen.models.BlockModelProvider;
-import general.mechanics.datagen.models.CoreItemModelProvider;
+import general.mechanics.datagen.models.ItemModelProvider;
 import general.mechanics.datagen.recipes.CoreFluidTagGenerator;
 import general.mechanics.datagen.recipes.CraftingRecipes;
 import general.mechanics.datagen.recipes.MachineRecipes;
@@ -32,14 +32,13 @@ public class DataGenerators {
         var generator = event.getGenerator();
         var registries = event.getLookupProvider();
         var pack = generator.getVanillaPack(true);
-        var existingFileHelper = event.getExistingFileHelper();
         var localization = new CoreEnLangProvider(generator);
 
         // WORLD GENERATION
         //pack.addProvider(output -> new WorldGenProvider(output, registries));
 
         // SOUNDS
-        pack.addProvider(packOutput -> new SoundProvider(packOutput, existingFileHelper));
+        pack.addProvider(SoundProvider::new);
 
         // LOOT TABLE
         pack.addProvider(bindRegistries(CoreLootTableProvider::new, registries));
@@ -48,13 +47,13 @@ public class DataGenerators {
         //pack.addProvider(packOutput -> new FMPoiTagGenerator(packOutput, registries, existingFileHelper));
 
         // TAGS
-        var blockTagsProvider = pack.addProvider(pOutput -> new CoreBlockTagGenerator(pOutput, registries, existingFileHelper));
-        pack.addProvider(pOutput -> new CoreItemTagGenerator(pOutput, registries, blockTagsProvider.contentsGetter(), existingFileHelper));
-        pack.addProvider(packOutput -> new CoreFluidTagGenerator(packOutput, registries, existingFileHelper));
+        var blockTagsProvider = pack.addProvider(pOutput -> new CoreBlockTagGenerator(pOutput, registries));
+        pack.addProvider(pOutput -> new CoreItemTagGenerator(pOutput, registries));
+        pack.addProvider(packOutput -> new CoreFluidTagGenerator(packOutput, registries));
 
         // MODELS & STATES
-        pack.addProvider(pOutput -> new BlockModelProvider(pOutput, existingFileHelper));
-        pack.addProvider(pOutput -> new CoreItemModelProvider(pOutput, existingFileHelper));
+        pack.addProvider(BlockModelProvider::new);
+        pack.addProvider(ItemModelProvider::new);
 
         // RECIPES
         pack.addProvider(bindRegistries(CraftingRecipes::new, registries));

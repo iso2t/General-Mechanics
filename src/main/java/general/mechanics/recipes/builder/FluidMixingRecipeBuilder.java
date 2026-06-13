@@ -41,4 +41,8 @@ public final class FluidMixingRecipeBuilder {
         }
         out.accept(id, new FluidMixingRecipe(inputs, result), null);
     }
+
+	private static <E> void build (RecipeOutput consumer, Identifier resource, List<E> of, SizedFluidIngredient of1) {
+
+	}
 }

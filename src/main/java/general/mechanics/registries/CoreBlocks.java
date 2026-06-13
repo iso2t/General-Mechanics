@@ -16,6 +16,7 @@ import general.mechanics.api.item.plastic.PlasticType;
 import general.mechanics.block.machine.HeatingElementBlock;
 import general.mechanics.block.machine.MatterFabricatorBlock;
 import general.mechanics.tab.CoreTab;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.BlockItem;
@@ -284,7 +285,7 @@ public class CoreBlocks {
         var deferredBlock = REGISTRY.register(id.getPath(), supplier);
         var deferredItem = CoreItems.REGISTRY.register(id.getPath(), () -> {
             var block = deferredBlock.get();
-            var itemProperties = new Item.Properties();
+            var itemProperties = new Item.Properties().setId(ResourceKey.create(Registries.ITEM, id));
             if (itemFactory != null) {
                 var item = itemFactory.apply(block, itemProperties);
                 if (item == null) {

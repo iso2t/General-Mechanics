@@ -10,10 +10,12 @@ import general.mechanics.api.block.plastic.ColoredPlasticBlock;
 import general.mechanics.api.block.plastic.PlasticTypeBlock;
 import general.mechanics.block.machine.HeatingElementBlock;
 import general.mechanics.registries.CoreBlocks;
+import net.minecraft.client.data.models.BlockModelGenerators;
+import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.core.Direction;
 import net.minecraft.data.PackOutput;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.LiquidBlock;
@@ -21,23 +23,23 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.neoforged.neoforge.client.model.generators.*;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.function.BiConsumer;
 
-public class BlockModelProvider extends CoreBlockStateProvider {
+public non-sealed class BlockModelProvider extends ModelProviders {
 
-    public static final ResourceLocation MACHINE_BOTTOM = GM.getResource("block/machine/machine_bottom");
-    public static final ResourceLocation MACHINE_TOP = GM.getResource("block/machine/machine_top");
-    public static final ResourceLocation MACHINE_SIDE = GM.getResource("block/machine/machine_side");
+    public static final Identifier MACHINE_BOTTOM = GM.getResource("block/machine/machine_bottom");
+    public static final Identifier MACHINE_TOP = GM.getResource("block/machine/machine_top");
+    public static final Identifier MACHINE_SIDE = GM.getResource("block/machine/machine_side");
 
-    public BlockModelProvider(PackOutput output, ExistingFileHelper exFileHelper) {
-        super(output, GM.MODID, exFileHelper);
+    public BlockModelProvider(PackOutput output) {
+        super(output);
     }
 
     @Override
-    protected void registerStatesAndModels() {
+	protected void registerBlockModels (@NotNull BlockModelGenerators blockGenerator, @NotNull ItemModelGenerators itemGenerator) {
         for (var block : CoreBlocks.getBlocks()) {
             if (block.block() instanceof DecorativeBlock) {
                 blockWithItem(block);
@@ -136,7 +138,7 @@ public class BlockModelProvider extends CoreBlockStateProvider {
     /**
      * One block model with two elements (base + overlay).
      */
-    private ModelFile twoLayerCubeBlockModel(String name, ResourceLocation baseTex, ResourceLocation overlayTex) {
+    private ModelFile twoLayerCubeBlockModel(String name, Identifier baseTex, Identifier overlayTex) {
         float eps = 0.001f;
         BlockModelBuilder b = models().getBuilder("block/" + name)
                 .parent(new ModelFile.ExistingModelFile(mcLoc("block/block"), existingFileHelper))
@@ -433,9 +435,9 @@ public class BlockModelProvider extends CoreBlockStateProvider {
     /**
      * Ignores missing textures so we can still build data without the texture present.
      *
-     * @param list a list of ResourceLocations that we know will exist but currently don't.
+     * @param list a list of Identifiers that we know will exist but currently don't.
      */
-    private void err(List<ResourceLocation> list) {
+    private void err (List<Identifier> list) {
         for (var res : list) {
             existingFileHelper.trackGenerated(res, PackType.CLIENT_RESOURCES, ".png", "textures");
         }

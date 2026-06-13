@@ -1,13 +1,13 @@
 package general.mechanics.client;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import general.mechanics.api.item.element.metallic.*;
 import general.mechanics.api.item.tools.ToolItem;
 import general.mechanics.registries.CoreElements;
 import general.mechanics.registries.CoreFluids;
 import general.mechanics.registries.CoreItems;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.neoforged.neoforge.client.IItemDecorator;
 import net.neoforged.neoforge.client.event.RegisterItemDecorationsEvent;
@@ -58,29 +58,29 @@ public class ClientItemDecorators {
         }
     }
 
-    private static boolean drawTextAt(GuiGraphics g, Font font, int x, int y, float posX, float posY, String text) {
+    private static boolean drawTextAt (GuiGraphicsExtractor g, Font font, int x, int y, float posX, float posY, String text) {
         var pose = g.pose();
-        pose.pushPose();
-        pose.translate(x, y, 200); // Move to the item position in GUI
+        pose.pushMatrix();
+        pose.translate(x, y); // Move to the item position in GUI
 
-        RenderSystem.disableDepthTest();
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
+        //RenderSystem.disableDepthTest();
+        //RenderSystem.enableBlend();
+        //RenderSystem.defaultBlendFunc();
 
         float scale = 0.5f;
-        pose.scale(scale, scale, 1.0f);
+        pose.scale(scale, scale);
 
-        g.drawString(font, text, (int) ((posX) / scale), (int) ((posY) / scale), 0xFFFFFF, true);
+        g.textRenderer().accept((int) ((posX) / scale), (int) ((posY) / scale), Component.literal(text));
 
-        RenderSystem.disableBlend();
-        RenderSystem.enableDepthTest();
-        pose.popPose();
+        //RenderSystem.disableBlend();
+        //RenderSystem.enableDepthTest();
+        pose.popMatrix();
 
         return false;
     }
 
     static {
-        DURABILITY_GRADIENT = (g, font, stack, x, y) -> {
+        DURABILITY_GRADIENT = (g, _, stack, x, y) -> {
             if (!stack.isDamageableItem()) return false;
 
             final int BAR_W = 13, BAR_H = 1;
@@ -92,12 +92,12 @@ public class ClientItemDecorators {
             final int filled = Mth.clamp(Math.round(pct * BAR_W), 0, BAR_W);
 
             var pose = g.pose();
-            pose.pushPose();
-            pose.translate(0, 0, 200);
+            pose.pushMatrix();
+            pose.translate(0, 0);
 
-            RenderSystem.disableDepthTest();
-            RenderSystem.enableBlend();
-            RenderSystem.defaultBlendFunc();
+            //RenderSystem.disableDepthTest();
+            //RenderSystem.enableBlend();
+            //RenderSystem.defaultBlendFunc();
 
             g.fill(barX, barY, barX + BAR_W, barY + BAR_H, 0xFF1A1A1A);
 
@@ -112,9 +112,9 @@ public class ClientItemDecorators {
                 g.fill(barX + filled, barY, barX + BAR_W, barY + BAR_H, 0xFF2B2B2B);
             }
 
-            RenderSystem.disableBlend();
-            RenderSystem.enableDepthTest();
-            pose.popPose();
+            //RenderSystem.disableBlend();
+            //RenderSystem.enableDepthTest();
+            pose.popMatrix();
 
             return false;
         };

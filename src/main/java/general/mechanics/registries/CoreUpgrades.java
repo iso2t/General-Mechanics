@@ -9,7 +9,7 @@ import general.mechanics.api.upgrade.item.SpeedUpgrade;
 import general.mechanics.api.upgrade.item.UpgradeEmpty;
 import general.mechanics.tab.CoreTab;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -76,7 +76,7 @@ public class CoreUpgrades {
         return create(id, desc, GM.getResource(resourceFriendly), factory, caller);
     }
 
-    public static <T extends UpgradeBase, I> ItemDefinition<T> create (String name, String desc, ResourceLocation id, BiFunction<Item.Properties, String, T> factory, @Nullable UpgradeFunctionBuilder<T, I> caller) {
+    public static <T extends UpgradeBase, I> ItemDefinition<T> create (String name, String desc, Identifier id, BiFunction<Item.Properties, String, T> factory, @Nullable UpgradeFunctionBuilder<T, I> caller) {
         // Convert BiFunction to Function by providing the description as the second parameter
         Function<Item.Properties, T> registryFactory = properties -> factory.apply(properties, desc);
         
@@ -89,7 +89,7 @@ public class CoreUpgrades {
     }
 
     // Overloaded method for standard Function (backward compatibility)
-    public static <T extends UpgradeBase, I> ItemDefinition<T> create (String name, String desc, ResourceLocation id, Function<Item.Properties, T> factory, @Nullable UpgradeFunctionBuilder<T, I> caller) {
+    public static <T extends UpgradeBase, I> ItemDefinition<T> create (String name, String desc, Identifier id, Function<Item.Properties, T> factory, @Nullable UpgradeFunctionBuilder<T, I> caller) {
         var definition = new ItemDefinition<>(name, REGISTRY.registerItem(id.getPath(), factory));
         CoreTab.add(definition);
 

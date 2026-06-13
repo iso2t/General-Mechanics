@@ -12,7 +12,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -30,9 +30,11 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 import javax.annotation.Nullable;
 import java.text.DecimalFormat;
@@ -47,9 +49,9 @@ public abstract class BaseEntityBlock<T extends BaseBlockEntity> extends BaseBlo
     private Class<T> blockEntityClass;
 
     @Getter
-    private BlockEntityType<T> blockEntityType;
-    public static final DirectionProperty FACING = BlockStateProperties.FACING;
-    private boolean disassemble = false;
+    private             BlockEntityType<T> blockEntityType;
+    public static final EnumProperty<Direction>       FACING      = BlockStateProperties.FACING;
+    private             boolean            disassemble = false;
     private final MapCodec<BaseBlock> codec = getCodec();
 
     public BaseEntityBlock (Properties properties) {
@@ -104,13 +106,19 @@ public abstract class BaseEntityBlock<T extends BaseBlockEntity> extends BaseBlo
         return RenderShape.MODEL;
     }
 
-    @Override
+    /*@Override
     protected void onRemove (@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState newState, boolean movedByPiston) {
         remove(state, level, pos, newState, movedByPiston, getDisassembled());
         super.onRemove(state, level, pos, newState, movedByPiston);
-    }
+    }*/
 
-    public void remove (BlockState state, @NotNull Level level, @NotNull BlockPos pos, BlockState newState, boolean movedByPiston, boolean wrenched) {
+	@Override
+	public boolean onDestroyedByPlayer (BlockState state, Level level, BlockPos pos, Player player, ItemStack toolStack, boolean willHarvest, FluidState fluid) {
+		remove(state, level, pos, state, false, getDisassembled());
+		return super.onDestroyedByPlayer(state, level, pos, player, toolStack, willHarvest, fluid);
+	}
+
+	public void remove (BlockState state, @NotNull Level level, @NotNull BlockPos pos, BlockState newState, boolean movedByPiston, boolean wrenched) {
         if (state.getBlock() != newState.getBlock()) {
             var blockentity = this.getBlockEntity(level, pos);
             if (blockentity != null) {
@@ -134,7 +142,8 @@ public abstract class BaseEntityBlock<T extends BaseBlockEntity> extends BaseBlo
         disassemble = false;
     }
 
-    @Override
+	// TODO: Not Supported anymore
+    /*@Override
     public void appendHoverText (@NotNull ItemStack stack, Item.@NotNull TooltipContext context, @NotNull List<Component> tooltipComponents, @NotNull TooltipFlag tooltipFlag) {
         if (Screen.hasShiftDown()) {
             if (stack.has(CoreComponents.ENERGY_STORED) && stack.has(CoreComponents.ENERGY_MAX)) {
@@ -155,7 +164,7 @@ public abstract class BaseEntityBlock<T extends BaseBlockEntity> extends BaseBlo
             tooltipComponents.add(Component.translatable("gui.gm.press_shift"));
         }
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
-    }
+    }*/
 
     @Override
     protected @NotNull MapCodec<? extends Block> codec () {
@@ -163,11 +172,11 @@ public abstract class BaseEntityBlock<T extends BaseBlockEntity> extends BaseBlo
     }
 
     @Override
-    protected @NotNull ItemInteractionResult useItemOn (ItemStack stack, @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult hitResult) {
+    protected @NonNull InteractionResult useItemOn (ItemStack stack, @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult hitResult) {
         if (stack.is(CoreTags.Items.WRENCHES)) {
-            return ItemInteractionResult.FAIL;
+            return InteractionResult.FAIL;
         }
-        return ItemInteractionResult.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 
     @Override

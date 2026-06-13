@@ -11,7 +11,6 @@ import general.mechanics.registries.CoreElements;
 import general.mechanics.registries.CoreFluids;
 import general.mechanics.registries.CoreItems;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.DyeColor;
@@ -20,26 +19,19 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 
 public class MachineRecipes extends CoreRecipeProvider {
 
-    public MachineRecipes(PackOutput packOutput, CompletableFuture<HolderLookup.Provider> provider) {
-        super(packOutput, provider);
-    }
+    public MachineRecipes(HolderLookup.Provider registries, RecipeOutput output) {
+		super(registries, output);
+	}
 
     @Override
-    public @NotNull String getName () {
-        return GM.NAME + " Machine Recipes";
-    }
-
-    @Override
-    public void buildRecipes (@NotNull RecipeOutput consumer) {
+    public void buildRecipes () {
         refabricateRecipes(consumer);
         crushingRecipes(consumer);
         fluidMixingRecipes(consumer);
@@ -59,7 +51,10 @@ public class MachineRecipes extends CoreRecipeProvider {
     }
 
     protected void fluidMixingRecipes (RecipeOutput consumer) {
-        FluidMixingRecipeBuilder.build(consumer, GM.getResource("fluid_mixing/ammonia_from_hydrogen_and_nitrogen"), List.of(SizedFluidIngredient.of(CoreFluids.NITROGEN.getStack(500)), SizedFluidIngredient.of(CoreFluids.HYDROGEN.getStack(500))), SizedFluidIngredient.of(CoreFluids.AMMONIA.getStack()).getFluids()[0]);
+        FluidMixingRecipeBuilder.build(consumer, GM.getResource("fluid_mixing/ammonia_from_hydrogen_and_nitrogen"),
+				List.of(SizedFluidIngredient.of(CoreFluids.NITROGEN.getStack().getFluid(), 500),
+						SizedFluidIngredient.of(CoreFluids.HYDROGEN.getStack().getFluid(), 500)),
+				CoreFluids.AMMONIA.getStack(1000));
     }
 
     protected void dyedPlasticRecipes (RecipeOutput consumer) {

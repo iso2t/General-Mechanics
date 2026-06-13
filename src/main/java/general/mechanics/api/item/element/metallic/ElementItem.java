@@ -6,16 +6,21 @@ import general.mechanics.api.item.element.ElementType;
 import general.mechanics.api.tags.CoreTags;
 import lombok.Getter;
 import net.minecraft.advancements.Criterion;
-import net.minecraft.advancements.critereon.InventoryChangeTrigger;
+import net.minecraft.advancements.criterion.InventoryChangeTrigger;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.*;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
+import net.minecraft.world.item.crafting.CookingBookCategory;
 import net.minecraft.world.item.crafting.Ingredient;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
-import java.util.List;
+import java.util.function.Consumer;
 
 public class ElementItem extends BaseItem {
 
@@ -68,9 +73,9 @@ public class ElementItem extends BaseItem {
     }
 
     @Override
-    public void appendHoverText(@NotNull ItemStack stack, @NotNull TooltipContext context, List<Component> tooltipComponents, @NotNull TooltipFlag tooltipFlag) {
-        tooltipComponents.add(Component.literal(String.format("§e" + getAtomicSymbol())));
-        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+	public void appendHoverText (@NonNull ItemStack itemStack, @NonNull TooltipContext context, @NonNull TooltipDisplay display, Consumer<Component> builder, @NonNull TooltipFlag tooltipFlag) {
+        builder.accept(Component.literal(String.format("§e" + getAtomicSymbol())));
+        super.appendHoverText(itemStack, context, display, builder, tooltipFlag);
     }
 
     public static int getColor(ItemStack stack, int index) {
@@ -83,53 +88,53 @@ public class ElementItem extends BaseItem {
         return -1;
     }
 
-    public void getRecipes(RecipeOutput consumer, Criterion<InventoryChangeTrigger.TriggerInstance> has) {
+    public void getRecipes (HolderGetter<Item> holder, RecipeOutput consumer, Criterion<InventoryChangeTrigger.TriggerInstance> has) {
         // Ingot -> Nugget
-        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, getNuggetItem(), 9)
+        ShapelessRecipeBuilder.shapeless(holder, RecipeCategory.MISC, getNuggetItem(), 9)
                 .requires(this)
                 .unlockedBy("has_element", has)
-                .save(consumer, GM.getResource("elements/" + getRegistryName().getPath() + "_to_nugget"));
+                .save(consumer, ResourceKey.create(Registries.RECIPE, GM.getResource("elements/" + getRegistryName().getPath() + "_to_nugget")));
 
         // Hammer + this -> Dust
-        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, getDustItem(), 1)
+        ShapelessRecipeBuilder.shapeless(holder, RecipeCategory.MISC, getDustItem(), 1)
                 .requires(CoreTags.Items.HAMMERS)
                 .requires(this)
                 .unlockedBy("has_element", has)
-                .save(consumer, GM.getResource("elements/" + getRegistryName().getPath() + "_to_dust"));
+                .save(consumer, ResourceKey.create(Registries.RECIPE, GM.getResource("elements/" + getRegistryName().getPath() + "_to_dust")));
 
         // Hammer + this + this -> Plate
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, getPlateItem(), 1)
+        ShapedRecipeBuilder.shaped(holder, RecipeCategory.MISC, getPlateItem(),  1)
                 .pattern("H")
                 .pattern("I")
                 .pattern("I")
                 .define('H', CoreTags.Items.HAMMERS)
                 .define('I', this)
                 .unlockedBy("has_element", has)
-                .save(consumer, GM.getResource("elements/" + getRegistryName().getPath() + "_to_plate"));
+                .save(consumer, ResourceKey.create(Registries.RECIPE, GM.getResource("elements/" + getRegistryName().getPath() + "_to_plate")));
 
         // Dust -> Raw
-        SimpleCookingRecipeBuilder.smelting(Ingredient.of(new ItemStack(this::getDustItem, 3)), RecipeCategory.MISC, this::getRawItem, 0.6f, 200)
+        SimpleCookingRecipeBuilder.smelting(Ingredient.of(getDustItem()), RecipeCategory.MISC, CookingBookCategory.MISC, getRawItem(), 0.6f, 200)
                 .unlockedBy("has_element", has)
-                .save(consumer, GM.getResource("elements/" + getRegistryName().getPath() + "_smelt_to_raw"));
+                .save(consumer, ResourceKey.create(Registries.RECIPE, GM.getResource("elements/" + getRegistryName().getPath() + "_smelt_to_raw")));
 
         // Raw -> Ingot
-        SimpleCookingRecipeBuilder.smelting(Ingredient.of(this::getRawItem), RecipeCategory.MISC, this, 0.6f, 250)
+        SimpleCookingRecipeBuilder.smelting(Ingredient.of(getRawItem()), RecipeCategory.MISC, CookingBookCategory.MISC, this, 0.6f, 250)
                 .unlockedBy("has_element", has)
-                .save(consumer, GM.getResource("elements/" + getRegistryName().getPath() + "_smelt_to_ingot"));
+                .save(consumer, ResourceKey.create(Registries.RECIPE, GM.getResource("elements/" + getRegistryName().getPath() + "_smelt_to_ingot")));
 
         // Dust -> Pile
-        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, this::getPileItem, 4)
+        ShapelessRecipeBuilder.shapeless(holder, RecipeCategory.MISC, getPileItem(), 4)
                 .requires(CoreTags.Items.HAMMERS)
-                .requires(this::getDustItem)
+                .requires(getDustItem())
                 .unlockedBy("has_element", has)
-                .save(consumer, GM.getResource("elements/" + getRegistryName().getPath() + "_dust_to_pile"));
+                .save(consumer, ResourceKey.create(Registries.RECIPE, GM.getResource("elements/" + getRegistryName().getPath() + "_dust_to_pile")));
 
         // File + this -> Rod
-        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, this::getRodItem, 1)
+        ShapelessRecipeBuilder.shapeless(holder, RecipeCategory.MISC, getRodItem(), 1)
                 .requires(CoreTags.Items.FILES)
                 .requires(this)
                 .unlockedBy("has_element", has)
-                .save(consumer, GM.getResource("elements/" + getRegistryName().getPath() + "_to_rod"));
+                .save(consumer, ResourceKey.create(Registries.RECIPE, GM.getResource("elements/" + getRegistryName().getPath() + "_to_rod")));
     }
 
 }
