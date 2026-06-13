@@ -18,14 +18,40 @@ import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureSlot;
 import net.minecraft.client.resources.model.sprite.Material;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.BucketItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.stream.Stream;
 
 public final class ItemModelProvider extends ModelProviders {
 
 	public ItemModelProvider (PackOutput output) {
 		super(output);
+	}
+
+	@Override
+	public String getName () {
+		return "Model Definitions - " + GM.MODID + " (items)";
+	}
+
+	/** This provider emits no block state definitions; those are owned by {@link BlockModelProvider}. */
+	@Override
+	protected @NotNull Stream<? extends Holder<Block>> getKnownBlocks () {
+		return Stream.<Holder<Block>>empty();
+	}
+
+	/** Only non-block items are handled here; block items are owned by {@link BlockModelProvider}. */
+	@Override
+	protected @NotNull Stream<? extends Holder<Item>> getKnownItems () {
+		return BuiltInRegistries.ITEM.listElements()
+				.filter(holder -> holder.getKey().identifier().getNamespace().equals(GM.MODID))
+				.filter(holder -> !(holder.value() instanceof BlockItem));
 	}
 
 	@Override

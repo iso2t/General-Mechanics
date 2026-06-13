@@ -2,7 +2,7 @@ package general.mechanics.gui.component.button;
 
 import general.mechanics.gui.component.TabComponent;
 import general.mechanics.gui.util.IconButton;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -16,11 +16,11 @@ public abstract class TabButtonComponent extends TabComponent<IconButton> {
 
     private final AtomicReference<Runnable> onPress;
 
-    protected TabButtonComponent(int positionX, int positionY, @Nullable String tooltip, ResourceLocation icon) {
+    protected TabButtonComponent(int positionX, int positionY, @Nullable String tooltip, Identifier icon) {
         this(positionX, positionY, tooltip, icon, new AtomicReference<>(() -> {}));
     }
 
-    protected TabButtonComponent(int positionX, int positionY, @Nullable String tooltip, ResourceLocation icon, Runnable onPress) {
+    protected TabButtonComponent(int positionX, int positionY, @Nullable String tooltip, Identifier icon, Runnable onPress) {
         this(positionX, positionY, tooltip, icon);
         setOnPress(onPress);
     }
@@ -34,7 +34,7 @@ public abstract class TabButtonComponent extends TabComponent<IconButton> {
         setOnPress(onPress);
     }
 
-    private TabButtonComponent(int positionX, int positionY, @Nullable String tooltip, ResourceLocation icon, AtomicReference<Runnable> onPressRef) {
+    private TabButtonComponent(int positionX, int positionY, @Nullable String tooltip, Identifier icon, AtomicReference<Runnable> onPressRef) {
         super(positionX, positionY, tooltip, createButton(positionX, positionY, icon, onPressRef));
         this.onPress = onPressRef;
     }
@@ -44,7 +44,7 @@ public abstract class TabButtonComponent extends TabComponent<IconButton> {
         this.onPress = onPressRef;
     }
 
-    protected static IconButton createButton(int positionX, int positionY, ResourceLocation icon, AtomicReference<Runnable> onPressRef) {
+    protected static IconButton createButton (int positionX, int positionY, Identifier icon, AtomicReference<Runnable> onPressRef) {
         return new IconButton(positionX, positionY, BUTTON_WIDTH, BUTTON_HEIGHT, icon, 0, 0, 16, 16, 16, 16, 0, button -> onPressRef.get().run());
     }
 

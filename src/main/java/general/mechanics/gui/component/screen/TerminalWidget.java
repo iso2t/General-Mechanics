@@ -4,11 +4,11 @@ import general.mechanics.GM;
 import general.mechanics.gui.component.TabComponent;
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
@@ -31,7 +31,7 @@ public class TerminalWidget extends AbstractWidget implements SlotRenderBlocker 
         TERMINAL_128x64("textures/gui/terminal/terminal_128x64.png", 128, 64),
         TERMINAL_128x128("textures/gui/terminal/terminal_128x128.png", 128, 128);
 
-        private final ResourceLocation texture;
+        private final Identifier texture;
         private final int innerWidth;
         private final int innerHeight;
 
@@ -41,7 +41,7 @@ public class TerminalWidget extends AbstractWidget implements SlotRenderBlocker 
             this.innerHeight = innerHeight;
         }
 
-        public ResourceLocation texture() {
+        public Identifier texture() {
             return texture;
         }
 
@@ -55,7 +55,7 @@ public class TerminalWidget extends AbstractWidget implements SlotRenderBlocker 
     }
 
     @Getter
-    private final ResourceLocation texture;
+    private final Identifier texture;
 
     @Getter
     private final int innerWidth;
@@ -87,7 +87,7 @@ public class TerminalWidget extends AbstractWidget implements SlotRenderBlocker 
         this.innerHeight = preset.innerHeight();
     }
 
-    public TerminalWidget(int x, int y, ResourceLocation texture, int width, int height) {
+    public TerminalWidget (int x, int y, Identifier texture, int width, int height) {
         super(x, y, width + BORDER * 2, height + BORDER * 2, Component.empty());
         this.texture = texture;
         this.innerWidth = width;
@@ -191,7 +191,7 @@ public class TerminalWidget extends AbstractWidget implements SlotRenderBlocker 
     }
 
     @Override
-    protected void renderWidget(@NotNull GuiGraphics g, int mouseX, int mouseY, float pt) {
+    protected void extractWidgetRenderState (@NotNull GuiGraphicsExtractor g, int mouseX, int mouseY, float pt) {
         g.blit(texture, getX(), getY(), 0, 0, width, height, TEX_W, TEX_H);
 
         updateChildPositions();

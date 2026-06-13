@@ -6,15 +6,15 @@ import general.mechanics.network.ToggleExportC2S;
 import net.minecraft.core.BlockPos;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.function.Supplier;
 
 public class AutoExportButton extends TabButtonComponent {
 
-    private static final ResourceLocation EXPORT_ON = GM.getResource("textures/gui/elements/export_on.png");
-    private static final ResourceLocation EXPORT_OFF = GM.getResource("textures/gui/elements/export_off.png");
+    private static final Identifier EXPORT_ON  = GM.getResource("textures/gui/elements/export_on.png");
+    private static final Identifier EXPORT_OFF = GM.getResource("textures/gui/elements/export_off.png");
 
     private final Supplier<MachineUiState> state;
     private final Supplier<BlockPos> pos;

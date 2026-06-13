@@ -8,7 +8,7 @@ import general.mechanics.network.ToggleEnabledC2S;
 import net.minecraft.core.BlockPos;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -16,8 +16,8 @@ import java.util.function.Supplier;
 
 public class EnabledToggleButton extends TabComponent<IconButton> {
 
-    private static final ResourceLocation ENABLED_ON = GM.getResource("textures/gui/elements/enabled.png");
-    private static final ResourceLocation DISABLED_ON = GM.getResource("textures/gui/elements/disabled.png");
+    private static final Identifier ENABLED_ON  = GM.getResource("textures/gui/elements/enabled.png");
+    private static final Identifier DISABLED_ON = GM.getResource("textures/gui/elements/disabled.png");
 
     private final Supplier<MachineUiState> state;
     private final Supplier<BlockPos> pos;

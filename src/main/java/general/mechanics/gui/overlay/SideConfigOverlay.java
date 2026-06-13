@@ -13,7 +13,7 @@ import general.mechanics.gui.util.IconButtonNoBG;
 import general.mechanics.GM;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
@@ -22,7 +22,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.client.gui.components.Tooltip;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -41,9 +41,9 @@ public class SideConfigOverlay extends AbstractWidget {
     private static final int TAB_X_OFFSET_UNSELECTED = 0;
     private static final int TAB_X_OFFSET_SELECTED = 1;
 
-    private static final ResourceLocation ITEMS_TAB = GM.getResource("textures/gui/elements/tabs/items_tab.png");
-    private static final ResourceLocation ENERGY_TAB = GM.getResource("textures/gui/elements/tabs/energy_tab.png");
-    private static final ResourceLocation FLUIDS_TAB = GM.getResource("textures/gui/elements/tabs/fluid_tab.png");
+    private static final Identifier ITEMS_TAB = GM.getResource("textures/gui/elements/tabs/items_tab.png");
+    private static final Identifier ENERGY_TAB = GM.getResource("textures/gui/elements/tabs/energy_tab.png");
+    private static final Identifier FLUIDS_TAB = GM.getResource("textures/gui/elements/tabs/fluid_tab.png");
 
     private final BaseScreen<?> parent;
     private final BlockPos bePos;
@@ -166,7 +166,7 @@ public class SideConfigOverlay extends AbstractWidget {
     }
 
     @Override
-    protected void renderWidget(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float pt) {
+    protected void extractWidgetRenderState (@NotNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float pt) {
     }
 
     private void closeScreen() {
@@ -201,25 +201,25 @@ public class SideConfigOverlay extends AbstractWidget {
         return LocalSide.RIGHT.toWorld(getFacing());
     }
 
-    public void renderOnTop(GuiGraphics g, int mouseX, int mouseY, float pt) {
+    public void renderOnTop(GuiGraphicsExtractor g, int mouseX, int mouseY, float pt) {
         if (!visible) return;
 
         var pose = g.pose();
-        pose.pushPose();
+        //pose.pushPose();
         // Dim entire screen
         g.fill(0, 0, parent.width, parent.height, 0x88000000);
         pose.translate(0, 0, 200);
 
-        RenderSystem.disableDepthTest();
+        //RenderSystem.disableDepthTest();
         layoutChildren();
         terminal.render(g, mouseX, mouseY, pt);
 
         //int labelX = terminal.getInnerX() + 2;
         //int labelY = terminal.getInnerY() + terminal.getInnerHeight() - 10;
         //g.drawString(Minecraft.getInstance().font, selectedType.name(), labelX, labelY, 0xAAAAAA, false);
-        RenderSystem.enableDepthTest();
+        //RenderSystem.enableDepthTest();
 
-        pose.popPose();
+        //pose.popPose();
     }
 
     @Override

@@ -2,22 +2,16 @@ package general.mechanics.gui.component;
 
 import general.mechanics.GM;
 import general.mechanics.api.gui.MachineUiState;
-import general.mechanics.gui.component.button.AutoExportButton;
-import general.mechanics.gui.component.button.AutoImportButton;
-import general.mechanics.gui.component.button.CloseTabButton;
-import general.mechanics.gui.component.button.EnabledToggleButton;
-import general.mechanics.gui.component.button.RedstoneButton;
-import general.mechanics.gui.component.button.SideConfigButton;
+import general.mechanics.gui.component.button.*;
 import general.mechanics.gui.menu.base.BaseMenu;
 import general.mechanics.gui.screen.base.BaseScreen;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import org.lwjgl.glfw.GLFW;
-
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.function.Supplier;
 
@@ -47,10 +41,10 @@ public class MachineSettingsTab {
     private CloseTabButton closeTabButton;
     private SideConfigButton sideConfigButton;
 
-    private final ResourceLocation sideTabClosed = GM.getResource("textures/gui/elements/side_tab_closed.png");
-    private final ResourceLocation sideTabSelected = GM.getResource("textures/gui/elements/side_tab_selected.png");
-    private final ResourceLocation sideTabOpen = GM.getResource("textures/gui/elements/side_tab_open.png");
-    private final ResourceLocation upgradeSlotGui = GM.getResource("textures/gui/elements/upgrade_slot.png");
+    private final Identifier sideTabClosed = GM.getResource("textures/gui/elements/side_tab_closed.png");
+    private final Identifier sideTabSelected = GM.getResource("textures/gui/elements/side_tab_selected.png");
+    private final Identifier sideTabOpen = GM.getResource("textures/gui/elements/side_tab_open.png");
+    private final Identifier upgradeSlotGui = GM.getResource("textures/gui/elements/upgrade_slot.png");
 
     public MachineSettingsTab(BaseScreen<?> parent, int guiOffset) {
         this.parent = parent;
@@ -96,7 +90,7 @@ public class MachineSettingsTab {
         return false;
     }
 
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, int x, int y) {
+    public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, int x, int y) {
         if (!parent.isConfigurable() || Minecraft.getInstance().screen != parent) {
             return;
         }
@@ -110,19 +104,19 @@ public class MachineSettingsTab {
         toggleSideTab(graphics, mouseX, mouseY, x, y);
     }
 
-    private void toggleSideTab(GuiGraphics graphics, int mouseX, int mouseY, int x, int y) {
+    private void toggleSideTab(GuiGraphicsExtractor graphics, int mouseX, int mouseY, int x, int y) {
         if (!isSideTabOpen) return;
         graphics.blit(sideTabOpen, x, y, 0, 0, 256, 256);
 
         addTabElements(graphics, mouseX, mouseY, x, y);
     }
 
-    private void addTabElements(GuiGraphics graphics, int mouseX, int mouseY, int x, int y) {
+    private void addTabElements(GuiGraphicsExtractor graphics, int mouseX, int mouseY, int x, int y) {
         int posX = parent.getGuiLeft() + parent.getImageWidth() + guiOffset;
         int posY = parent.getGuiTop() + 6;
         int panelWidth = 80;
 
-        graphics.drawCenteredString(parent.getFont(), Component.translatable("gui.gm.settings"), posX + (panelWidth / 2), posY, 0xFFFFFF);
+        graphics.textRenderer().accept(posX + (panelWidth / 2), posY, Component.translatable("gui.gm.settings"));
 
         drawSlotWithDesc(graphics, posX, posY);
         refreshButtons();
@@ -138,7 +132,7 @@ public class MachineSettingsTab {
         if (enabledToggleButton != null) enabledToggleButton.refresh();
     }
 
-    private void drawSlotWithDesc(GuiGraphics graphics, int posX, int posY) {
+    private void drawSlotWithDesc (GuiGraphicsExtractor graphics, int posX, int posY) {
         graphics.blit(getUpgradeSlotGui(), posX + 1, posY + 10, 0, 0, 18, 18, 18, 18);
         graphics.blit(getUpgradeSlotGui(), posX + 1, posY + 28, 0, 0, 18, 18, 18, 18);
         graphics.blit(getUpgradeSlotGui(), posX + 1, posY + 46, 0, 0, 18, 18, 18, 18);
@@ -191,7 +185,7 @@ public class MachineSettingsTab {
         }
     }
 
-    private ResourceLocation getUpgradeSlotGui() {
+    private Identifier getUpgradeSlotGui () {
         return upgradeSlotGui;
     }
 

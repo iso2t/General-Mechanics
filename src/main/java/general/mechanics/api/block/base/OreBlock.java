@@ -1,5 +1,6 @@
 package general.mechanics.api.block.base;
 
+import general.mechanics.api.item.IBlockTooltipProvider;
 import general.mechanics.api.item.element.ElementType;
 import lombok.Getter;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
@@ -11,6 +12,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DropExperienceBlock;
@@ -18,9 +20,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
-import java.util.List;
+import java.util.function.Consumer;
 
-public class OreBlock extends DropExperienceBlock {
+public class OreBlock extends DropExperienceBlock implements IBlockTooltipProvider {
 
     @Getter
     private final ElementType type;
@@ -39,9 +41,8 @@ public class OreBlock extends DropExperienceBlock {
     }
 
     @Override
-    public void appendHoverText(@NotNull ItemStack stack, @NotNull Item.TooltipContext context, List<Component> tooltipComponents, @NotNull TooltipFlag tooltipFlag) {
-        tooltipComponents.add(Component.literal(String.format("§e" + type.getSymbol())));
-        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+    public void appendHoverText (@NotNull ItemStack stack, @NotNull Item.TooltipContext context, @NotNull TooltipDisplay toolTip, @NotNull Consumer<Component> builder, @NotNull TooltipFlag tooltipFlag) {
+        builder.accept(Component.literal(String.format("§e" + type.getSymbol())));
     }
 
     public static int getColor(BlockState state, @Nullable BlockAndTintGetter getter, @Nullable BlockPos pos, int tintIndex) {

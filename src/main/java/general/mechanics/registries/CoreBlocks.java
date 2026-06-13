@@ -9,6 +9,7 @@ import general.mechanics.api.block.ice.IceBlock;
 import general.mechanics.api.block.machine.MachineFrameBlock;
 import general.mechanics.api.block.plastic.ColoredPlasticBlock;
 import general.mechanics.api.block.plastic.PlasticTypeBlock;
+import general.mechanics.api.item.IBlockTooltipProvider;
 import general.mechanics.api.item.ItemDefinition;
 import general.mechanics.api.item.base.BaseBlockItem;
 import general.mechanics.api.item.element.ElementType;
@@ -17,16 +18,16 @@ import general.mechanics.block.machine.HeatingElementBlock;
 import general.mechanics.block.machine.MatterFabricatorBlock;
 import general.mechanics.tab.CoreTab;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.Item;
+import net.minecraft.world.item.*;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -292,10 +294,17 @@ public class CoreBlocks {
                     throw new IllegalArgumentException("BlockItem factory for " + id + " returned null.");
                 }
                 return item;
-            } else if (block instanceof BaseBlock) {
-                return new BaseBlockItem(block, itemProperties);
+            } else if (block instanceof BaseBlock provider) {
+                return new BaseBlockItem(block, itemProperties, provider);
             } else {
-                return new BlockItem(block, itemProperties);
+                return new BlockItem(block, itemProperties) {
+					@Override
+					public void appendHoverText (@NotNull ItemStack stack, @NotNull TooltipContext context, @NotNull TooltipDisplay toolTip, @NotNull Consumer<Component> builder, @NotNull TooltipFlag tooltipFlag) {
+						if (block instanceof IBlockTooltipProvider provider) {
+							provider.appendHoverText(stack, context, toolTip, builder, tooltipFlag);
+						}
+					}
+				};
             }
         });
         var itemDef = new ItemDefinition<>(name, deferredItem);
