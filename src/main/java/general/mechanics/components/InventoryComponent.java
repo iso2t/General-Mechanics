@@ -15,7 +15,7 @@ import java.util.Objects;
 public record InventoryComponent(List<ItemStack> inventory) {
 
     public static final Codec<Holder<Item>> ITEM_CODEC = BuiltInRegistries.ITEM.holderByNameCodec().validate(DataResult::success);
-    public static final Codec<ItemStack> STACK_CODEC = Codec.lazyInitialized(() -> RecordCodecBuilder.create((instance) -> instance.group(ITEM_CODEC.fieldOf("id").forGetter(ItemStack::getItemHolder), ExtraCodecs.intRange(0, 99).fieldOf("count").orElse(1).forGetter(ItemStack::getCount)).apply(instance, ItemStack::new)));
+    public static final Codec<ItemStack> STACK_CODEC = Codec.lazyInitialized(() -> RecordCodecBuilder.create((instance) -> instance.group(ITEM_CODEC.fieldOf("id").forGetter(ItemStack::typeHolder), ExtraCodecs.intRange(0, 99).fieldOf("count").orElse(1).forGetter(ItemStack::getCount)).apply(instance, ItemStack::new)));
     public static final Codec<InventoryComponent> CODEC = RecordCodecBuilder.create(instance -> instance.group(Codec.list(STACK_CODEC).fieldOf("inventory").forGetter(InventoryComponent::inventory)).apply(instance, InventoryComponent::new));
 
     @Override

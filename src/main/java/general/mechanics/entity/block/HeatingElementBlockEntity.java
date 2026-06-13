@@ -34,7 +34,7 @@ public class HeatingElementBlockEntity extends BaseBlockEntity implements IHeate
 
     @Override
     public void tick(Level level, BlockPos pos, BlockState state) {
-        if (!level.isClientSide) serverTick(state);
+        if (!level.isClientSide()) serverTick(state);
     }
 
     @Override
@@ -53,7 +53,7 @@ public class HeatingElementBlockEntity extends BaseBlockEntity implements IHeate
 
     public void serverTick(BlockState state) {
         Level level = getLevel();
-        if (level == null || level.isClientSide) return;
+        if (level == null || level.isClientSide()) return;
 
         updateHeating(isHeating(level, getBlockPos()));
 
@@ -63,21 +63,21 @@ public class HeatingElementBlockEntity extends BaseBlockEntity implements IHeate
 
         // forces to 0 instead of cooling down
         if (!state.getValue(HeatingElementBlock.HEATING)) {
-            furnace.litTime = 0;
-            furnace.litDuration = 0;
+            furnace.litTotalTime = 0;
+            furnace.litTimeRemaining = 0;
             setFurnaceLit(level, furnace, false);
             furnace.setChanged();
             return;
         }
 
         final int chunk = burnChunkTicks(level, furnacePos);
-        if (furnace.litTime <= 0) {
-            furnace.litTime = chunk;
-            furnace.litDuration = Math.max(furnace.litDuration, chunk);
+        if (furnace.litTotalTime <= 0) {
+            furnace.litTotalTime = chunk;
+            furnace.litTimeRemaining = Math.max(furnace.litTimeRemaining, chunk);
             setFurnaceLit(level, furnace, true);
             furnace.setChanged();
         } else {
-            furnace.litTime = Math.min(furnace.litTime + chunk, Math.max(furnace.litDuration, chunk));
+            furnace.litTotalTime = Math.min(furnace.litTotalTime + chunk, Math.max(furnace.litTimeRemaining, chunk));
             furnace.setChanged();
         }
     }

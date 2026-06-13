@@ -8,12 +8,14 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.block.Block;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public abstract class BaseBlock extends Block implements IBlockTooltipProvider {
 
@@ -26,7 +28,7 @@ public abstract class BaseBlock extends Block implements IBlockTooltipProvider {
     }
 
 	@Override
-	public void appendHoverText (@NotNull ItemStack stack, @NonNull @NotNull Item.TooltipContext context, List<Component> tooltipComponents, @NotNull TooltipFlag tooltipFlag) {
+	public void appendHoverText (@NotNull ItemStack stack, @NotNull Item.TooltipContext context, @NotNull TooltipDisplay toolTip, @NotNull Consumer<Component> builder, @NotNull TooltipFlag tooltipFlag) {
 	}
 
 	@Override
