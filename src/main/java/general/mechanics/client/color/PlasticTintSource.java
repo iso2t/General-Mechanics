@@ -12,10 +12,11 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 
 /**
- * Runtime tint source for plastic items. The colour is read from the item itself:
- * {@link PlasticItem#getColor()} for colour variants and the parent
+ * Runtime tint source for plastic items. The color is read from the item itself:
+ * {@link PlasticItem#getColor()} for color variants and the parent
  * {@link general.api.item.plastic.PlasticType#getDefaultColor()} for the base type item.
  */
 public final class PlasticTintSource implements ItemTintSource {
@@ -46,7 +47,7 @@ public final class PlasticTintSource implements ItemTintSource {
 	}
 
 	@Override
-	public MapCodec<? extends ItemTintSource> type () {
+	public @NonNull MapCodec<? extends ItemTintSource> type () {
 		return MAP_CODEC;
 	}
 

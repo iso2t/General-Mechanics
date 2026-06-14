@@ -8,15 +8,11 @@ import general.api.mod.GenAPI;
 import general.api.registry.RegistryString;
 import general.api.registry.item.ItemRegistry;
 import general.api.resources.Resource;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.*;
-import net.minecraft.world.item.component.TooltipDisplay;
 import net.neoforged.neoforge.registries.DeferredRegister;
-import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class GenItems extends ItemRegistry {
@@ -50,12 +46,7 @@ public class GenItems extends ItemRegistry {
 			var coloredName = formatColorName(color.getName()) + " " + localizedName;
 			var coloredResourceName = color.getName().toLowerCase() + "_" + localizedName.toLowerCase().replace(" ", "_");
 			ItemRegistry.registerItem(INSTANCE, coloredName, Resource.get(coloredResourceName),
-					properties -> new PlasticItem(definition.get(), color, properties) {
-						@Override
-						public void appendHoverText (@NonNull ItemStack itemStack, @NonNull TooltipContext context, @NonNull TooltipDisplay display, @NonNull Consumer<Component> builder, @NonNull TooltipFlag tooltipFlag) {
-							definition.get().appendHoverText(itemStack, context, display, builder, tooltipFlag);
-						}
-					});
+					properties -> new PlasticItem(definition.get(), color, properties));
 		}
 		return definition;
 	}

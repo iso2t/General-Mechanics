@@ -1,49 +1,45 @@
 package general.api.block.plastic;
 
 import general.api.block.BaseBlock;
-import general.api.item.IBlockTooltipProvider;
-import general.api.item.plastic.PlasticType;
+import general.api.client.tooltip.FormulaTooltip;
+import general.api.item.ITooltipProvider;
+import general.mechanics.registries.GenComponents;
 import general.mechanics.registries.GenSounds;
 import lombok.Getter;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.world.item.*;
-import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumMap;
 import java.util.Map;
-import java.util.function.Consumer;
 
 @Getter
-public class PlasticTypeBlock extends BaseBlock implements IBlockTooltipProvider {
+public class PlasticTypeBlock extends BaseBlock implements ITooltipProvider {
 
-	private final PlasticType                          plasticType;
+	private final general.api.item.plastic.PlasticType plasticType;
 	private final Map<DyeColor, ColoredPlasticBlock>   coloredVariants = new EnumMap<>(DyeColor.class);
 	private final Properties                           properties;
 
-	public PlasticTypeBlock(Properties properties, PlasticType plasticType) {
+	public PlasticTypeBlock (Properties properties, general.api.item.plastic.PlasticType plasticType) {
 		super(properties.sound(GenSounds.PLASTIC_BLOCK));
 		this.properties = properties;
 		this.plasticType = plasticType;
 	}
 
-    @Override
-    public void appendHoverText (@NotNull ItemStack stack, @NotNull Item.TooltipContext context, @NotNull TooltipDisplay toolTip, @NotNull Consumer<Component> builder, @NotNull TooltipFlag tooltipFlag) {
-        builder.accept(Component.literal("§o" + plasticType.getAbbreviation()));
-        builder.accept(Component.literal(String.format("§e" + plasticType.getFormula())));
-        super.appendHoverText(stack, context, toolTip, builder, tooltipFlag);
-    }
+	@Override
+	public void addTooltipComponents (DataComponentMap.Builder builder) {
+		builder.set(GenComponents.FORMULA_TOOLTIP.get(), new FormulaTooltip(plasticType.getAbbreviation(), plasticType.getFormula()));
+	}
 
 	void addColoredVariant (ColoredPlasticBlock variant) {
 		coloredVariants.put(variant.getColor(), variant);
 	}
 
-	public ColoredPlasticBlock getColoredVariant(DyeColor color) {
+	public ColoredPlasticBlock getColoredVariant (DyeColor color) {
 		return coloredVariants.get(color);
 	}
 

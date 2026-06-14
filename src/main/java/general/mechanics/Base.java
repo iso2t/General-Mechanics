@@ -1,9 +1,11 @@
 package general.mechanics;
 
+import general.api.item.ITooltipProvider;
 import general.api.mod.GenAPI;
 import general.api.resources.Resource;
 import general.api.tab.TabBuilder;
 import general.mechanics.registries.GenBlocks;
+import general.mechanics.registries.GenComponents;
 import general.mechanics.registries.GenItems;
 import general.mechanics.registries.GenSounds;
 import lombok.Getter;
@@ -12,6 +14,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
+import net.neoforged.neoforge.event.ModifyDefaultComponentsEvent;
 import net.neoforged.neoforge.registries.RegisterEvent;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.Nullable;
@@ -37,12 +40,14 @@ public abstract class Base implements GenMech {
 
 		registerModListeners();
 		registerModRegistries();
+		registerTooltipProviders();
 	}
 
 	private void registerModRegistries () {
 		GenItems.INSTANCE.getRegistry().register(getBus());
 		GenBlocks.INSTANCE.getRegistry().register(getBus());
 		GenSounds.REGISTRY.register(getBus());
+		GenComponents.REGISTRY.register(getBus());
 	}
 
 	private void registerModListeners () {
@@ -52,6 +57,22 @@ public abstract class Base implements GenMech {
 					.addTab(new TabBuilder.Builder().setTranslationKey(String.format("itemGroup.%s.blocks", GenAPI.getModId())).setResourceKey(Resource.get("blocks")).setCreateModeTab(GenBlocks.INSTANCE).build());
 			multitab.build(helper);
 		}));
+	}
+
+	// TODO: Tooltips not correctly being built
+	private void registerTooltipProviders () {
+		getBus().addListener((ModifyDefaultComponentsEvent event) -> {
+			for (var def : GenItems.INSTANCE.getItems()) {
+				if (def.get() instanceof ITooltipProvider provider) {
+					event.modify(def.get(), (builder, lookup, item) -> provider.addTooltipComponents(builder));
+				}
+			}
+			for (var def : GenBlocks.INSTANCE.getBlocks()) {
+				if (def.get() instanceof ITooltipProvider provider) {
+					event.modify(def.asItem(), (builder, lookup, item) -> provider.addTooltipComponents(builder));
+				}
+			}
+		});
 	}
 
 	@Override

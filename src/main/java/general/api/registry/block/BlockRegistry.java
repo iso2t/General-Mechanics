@@ -2,27 +2,20 @@ package general.api.registry.block;
 
 import general.api.definitions.BlockDefinition;
 import general.api.definitions.ItemDefinition;
-import general.api.item.IBlockTooltipProvider;
 import general.api.registry.item.ItemRegistry;
 import general.api.tab.ICreativeModeTab;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.jetbrains.annotations.Nullable;
-import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 import java.util.function.BiFunction;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -52,12 +45,7 @@ public abstract class BlockRegistry implements ICreativeModeTab {
 				if (m_item == null) throw new IllegalArgumentException(String.format("BlockItem factory for %s returned null.", identifier));
 				return m_item;
 			} else {
-				return new BlockItem(m_block, itemProperties) {
-					@Override
-					public void appendHoverText (@NonNull ItemStack itemStack, @NonNull TooltipContext context, @NonNull TooltipDisplay display, @NonNull Consumer<Component> builder, @NonNull TooltipFlag tooltipFlag) {
-						if (m_block instanceof IBlockTooltipProvider provider) provider.appendHoverText(itemStack, context, display, builder, tooltipFlag);
-					}
-				};
+				return new BlockItem(m_block, itemProperties);
 			}
 		});
 		var itemDefinition = new ItemDefinition<>(localizedName, item);

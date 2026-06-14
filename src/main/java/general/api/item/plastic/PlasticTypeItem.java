@@ -1,20 +1,18 @@
 package general.api.item.plastic;
 
+import general.api.client.tooltip.FormulaTooltip;
+import general.api.item.ITooltipProvider;
+import general.mechanics.registries.GenComponents;
 import lombok.Getter;
-import net.minecraft.network.chat.Component;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.component.TooltipDisplay;
-import org.jetbrains.annotations.NotNull;
-import org.jspecify.annotations.NonNull;
 
 import java.util.EnumMap;
 import java.util.Map;
-import java.util.function.Consumer;
 
-public class PlasticTypeItem extends Item {
+public class PlasticTypeItem extends Item implements ITooltipProvider {
 
 	@Getter
 	private final PlasticType plasticType;
@@ -32,10 +30,8 @@ public class PlasticTypeItem extends Item {
 	}
 
 	@Override
-	public void appendHoverText (@NotNull ItemStack stack, @NotNull TooltipContext context, @NonNull TooltipDisplay display, Consumer<Component> builder, @NotNull TooltipFlag tooltipFlag) {
-		builder.accept(Component.literal("§o" + plasticType.getAbbreviation()));
-		builder.accept(Component.literal(String.format("§e" + plasticType.getFormula())));
-		super.appendHoverText(stack, context, display, builder, tooltipFlag);
+	public void addTooltipComponents (DataComponentMap.Builder builder) {
+		builder.set(GenComponents.FORMULA_TOOLTIP.get(), new FormulaTooltip(plasticType.getAbbreviation(), plasticType.getFormula()));
 	}
 
 	void addColoredVariant (PlasticItem variant) {

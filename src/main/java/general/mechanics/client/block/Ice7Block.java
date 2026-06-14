@@ -3,6 +3,8 @@ package general.mechanics.client.block;
 import general.api.block.IceBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -10,10 +12,12 @@ import net.minecraft.world.level.block.SnowLayerBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.FlowingFluid;
+import net.neoforged.neoforge.common.Tags;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 
 public class Ice7Block extends IceBlock {
 
@@ -160,4 +164,10 @@ public class Ice7Block extends IceBlock {
 			updates++;
 		}
 	}
+
+	@Override
+	public List<TagKey<Block>> getBlockTags () {
+		return List.of(BlockTags.MINEABLE_WITH_PICKAXE, Tags.Blocks.NEEDS_NETHERITE_TOOL);
+	}
+
 }
