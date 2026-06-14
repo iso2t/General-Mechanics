@@ -5,6 +5,7 @@ import general.mechanics.datagen.data.SoundProvider;
 import general.mechanics.datagen.lang.GenMechEnLangProvider;
 import general.mechanics.datagen.model.BlockModelProvider;
 import general.mechanics.datagen.model.ItemModelProvider;
+import general.mechanics.datagen.tags.GenBlockTagGenerator;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
@@ -22,6 +23,9 @@ public class DataGenerators {
 
 		// Sounds
 		pack.addProvider(SoundProvider::new);
+
+		// Tags
+		var blockTagsProvider = pack.addProvider(output -> new GenBlockTagGenerator(output, registries));
 
 		// Models
 		pack.addProvider(BlockModelProvider::new);

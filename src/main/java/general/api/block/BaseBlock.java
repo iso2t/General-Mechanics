@@ -2,9 +2,10 @@ package general.api.block;
 
 import general.api.item.IBlockTooltipProvider;
 import general.api.resources.Resource;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -14,9 +15,10 @@ import net.minecraft.world.level.block.Block;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.function.Consumer;
 
-public abstract class BaseBlock extends Block implements IBlockTooltipProvider {
+public abstract class BaseBlock extends Block implements IBlockTooltipProvider, IBlockTagsProvider {
 
 	protected BaseBlock (Properties properties) {
 		super(properties);
@@ -41,4 +43,8 @@ public abstract class BaseBlock extends Block implements IBlockTooltipProvider {
 		return Resource.getFromBlock(this);
 	}
 
+	@Override
+	public List<TagKey<Block>> getBlockTags () {
+		return List.of(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_STONE_TOOL);
+	}
 }
