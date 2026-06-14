@@ -1,6 +1,7 @@
 package general.mechanics.datagen;
 
 import general.mechanics.GenMech;
+import general.mechanics.datagen.data.SoundProvider;
 import general.mechanics.datagen.lang.GenMechEnLangProvider;
 import general.mechanics.datagen.model.BlockModelProvider;
 import general.mechanics.datagen.model.ItemModelProvider;
@@ -18,6 +19,9 @@ public class DataGenerators {
 		var registries = event.getLookupProvider();
 		var pack = generator.getVanillaPack(true);
 		var localization = new GenMechEnLangProvider(generator);
+
+		// Sounds
+		pack.addProvider(SoundProvider::new);
 
 		// Models
 		pack.addProvider(BlockModelProvider::new);

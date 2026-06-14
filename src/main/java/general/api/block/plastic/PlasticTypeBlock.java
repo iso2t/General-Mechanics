@@ -3,6 +3,7 @@ package general.api.block.plastic;
 import general.api.block.BaseBlock;
 import general.api.item.IBlockTooltipProvider;
 import general.api.item.plastic.PlasticType;
+import general.mechanics.registries.GenSounds;
 import lombok.Getter;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.core.BlockPos;
@@ -26,7 +27,7 @@ public class PlasticTypeBlock extends BaseBlock implements IBlockTooltipProvider
 	private final Properties                           properties;
 
 	public PlasticTypeBlock(Properties properties, PlasticType plasticType) {
-		super(properties/*.sound(CoreSounds.PLASTIC_BLOCK)*/);
+		super(properties.sound(GenSounds.PLASTIC_BLOCK));
 		this.properties = properties;
 		this.plasticType = plasticType;
 	}

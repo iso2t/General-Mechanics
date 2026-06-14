@@ -9,7 +9,7 @@ import net.neoforged.neoforge.common.data.LanguageProvider;
 public class GenMechEnLangProvider extends LanguageProvider {
 
 	public GenMechEnLangProvider (DataGenerator generator) {
-		super(generator.getPackOutput(), "en_us", "en_us");
+		super(generator.getPackOutput(), GenAPI.getModId(), "en_us");
 	}
 
 	@Override
@@ -23,9 +23,15 @@ public class GenMechEnLangProvider extends LanguageProvider {
 		}
 
 		addManualTranslations();
+		addSubtitles();
 	}
 
 	protected void addManualTranslations () {
 		add("itemGroup." + GenAPI.getModId() + ".items", "General Mechanics");
+	}
+
+	protected void addSubtitles() {
+		add("subtitles.generalmechanics.plastic_block_place", "Block Placed");
+		add("subtitles.generalmechanics.plastic_block_break", "Block Break");
 	}
 }

@@ -5,6 +5,7 @@ import general.api.resources.Resource;
 import general.api.tab.TabBuilder;
 import general.mechanics.registries.GenBlocks;
 import general.mechanics.registries.GenItems;
+import general.mechanics.registries.GenSounds;
 import lombok.Getter;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.MinecraftServer;
@@ -41,6 +42,7 @@ public abstract class Base implements GenMech {
 	private void registerModRegistries () {
 		GenItems.INSTANCE.getRegistry().register(getBus());
 		GenBlocks.INSTANCE.getRegistry().register(getBus());
+		GenSounds.REGISTRY.register(getBus());
 	}
 
 	private void registerModListeners () {
