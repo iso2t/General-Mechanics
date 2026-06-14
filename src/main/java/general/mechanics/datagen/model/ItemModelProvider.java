@@ -1,0 +1,71 @@
+package general.mechanics.datagen.model;
+
+import general.api.definitions.ItemDefinition;
+import general.api.item.plastic.PlasticItem;
+import general.api.item.plastic.PlasticTypeItem;
+import general.api.mod.GenAPI;
+import general.api.resources.Resource;
+import general.mechanics.client.color.PlasticTintSource;
+import general.mechanics.registries.GenItems;
+import net.minecraft.client.data.models.BlockModelGenerators;
+import net.minecraft.client.data.models.ItemModelGenerators;
+import net.minecraft.client.data.models.model.ItemModelUtils;
+import net.minecraft.client.data.models.model.ModelTemplates;
+import net.minecraft.client.data.models.model.TextureMapping;
+import net.minecraft.client.resources.model.sprite.Material;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.data.PackOutput;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
+import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Stream;
+
+public final class ItemModelProvider extends ModelProviders {
+
+	private final Set<Identifier> createdPlasticModels = new HashSet<>();
+
+	public ItemModelProvider (PackOutput output) {
+		super(output);
+	}
+
+	@Override
+	protected void registerModels (@NonNull BlockModelGenerators blockModels, @NonNull ItemModelGenerators itemModels) {
+		for (var item : GenItems.INSTANCE.getItems()) {
+			if (item.get() instanceof PlasticItem plastic) {
+				plasticItem(item, plastic.getParent().getPlasticType().getDisplayName().toLowerCase(), itemModels);
+			} else if (item.get() instanceof PlasticTypeItem plastic) {
+				plasticItem(item, plastic.getPlasticType().getDisplayName().toLowerCase(), itemModels);
+			} else {
+				itemModels.generateFlatItem(item.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
+			}
+		}
+	}
+
+	private void plasticItem (ItemDefinition<?> item, String parent, ItemModelGenerators generator) {
+		var model = Resource.get("item/plastic/" + parent.toLowerCase().replace(' ', '_'));
+		if (createdPlasticModels.add(model)) {
+			ModelTemplates.FLAT_ITEM.create(model, TextureMapping.layer0(new Material(model)), generator.modelOutput);
+		}
+		generator.itemModelOutput.accept(item.get(), ItemModelUtils.tintedModel(model, PlasticTintSource.INSTANCE));
+	}
+
+	@Override
+	protected @NotNull Stream<? extends Holder<Block>> getKnownBlocks () {
+		return Stream.<Holder<Block>>empty();
+	}
+
+	/** Only non-block items are handled here; block items are owned by {@link BlockModelProvider}. */
+	@Override
+	protected @NotNull Stream<? extends Holder<Item>> getKnownItems () {
+		return BuiltInRegistries.ITEM.listElements()
+				.filter(holder -> holder.getKey().identifier().getNamespace().equals(GenAPI.getModId()))
+				.filter(holder -> !(holder.value() instanceof BlockItem));
+	}
+}
