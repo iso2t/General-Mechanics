@@ -4,7 +4,6 @@ import general.api.resources.Resource;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.level.block.Block;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -15,10 +14,6 @@ public abstract class BaseBlock extends Block implements IBlockTagsProvider {
 
 	protected BaseBlock (Properties properties) {
 		super(properties);
-	}
-
-	public void addToCreativeTab (CreativeModeTab.Output output) {
-		output.accept(this);
 	}
 
 	@Override

@@ -59,7 +59,8 @@ public abstract class Base implements GenMech {
 		}));
 	}
 
-	// TODO: Tooltips not correctly being built
+	// Attaches each ITooltipProvider's data components (e.g. FormulaTooltip) as item defaults.
+	// Rendering of those custom components happens in ClientTooltips (vanilla only auto-renders built-in components).
 	private void registerTooltipProviders () {
 		getBus().addListener((ModifyDefaultComponentsEvent event) -> {
 			for (var def : GenItems.INSTANCE.getItems()) {
