@@ -5,11 +5,8 @@ import general.api.item.ITooltipProvider;
 import general.api.mod.GenAPI;
 import general.api.resources.Resource;
 import general.api.tab.TabBuilder;
-import general.mechanics.registries.GenBlocks;
-import general.mechanics.registries.GenComponents;
+import general.mechanics.registries.*;
 import general.mechanics.formula.GMFormula;
-import general.mechanics.registries.GenItems;
-import general.mechanics.registries.GenSounds;
 import lombok.Getter;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.MinecraftServer;
@@ -47,6 +44,7 @@ public abstract class Base implements GenMech {
 
 	private void registerModRegistries () {
 		GenItems.INSTANCE.getRegistry().register(getBus());
+		GenTools.INSTANCE.getRegistry().register(getBus());
 		GenBlocks.INSTANCE.getRegistry().register(getBus());
 		GenSounds.REGISTRY.register(getBus());
 		GenComponents.REGISTRY.register(getBus());
@@ -57,14 +55,17 @@ public abstract class Base implements GenMech {
 
 		getBus().addListener((RegisterEvent event) -> event.register(Registries.CREATIVE_MODE_TAB, helper -> {
 			var multitab = new TabBuilder.MultiTabBuilder();
-			multitab.addTab(new TabBuilder.Builder().setTranslationKey(String.format("itemGroup.%s.items", GenAPI.getModId())).setResourceKey(Resource.get("items")).setCreateModeTab(GenItems.INSTANCE).build())
+			multitab.addTab(new TabBuilder.Builder().setTranslationKey(String.format("itemGroup.%s.items", GenAPI.getModId())).setDisplayItem(GenItems.REDSTONE_WIRE_SPOOL).setResourceKey(Resource.get("items")).setCreateModeTab(GenItems.INSTANCE).build())
 					.addTab(new TabBuilder.Builder().setTranslationKey(String.format("itemGroup.%s.blocks", GenAPI.getModId())).setResourceKey(Resource.get("blocks")).setCreateModeTab(GenBlocks.INSTANCE).build());
 			multitab.build(helper);
+
+			var tooltab = new TabBuilder.MultiTabBuilder();
+			tooltab.addTab(new TabBuilder.Builder().setTranslationKey(String.format("itemGroup.%s.tools", GenAPI.getModId())).setDisplayItem(GenTools.WRENCH).setResourceKey(Resource.get("tools")).setCreateModeTab(GenTools.INSTANCE).build());
+			tooltab.build(helper);
 		}));
 	}
 
-	// Attaches each ITooltipProvider's data components (e.g. FormulaTooltip) as item defaults.
-	// Rendering of those custom components happens in ClientTooltips (vanilla only auto-renders built-in components).
+	// Attaches each ITooltipProvider's data components as item defaults.
 	private void registerTooltipProviders () {
 		getBus().addListener((ModifyDefaultComponentsEvent event) -> {
 			for (var def : GenItems.INSTANCE.getItems()) {

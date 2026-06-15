@@ -7,6 +7,7 @@ import general.api.mod.GenAPI;
 import general.api.resources.Resource;
 import general.mechanics.client.color.PlasticTintSource;
 import general.mechanics.registries.GenItems;
+import general.mechanics.registries.GenTools;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.model.ItemModelUtils;
@@ -45,6 +46,10 @@ public final class ItemModelProvider extends ModelProviders {
 			} else {
 				itemModels.generateFlatItem(item.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
 			}
+		}
+
+		for (var tool : GenTools.INSTANCE.getItems()) {
+			itemModels.generateFlatItem(tool.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
 		}
 	}
 

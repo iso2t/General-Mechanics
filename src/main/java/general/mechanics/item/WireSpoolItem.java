@@ -95,7 +95,7 @@ public class WireSpoolItem extends Item implements IRecipeProvider {
 
 	@Override
 	public void registerCraftingRecipes (HolderGetter<Item> holder, RecipeOutput consumer, Criterion<?> criterion) {
-		ShapelessRecipeBuilder.shapeless(holder, RecipeCategory.MISC, this).requires(GenItems.WIRE_SPOOL.get()).requires(getHeldWire()).unlockedBy("has_any", criterion).save(consumer, createKey(this.descriptionId + "_from_spool"));
+		ShapelessRecipeBuilder.shapeless(holder, RecipeCategory.MISC, this).requires(GenItems.WIRE_SPOOL.get()).requires(getHeldWire()).unlockedBy("has_any", criterion).save(consumer, IRecipeProvider.createKey(this.descriptionId + "_from_spool"));
 	}
 
 	@Override

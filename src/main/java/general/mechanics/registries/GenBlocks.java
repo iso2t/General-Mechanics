@@ -93,6 +93,44 @@ public class GenBlocks extends BlockRegistry {
 		return BlockRegistry.registerBlock(INSTANCE, GenItems.INSTANCE, localizedName, Resource.get(new RegistryString(localizedName).getRegistryName()), factory);
 	}
 
+	/**
+	 * Get all colored plastic blocks for a specific plastic type
+	 */
+	public static List<ColoredPlasticBlock> getColoredPlasticBlocksForType(PlasticType plasticType) {
+		List<ColoredPlasticBlock> coloredVariants = new ArrayList<>();
+		for (var block : BLOCKS) {
+			if (block.get() instanceof ColoredPlasticBlock colored) {
+				if (colored.getPlasticType() == plasticType) {
+					coloredVariants.add(colored);
+				}
+			}
+		}
+		return coloredVariants;
+	}
+
+	/**
+	 * Get all colored plastic blocks
+	 */
+	public static List<ColoredPlasticBlock> getAllColoredPlasticBlocks() {
+		List<ColoredPlasticBlock> allColored = new ArrayList<>();
+		for (var block : BLOCKS) {
+			if (block.get() instanceof ColoredPlasticBlock colored) {
+				allColored.add(colored);
+			}
+		}
+		return allColored;
+	}
+
+	public static List<PlasticTypeBlock> getAllPlasticTypeBlocks() {
+		List<PlasticTypeBlock> allPlastic = new ArrayList<>();
+		for (var block : BLOCKS) {
+			if (block.get() instanceof PlasticTypeBlock plastic) {
+				allPlastic.add(plastic);
+			}
+		}
+		return allPlastic;
+	}
+
 	@Override
 	public DeferredRegister.Blocks getRegistry () {
 		return REGISTRY;

@@ -19,7 +19,7 @@ public interface IRecipeProvider {
 	 */
 	ItemLike getCriterionItem ();
 
-	default ResourceKey<Recipe<?>> createKey (String path) {
+	static ResourceKey<Recipe<?>> createKey (String path) {
 		return ResourceKey.create(Registries.RECIPE, Resource.get(path));
 	}
 

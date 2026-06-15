@@ -29,7 +29,7 @@ import java.util.function.Consumer;
  *
  * <ul>
  *     <li><b>Material</b> — references a registered {@link Material} by key; renders a multi-line,
- *         GTCEu-style block (formula, material, category, mass, traits) resolved from the synced
+ *         block (formula, material, category, mass, traits) resolved from the synced
  *         material registry.</li>
  *     <li><b>Text</b> — a pre-rendered abbreviation + formula string (used by simple cases such as the
  *         plastic items); renders two styled lines.</li>

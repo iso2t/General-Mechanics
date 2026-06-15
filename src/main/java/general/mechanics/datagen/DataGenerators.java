@@ -8,6 +8,7 @@ import general.mechanics.datagen.model.BlockModelProvider;
 import general.mechanics.datagen.model.ItemModelProvider;
 import general.mechanics.datagen.recipe.GenRecipeProvider;
 import general.mechanics.datagen.tags.GenBlockTagGenerator;
+import general.mechanics.datagen.tags.GenItemTagGenerator;
 import general.mechanics.formula.GMFormula;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.DataProvider;
@@ -42,6 +43,7 @@ public class DataGenerators {
 
 		// Tags
 		var blockTagsProvider = pack.addProvider(output -> new GenBlockTagGenerator(output, registries));
+		pack.addProvider(output -> new GenItemTagGenerator(output, registries));
 
 		// Models
 		pack.addProvider(BlockModelProvider::new);
