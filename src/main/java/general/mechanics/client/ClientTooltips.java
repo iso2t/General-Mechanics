@@ -1,6 +1,6 @@
 package general.mechanics.client;
 
-import general.api.client.tooltip.FormulaTooltip;
+import general.api.formula.tooltip.FormulaTooltip;
 import general.mechanics.registries.GenComponents;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;

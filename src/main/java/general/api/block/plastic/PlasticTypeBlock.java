@@ -1,8 +1,9 @@
 package general.api.block.plastic;
 
 import general.api.block.BaseBlock;
-import general.api.client.tooltip.FormulaTooltip;
+import general.api.formula.tooltip.FormulaTooltip;
 import general.api.item.ITooltipProvider;
+import general.api.item.plastic.PlasticType;
 import general.mechanics.registries.GenComponents;
 import general.mechanics.registries.GenSounds;
 import lombok.Getter;
@@ -20,11 +21,11 @@ import java.util.Map;
 @Getter
 public class PlasticTypeBlock extends BaseBlock implements ITooltipProvider {
 
-	private final general.api.item.plastic.PlasticType plasticType;
-	private final Map<DyeColor, ColoredPlasticBlock>   coloredVariants = new EnumMap<>(DyeColor.class);
+	private final PlasticType                        plasticType;
+	private final Map<DyeColor, ColoredPlasticBlock> coloredVariants = new EnumMap<>(DyeColor.class);
 	private final Properties                           properties;
 
-	public PlasticTypeBlock (Properties properties, general.api.item.plastic.PlasticType plasticType) {
+	public PlasticTypeBlock (Properties properties, PlasticType plasticType) {
 		super(properties.sound(GenSounds.PLASTIC_BLOCK));
 		this.properties = properties;
 		this.plasticType = plasticType;
@@ -32,7 +33,7 @@ public class PlasticTypeBlock extends BaseBlock implements ITooltipProvider {
 
 	@Override
 	public void addTooltipComponents (DataComponentMap.Builder builder) {
-		builder.set(GenComponents.FORMULA_TOOLTIP.get(), new FormulaTooltip(plasticType.getAbbreviation(), plasticType.getFormula()));
+		builder.set(GenComponents.FORMULA_TOOLTIP.get(), FormulaTooltip.ofMaterial(plasticType.getMaterial(), plasticType.getAbbreviation()));
 	}
 
 	void addColoredVariant (ColoredPlasticBlock variant) {

@@ -4,6 +4,7 @@ import general.api.block.IceBlock;
 import general.api.block.plastic.ColoredPlasticBlock;
 import general.api.block.plastic.PlasticTypeBlock;
 import general.api.definitions.BlockDefinition;
+import general.api.item.plastic.PlasticType;
 import general.api.mod.GenAPI;
 import general.api.registry.RegistryString;
 import general.api.registry.block.BlockRegistry;
@@ -27,17 +28,17 @@ public class GenBlocks extends BlockRegistry {
 	public static final DeferredRegister.Blocks  REGISTRY = DeferredRegister.createBlocks(GenAPI.getModId());
 	public static final List<BlockDefinition<?>> BLOCKS   = new ArrayList<>();
 
-	public static final BlockDefinition<PlasticTypeBlock> POLYETHYLENE_BLOCK                    = plasticTypeBlock("Polyethylene Block", general.api.item.plastic.PlasticType.POLYETHYLENE);
-	public static final BlockDefinition<PlasticTypeBlock> POLYPROPYLENE_BLOCK                   = plasticTypeBlock("Polypropylene Block", general.api.item.plastic.PlasticType.POLYPROPYLENE);
-	public static final BlockDefinition<PlasticTypeBlock> POLYSTYRENE_BLOCK                     = plasticTypeBlock("Polystyrene Block", general.api.item.plastic.PlasticType.POLYSTYRENE);
-	public static final BlockDefinition<PlasticTypeBlock> POLYVINYL_CHLORIDE_BLOCK              = plasticTypeBlock("Polyvinyl Chloride Block", general.api.item.plastic.PlasticType.POLYVINYL_CHLORIDE);
-	public static final BlockDefinition<PlasticTypeBlock> POLYETHYLENE_TEREPHTHALATE_BLOCK      = plasticTypeBlock("Polyethylene Terephthalate Block", general.api.item.plastic.PlasticType.POLYETHYLENE_TEREPHTHALATE);
-	public static final BlockDefinition<PlasticTypeBlock> ACRYLONITRILE_BUTADIENE_STYRENE_BLOCK = plasticTypeBlock("Acrylonitrile Butadiene Styrene Block", general.api.item.plastic.PlasticType.ACRYLONITRILE_BUTADIENE_STYRENE);
-	public static final BlockDefinition<PlasticTypeBlock> POLYCARBONATE_BLOCK                   = plasticTypeBlock("Polycarbonate Block", general.api.item.plastic.PlasticType.POLYCARBONATE);
-	public static final BlockDefinition<PlasticTypeBlock> NYLON_BLOCK                           = plasticTypeBlock("Nylon Block", general.api.item.plastic.PlasticType.NYLON);
-	public static final BlockDefinition<PlasticTypeBlock> POLYURETHANE_BLOCK                    = plasticTypeBlock("Polyurethane Block", general.api.item.plastic.PlasticType.POLYURETHANE);
-	public static final BlockDefinition<PlasticTypeBlock> POLYTETRAFLUOROETHYLENE_BLOCK         = plasticTypeBlock("Polytetrafluoroethylene Block", general.api.item.plastic.PlasticType.POLYTETRAFLUOROETHYLENE);
-	public static final BlockDefinition<PlasticTypeBlock> POLYETHERETHERKETONE_BLOCK            = plasticTypeBlock("Polyetheretherketone Block", general.api.item.plastic.PlasticType.POLYETHERETHERKETONE);
+	public static final BlockDefinition<PlasticTypeBlock> POLYETHYLENE_BLOCK                    = plasticTypeBlock("Polyethylene Block", PlasticType.POLYETHYLENE);
+	public static final BlockDefinition<PlasticTypeBlock> POLYPROPYLENE_BLOCK                   = plasticTypeBlock("Polypropylene Block", PlasticType.POLYPROPYLENE);
+	public static final BlockDefinition<PlasticTypeBlock> POLYSTYRENE_BLOCK                     = plasticTypeBlock("Polystyrene Block", PlasticType.POLYSTYRENE);
+	public static final BlockDefinition<PlasticTypeBlock> POLYVINYL_CHLORIDE_BLOCK              = plasticTypeBlock("Polyvinyl Chloride Block", PlasticType.POLYVINYL_CHLORIDE);
+	public static final BlockDefinition<PlasticTypeBlock> POLYETHYLENE_TEREPHTHALATE_BLOCK      = plasticTypeBlock("Polyethylene Terephthalate Block", PlasticType.POLYETHYLENE_TEREPHTHALATE);
+	public static final BlockDefinition<PlasticTypeBlock> ACRYLONITRILE_BUTADIENE_STYRENE_BLOCK = plasticTypeBlock("Acrylonitrile Butadiene Styrene Block", PlasticType.ACRYLONITRILE_BUTADIENE_STYRENE);
+	public static final BlockDefinition<PlasticTypeBlock> POLYCARBONATE_BLOCK                   = plasticTypeBlock("Polycarbonate Block", PlasticType.POLYCARBONATE);
+	public static final BlockDefinition<PlasticTypeBlock> NYLON_BLOCK                           = plasticTypeBlock("Nylon Block", PlasticType.NYLON);
+	public static final BlockDefinition<PlasticTypeBlock> POLYURETHANE_BLOCK                    = plasticTypeBlock("Polyurethane Block", PlasticType.POLYURETHANE);
+	public static final BlockDefinition<PlasticTypeBlock> POLYTETRAFLUOROETHYLENE_BLOCK         = plasticTypeBlock("Polytetrafluoroethylene Block", PlasticType.POLYTETRAFLUOROETHYLENE);
+	public static final BlockDefinition<PlasticTypeBlock> POLYETHERETHERKETONE_BLOCK            = plasticTypeBlock("Polyetheretherketone Block", PlasticType.POLYETHERETHERKETONE);
 
 
 	public static final BlockDefinition<IceBlock> ICE2 = registerBlock("Ice II", "ice_2", IceBlock::new);
@@ -45,7 +46,7 @@ public class GenBlocks extends BlockRegistry {
 	public static final BlockDefinition<IceBlock> ICE4 = registerBlock("Ice IV", "ice_4", IceBlock::new);
 	public static final BlockDefinition<IceBlock> ICE5 = registerBlock("Ice V", "ice_5", IceBlock::new);
 	public static final BlockDefinition<IceBlock>  ICE6 = registerBlock("Ice VI", "ice_6", IceBlock::new);
-	public static final BlockDefinition<Ice7Block> ICE7 = registerBlock("Ice VII", "ice_7", Ice7Block::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.ICE));
+	public static final BlockDefinition<Ice7Block> ICE7 = registerBlock("Ice VII", "ice_7", Ice7Block::new);
 
 	private static String formatColorName(String colorName) {
 		String[] words = colorName.split("_");
@@ -60,7 +61,7 @@ public class GenBlocks extends BlockRegistry {
 		return formatted.toString();
 	}
 
-	static BlockDefinition<PlasticTypeBlock> plasticTypeBlock (String name, general.api.item.plastic.PlasticType plasticType) {
+	static BlockDefinition<PlasticTypeBlock> plasticTypeBlock (String name, PlasticType plasticType) {
 		String resource = name.toLowerCase().replace(' ', '_');
 
 		// Create the main plastic type block.
@@ -69,7 +70,7 @@ public class GenBlocks extends BlockRegistry {
 				() -> BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK));
 
 		// Register all colored plastic block variants.
-		for (DyeColor color : general.api.item.plastic.PlasticType.getAllColors()) {
+		for (DyeColor color : PlasticType.getAllColors()) {
 			String coloredName = formatColorName(color.getName()) + " " + name;
 			String coloredResource = color.getName().toLowerCase() + "_" + resource;
 			registerBlock(coloredName, coloredResource,

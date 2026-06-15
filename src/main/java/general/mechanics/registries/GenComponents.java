@@ -1,6 +1,6 @@
 package general.mechanics.registries;
 
-import general.api.client.tooltip.FormulaTooltip;
+import general.api.formula.tooltip.FormulaTooltip;
 import general.api.mod.GenAPI;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;

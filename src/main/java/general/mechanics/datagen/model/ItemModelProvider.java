@@ -58,7 +58,7 @@ public final class ItemModelProvider extends ModelProviders {
 
 	@Override
 	protected @NotNull Stream<? extends Holder<Block>> getKnownBlocks () {
-		return Stream.<Holder<Block>>empty();
+		return Stream.empty();
 	}
 
 	/** Only non-block items are handled here; block items are owned by {@link BlockModelProvider}. */

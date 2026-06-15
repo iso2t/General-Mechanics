@@ -24,6 +24,7 @@ public class GenMechEnLangProvider extends LanguageProvider {
 
 		addManualTranslations();
 		addSubtitles();
+		addTooltips();
 	}
 
 	protected void addManualTranslations () {
@@ -33,5 +34,13 @@ public class GenMechEnLangProvider extends LanguageProvider {
 	protected void addSubtitles() {
 		add("subtitles.generalmechanics.plastic_block_place", "Block Placed");
 		add("subtitles.generalmechanics.plastic_block_break", "Block Break");
+	}
+
+	protected void addTooltips() {
+		add("genapi.formulas.tooltip.formula", "§7Formula: %s");
+		add("genapi.formulas.tooltip.material", "§7Material: §f%s");
+		add("genapi.formulas.tooltip.category", "§7Category: §f%s");
+		add("genapi.formulas.tooltip.mass", "§7Mass: §f%s g/mol");
+		add("genapi.formulats.tooltip.traits", "§7Traits: §f%s");
 	}
 }

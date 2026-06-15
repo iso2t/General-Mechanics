@@ -1,7 +1,7 @@
 package general.api.block.plastic;
 
 import general.api.block.BaseBlock;
-import general.api.client.tooltip.FormulaTooltip;
+import general.api.formula.tooltip.FormulaTooltip;
 import general.api.item.ITooltipProvider;
 import general.api.item.plastic.PlasticType;
 import general.mechanics.registries.GenComponents;
@@ -30,7 +30,7 @@ public class ColoredPlasticBlock extends BaseBlock implements ITooltipProvider {
 	@Override
 	public void addTooltipComponents (DataComponentMap.Builder builder) {
 		PlasticType type = getPlasticType();
-		builder.set(GenComponents.FORMULA_TOOLTIP.get(), new FormulaTooltip(type.getAbbreviation(), type.getFormula()));
+		builder.set(GenComponents.FORMULA_TOOLTIP.get(), FormulaTooltip.ofMaterial(type.getMaterial(), type.getAbbreviation()));
 	}
 
 	public PlasticType getPlasticType () {

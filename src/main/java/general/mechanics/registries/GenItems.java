@@ -1,6 +1,8 @@
 package general.mechanics.registries;
 
 import general.api.definitions.ItemDefinition;
+import general.api.formula.GenFormula;
+import general.api.formula.tooltip.FormulaTooltip;
 import general.api.item.plastic.PlasticItem;
 import general.api.item.plastic.PlasticType;
 import general.api.item.plastic.PlasticTypeItem;
@@ -8,6 +10,7 @@ import general.api.mod.GenAPI;
 import general.api.registry.RegistryString;
 import general.api.registry.item.ItemRegistry;
 import general.api.resources.Resource;
+import general.mechanics.formula.GMMaterials;
 import net.minecraft.world.item.*;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -22,18 +25,17 @@ public class GenItems extends ItemRegistry {
 	private static final List<ItemDefinition<?>> ITEMS    = new ArrayList<>();
 
 	// Plastic Types
-	public static final ItemDefinition<PlasticTypeItem> POLYETHYLENE  = plasticType("Polyethylene", (properties) -> new PlasticTypeItem(properties, PlasticType.POLYETHYLENE));
-	public static final ItemDefinition<PlasticTypeItem> POLYPROPYLENE = plasticType("Polypropylene", (properties) -> new PlasticTypeItem(properties, PlasticType.POLYPROPYLENE));
-	public static final ItemDefinition<PlasticTypeItem> POLYSTYRENE = plasticType("Polystyrene", (properties) -> new PlasticTypeItem(properties, PlasticType.POLYSTYRENE));
-	public static final ItemDefinition<PlasticTypeItem> POLYVINYL_CHLORIDE = plasticType("Polyvinyl Chloride", (properties) -> new PlasticTypeItem(properties, PlasticType.POLYVINYL_CHLORIDE));
-	public static final ItemDefinition<PlasticTypeItem> POLYETHYLENE_TEREPHTHALATE = plasticType("Polyethylene Terephthalate", (properties) -> new PlasticTypeItem(properties, PlasticType.POLYETHYLENE_TEREPHTHALATE));
-	public static final ItemDefinition<PlasticTypeItem> ACRYLONITRILE_BUTADIENE_STYRENE = plasticType("Acrylonitrile Butadiene Styrene", (properties) -> new PlasticTypeItem(properties, PlasticType.ACRYLONITRILE_BUTADIENE_STYRENE));
-	public static final ItemDefinition<PlasticTypeItem> POLYCARBONATE = plasticType("Polycarbonate", (properties) -> new PlasticTypeItem(properties, PlasticType.POLYCARBONATE));
-	public static final ItemDefinition<PlasticTypeItem> NYLON = plasticType("Nylon", (properties) -> new PlasticTypeItem(properties, PlasticType.NYLON));
-	public static final ItemDefinition<PlasticTypeItem> POLYURETHANE = plasticType("Polyurethane", (properties) -> new PlasticTypeItem(properties, PlasticType.POLYURETHANE));
-	public static final ItemDefinition<PlasticTypeItem> POLYTETRAFLUOROETHYLENE = plasticType("Polytetrafluoroethylene", (properties) -> new PlasticTypeItem(properties, PlasticType.POLYTETRAFLUOROETHYLENE));
-	public static final ItemDefinition<PlasticTypeItem> POLYETHERETHERKETONE = plasticType("Polyetheretherketone", (properties) -> new PlasticTypeItem(properties, PlasticType.POLYETHERETHERKETONE));
-
+	public static final ItemDefinition<PlasticTypeItem> POLYETHYLENE  = plasticType("Polyethylene", (properties) -> new PlasticTypeItem(properties, PlasticType.POLYETHYLENE, GMMaterials.POLYETHYLENE));
+	public static final ItemDefinition<PlasticTypeItem> POLYPROPYLENE = plasticType("Polypropylene", (properties) -> new PlasticTypeItem(properties, PlasticType.POLYPROPYLENE, GMMaterials.POLYPROPYLENE));
+	public static final ItemDefinition<PlasticTypeItem> POLYSTYRENE = plasticType("Polystyrene", (properties) -> new PlasticTypeItem(properties, PlasticType.POLYSTYRENE, GMMaterials.POLYSTYRENE));
+	public static final ItemDefinition<PlasticTypeItem> POLYVINYL_CHLORIDE = plasticType("Polyvinyl Chloride", (properties) -> new PlasticTypeItem(properties, PlasticType.POLYVINYL_CHLORIDE, GMMaterials.POLYVINYL_CHLORIDE));
+	public static final ItemDefinition<PlasticTypeItem> POLYETHYLENE_TEREPHTHALATE = plasticType("Polyethylene Terephthalate", (properties) -> new PlasticTypeItem(properties, PlasticType.POLYETHYLENE_TEREPHTHALATE, GMMaterials.POLYETHYLENE_TEREPHTHALATE));
+	public static final ItemDefinition<PlasticTypeItem> ACRYLONITRILE_BUTADIENE_STYRENE = plasticType("Acrylonitrile Butadiene Styrene", (properties) -> new PlasticTypeItem(properties, PlasticType.ACRYLONITRILE_BUTADIENE_STYRENE, GMMaterials.ACRYLONITRILE_BUTADIENE_STYRENE));
+	public static final ItemDefinition<PlasticTypeItem> POLYCARBONATE = plasticType("Polycarbonate", (properties) -> new PlasticTypeItem(properties, PlasticType.POLYCARBONATE, GMMaterials.POLYCARBONATE));
+	public static final ItemDefinition<PlasticTypeItem> NYLON = plasticType("Nylon", (properties) -> new PlasticTypeItem(properties, PlasticType.NYLON, GMMaterials.NYLON));
+	public static final ItemDefinition<PlasticTypeItem> POLYURETHANE = plasticType("Polyurethane", (properties) -> new PlasticTypeItem(properties, PlasticType.POLYURETHANE, GMMaterials.POLYURETHANE));
+	public static final ItemDefinition<PlasticTypeItem> POLYTETRAFLUOROETHYLENE = plasticType("Polytetrafluoroethylene", (properties) -> new PlasticTypeItem(properties, PlasticType.POLYTETRAFLUOROETHYLENE, GMMaterials.POLYTETRAFLUOROETHYLENE));
+	public static final ItemDefinition<PlasticTypeItem> POLYETHERETHERKETONE = plasticType("Polyetheretherketone", (properties) -> new PlasticTypeItem(properties, PlasticType.POLYETHERETHERKETONE, GMMaterials.POLYETHERETHERKETONE));
 
 	public static <T extends Item> ItemDefinition<T> registerItem (final String localizedName, Function<Item.Properties, T> factory) {
 		return ItemRegistry.registerItem(INSTANCE, localizedName, Resource.get(new RegistryString(localizedName).getRegistryName()), factory);

@@ -1,8 +1,13 @@
 package general.api.block;
 
 import com.mojang.serialization.MapCodec;
+import general.api.formula.tooltip.FormulaTooltip;
+import general.api.item.ITooltipProvider;
+import general.mechanics.formula.GMMaterials;
+import general.mechanics.registries.GenComponents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.EnchantmentTags;
 import net.minecraft.util.RandomSource;
@@ -21,7 +26,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 
-public class IceBlock extends BaseBlock {
+public class IceBlock extends BaseBlock implements ITooltipProvider {
 
 	public static final MapCodec<IceBlock> CODEC = simpleCodec(IceBlock::new);
 
@@ -94,5 +99,10 @@ public class IceBlock extends BaseBlock {
 			level.neighborChanged(pos, meltsInto().getBlock(), null);
 		}
 
+	}
+
+	@Override
+	public void addTooltipComponents (DataComponentMap.Builder builder) {
+		builder.set(GenComponents.FORMULA_TOOLTIP.get(), FormulaTooltip.ofMaterial(GMMaterials.WATER));
 	}
 }

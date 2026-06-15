@@ -1,10 +1,10 @@
 package general.api.item.plastic;
 
-import general.api.client.tooltip.FormulaTooltip;
-import general.api.item.ITooltipProvider;
+import general.api.formula.core.Material;
+import general.api.formula.tooltip.FormulaTooltip;
 import general.mechanics.registries.GenComponents;
 import lombok.Getter;
-import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -12,7 +12,7 @@ import net.minecraft.world.item.ItemStack;
 import java.util.EnumMap;
 import java.util.Map;
 
-public class PlasticTypeItem extends Item implements ITooltipProvider {
+public class PlasticTypeItem extends Item {
 
 	@Getter
 	private final PlasticType plasticType;
@@ -23,15 +23,14 @@ public class PlasticTypeItem extends Item implements ITooltipProvider {
 	@Getter
 	private final Properties properties;
 
-	public PlasticTypeItem(Properties properties, PlasticType plasticType) {
-		super(properties);
+	@Getter
+	private final ResourceKey<Material> material;
+
+	public PlasticTypeItem(Properties properties, PlasticType plasticType, ResourceKey<Material> material) {
+		super(properties.component(GenComponents.FORMULA_TOOLTIP.get(), FormulaTooltip.ofMaterial(material, plasticType.getAbbreviation())));
 		this.properties = properties;
 		this.plasticType = plasticType;
-	}
-
-	@Override
-	public void addTooltipComponents (DataComponentMap.Builder builder) {
-		builder.set(GenComponents.FORMULA_TOOLTIP.get(), new FormulaTooltip(plasticType.getAbbreviation(), plasticType.getFormula()));
+		this.material = material;
 	}
 
 	void addColoredVariant (PlasticItem variant) {

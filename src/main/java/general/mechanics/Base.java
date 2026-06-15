@@ -1,11 +1,13 @@
 package general.mechanics;
 
+import general.api.formula.item.HasFormula;
 import general.api.item.ITooltipProvider;
 import general.api.mod.GenAPI;
 import general.api.resources.Resource;
 import general.api.tab.TabBuilder;
 import general.mechanics.registries.GenBlocks;
 import general.mechanics.registries.GenComponents;
+import general.mechanics.formula.GMFormula;
 import general.mechanics.registries.GenItems;
 import general.mechanics.registries.GenSounds;
 import lombok.Getter;
@@ -51,6 +53,8 @@ public abstract class Base implements GenMech {
 	}
 
 	private void registerModListeners () {
+		getBus().addListener(GMFormula::onNewDataPackRegistry);
+
 		getBus().addListener((RegisterEvent event) -> event.register(Registries.CREATIVE_MODE_TAB, helper -> {
 			var multitab = new TabBuilder.MultiTabBuilder();
 			multitab.addTab(new TabBuilder.Builder().setTranslationKey(String.format("itemGroup.%s.items", GenAPI.getModId())).setResourceKey(Resource.get("items")).setCreateModeTab(GenItems.INSTANCE).build())
@@ -67,10 +71,16 @@ public abstract class Base implements GenMech {
 				if (def.get() instanceof ITooltipProvider provider) {
 					event.modify(def.get(), (builder, lookup, item) -> provider.addTooltipComponents(builder));
 				}
+				if (def.get() instanceof HasFormula holder) {
+					event.modify(def.get(), (builder, lookup, item) -> builder.set(GenComponents.FORMULA_TOOLTIP.get(), holder.getFormula()));
+				}
 			}
 			for (var def : GenBlocks.INSTANCE.getBlocks()) {
 				if (def.get() instanceof ITooltipProvider provider) {
 					event.modify(def.asItem(), (builder, lookup, item) -> provider.addTooltipComponents(builder));
+				}
+				if (def.get() instanceof HasFormula holder) {
+					event.modify(def.asItem(), (builder, lookup, item) -> builder.set(GenComponents.FORMULA_TOOLTIP.get(), holder.getFormula()));
 				}
 			}
 		});
