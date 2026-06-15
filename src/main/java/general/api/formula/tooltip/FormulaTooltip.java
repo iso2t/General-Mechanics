@@ -17,6 +17,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipProvider;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.OptionalDouble;
@@ -73,16 +74,16 @@ public record FormulaTooltip(Optional<ResourceKey<Material>> material, Optional<
 	public void addToTooltip (Item.@NonNull TooltipContext tooltipContext, @NonNull Consumer<Component> consumer, @NonNull TooltipFlag tooltipFlag, @NonNull DataComponentGetter dataComponentGetter) {
 		HolderLookup.Provider registries = tooltipContext.registries();
 		if (material.isPresent() && registries != null) {
-			registries.lookup(GenFormula.MATERIAL_REGISTRY).flatMap(lookup -> lookup.get(material.get())).ifPresent(holder -> renderMaterial(holder.value(), consumer, abbreviation));
+			registries.lookup(GenFormula.MATERIAL_REGISTRY).flatMap(lookup -> lookup.get(material.get())).ifPresent(holder -> renderMaterial(holder.value(), consumer, abbreviation.orElse(null)));
 			return;
 		}
 		abbreviation.ifPresent(s -> consumer.accept(Component.literal("§o" + s)));
 		formula.ifPresent(s -> consumer.accept(Component.literal("§e" + s)));
 	}
 
-	private static void renderMaterial (Material mat, Consumer<Component> consumer, Optional<String> abbreviation) {
+	private static void renderMaterial (Material mat, Consumer<Component> consumer, @Nullable String abbreviation) {
 		if (!isShiftDown()) {
-			abbreviation.ifPresent(s -> consumer.accept(Component.literal("§o" + s)));
+			if (abbreviation != null) consumer.accept(Component.literal("§o" + abbreviation));
 			consumer.accept(Component.literal(TextColors.FORMULA + mat.formula().unicode()));
 		} else {
 			consumer.accept(Component.translatable("genapi.formulas.tooltip.formula", TextColors.FORMULA + mat.formula().unicode()));
