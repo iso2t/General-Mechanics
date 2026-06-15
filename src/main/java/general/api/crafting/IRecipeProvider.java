@@ -1,0 +1,26 @@
+package general.api.crafting;
+
+import general.api.resources.Resource;
+import net.minecraft.advancements.Criterion;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.data.recipes.RecipeOutput;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.level.ItemLike;
+
+public interface IRecipeProvider {
+
+	void registerCraftingRecipes (HolderGetter<Item> holder, RecipeOutput consumer, Criterion<?> criterion);
+
+	/**
+	 * The item used to build the recipe's unlock criterion.
+	 */
+	ItemLike getCriterionItem ();
+
+	default ResourceKey<Recipe<?>> createKey (String path) {
+		return ResourceKey.create(Registries.RECIPE, Resource.get(path));
+	}
+
+}

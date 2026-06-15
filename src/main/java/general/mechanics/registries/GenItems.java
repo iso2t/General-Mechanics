@@ -11,6 +11,7 @@ import general.api.registry.RegistryString;
 import general.api.registry.item.ItemRegistry;
 import general.api.resources.Resource;
 import general.mechanics.formula.GMMaterials;
+import general.mechanics.item.WireSpoolItem;
 import net.minecraft.world.item.*;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -23,6 +24,11 @@ public class GenItems extends ItemRegistry {
 	public static final  ItemRegistry            INSTANCE = new GenItems();
 	public static final  DeferredRegister.Items  REGISTRY = DeferredRegister.createItems(GenAPI.getModId());
 	private static final List<ItemDefinition<?>> ITEMS    = new ArrayList<>();
+
+	// Wire
+	public static final ItemDefinition<Item>          WIRE_SPOOL          = registerItem("Wire Spool", "spool", Item::new);
+	public static final ItemDefinition<WireSpoolItem> COPPER_WIRE_SPOOL   = registerItem("Copper Wire Spool", (properties) -> new WireSpoolItem(properties, Items.COPPER_INGOT));
+	public static final ItemDefinition<WireSpoolItem> REDSTONE_WIRE_SPOOL = registerItem("Redstone Wire Spool", (properties) -> new WireSpoolItem(properties, Items.REDSTONE));
 
 	// Plastic Types
 	public static final ItemDefinition<PlasticTypeItem> POLYETHYLENE  = plasticType("Polyethylene", (properties) -> new PlasticTypeItem(properties, PlasticType.POLYETHYLENE, GMMaterials.POLYETHYLENE));
@@ -39,6 +45,10 @@ public class GenItems extends ItemRegistry {
 
 	public static <T extends Item> ItemDefinition<T> registerItem (final String localizedName, Function<Item.Properties, T> factory) {
 		return ItemRegistry.registerItem(INSTANCE, localizedName, Resource.get(new RegistryString(localizedName).getRegistryName()), factory);
+	}
+
+	static <T extends Item> ItemDefinition<T> registerItem (final String localizedName, final String unlocalizedName, Function<Item.Properties, T> factory) {
+		return ItemRegistry.registerItem(INSTANCE, localizedName, Resource.get(unlocalizedName), factory);
 	}
 
 	static <T extends PlasticTypeItem> ItemDefinition<T> plasticType (final String localizedName, Function<Item.Properties, T> factory) {

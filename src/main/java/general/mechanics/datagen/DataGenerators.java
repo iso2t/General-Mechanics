@@ -6,15 +6,22 @@ import general.mechanics.datagen.data.SoundProvider;
 import general.mechanics.datagen.lang.GenMechEnLangProvider;
 import general.mechanics.datagen.model.BlockModelProvider;
 import general.mechanics.datagen.model.ItemModelProvider;
+import general.mechanics.datagen.recipe.GenRecipeProvider;
 import general.mechanics.datagen.tags.GenBlockTagGenerator;
 import general.mechanics.formula.GMFormula;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.data.DataProvider;
+import net.minecraft.data.PackOutput;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.data.DatapackBuiltinEntriesProvider;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.BiFunction;
 
 @EventBusSubscriber(modid = GenMech.MOD_ID)
 public class DataGenerators {
@@ -25,6 +32,7 @@ public class DataGenerators {
 		var registries = event.getLookupProvider();
 		var pack = generator.getVanillaPack(true);
 		var localization = new GenMechEnLangProvider(generator);
+		var packOutput = generator.getPackOutput();
 
 		// Sounds
 		pack.addProvider(SoundProvider::new);
@@ -39,8 +47,16 @@ public class DataGenerators {
 		pack.addProvider(BlockModelProvider::new);
 		pack.addProvider(ItemModelProvider::new);
 
+		// Recipes
+		generator.addProvider(true, new GenRecipeProvider.Runner(packOutput, registries));
+
 		// Localization has to run last
 		pack.addProvider(_ -> localization);
+	}
+
+	@Contract(pure = true)
+	private static <T extends DataProvider> DataProvider.@NotNull Factory<T> bindRegistries (BiFunction<PackOutput, CompletableFuture<HolderLookup.Provider>, T> factory, CompletableFuture<HolderLookup.Provider> factories) {
+		return pOutput -> factory.apply(pOutput, factories);
 	}
 
 }
