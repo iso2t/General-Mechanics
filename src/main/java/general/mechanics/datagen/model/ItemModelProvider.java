@@ -1,18 +1,24 @@
 package general.mechanics.datagen.model;
 
 import general.api.definitions.ItemDefinition;
+import general.api.item.ToolItem;
+import general.api.item.materials.IMaterialItem;
+import general.api.item.materials.IngotItem;
 import general.api.item.plastic.PlasticItem;
 import general.api.item.plastic.PlasticTypeItem;
 import general.api.mod.GenAPI;
 import general.api.resources.Resource;
+import general.mechanics.client.color.MaterialTintSource;
 import general.mechanics.client.color.PlasticTintSource;
 import general.mechanics.registries.GenItems;
+import general.mechanics.registries.GenParts;
 import general.mechanics.registries.GenTools;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
+import net.minecraft.client.data.models.model.TextureSlot;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -31,6 +37,7 @@ import java.util.stream.Stream;
 public final class ItemModelProvider extends ModelProviders {
 
 	private final Set<Identifier> createdPlasticModels = new HashSet<>();
+	private final Set<Identifier> createdElementModels = new HashSet<>();
 
 	public ItemModelProvider (PackOutput output) {
 		super(output);
@@ -49,9 +56,38 @@ public final class ItemModelProvider extends ModelProviders {
 		}
 
 		for (var tool : GenTools.INSTANCE.getItems()) {
-			itemModels.generateFlatItem(tool.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
+			if (tool.get() instanceof ToolItem) itemModels.generateFlatItem(tool.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
+		}
+
+		for (var part : GenParts.INSTANCE.getItems()) {
+			if (part.get() instanceof IngotItem ingot) {
+				registerElementModels(ingot, itemModels);
+			} else if (part.get() instanceof IMaterialItem) {
+				// Element sub-item (raw/nugget/dust/...): emitted by its parent ingot's registerElementModels.
+			} else {
+				itemModels.generateFlatItem(part.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
+			}
 		}
 	}
+
+	private void registerElementModels (IngotItem ingot, ItemModelGenerators items) {
+		elementModel(ingot, "item/ingot/ingot", items);
+		elementModel(ingot.getNuggetItem(), "item/ingot/nugget", items);
+		elementModel(ingot.getRawItem(), "item/ingot/raw_ore", items);
+		elementModel(ingot.getDustItem(), "item/ingot/dust", items);
+		elementModel(ingot.getPlateItem(), "item/ingot/plate", items);
+		elementModel(ingot.getPileItem(), "item/ingot/pile", items);
+		elementModel(ingot.getRodItem(), "item/ingot/rod", items);
+	}
+
+	private void elementModel (Item item, String path, ItemModelGenerators items) {
+		var model = Resource.get(path);
+		if (createdElementModels.add(model)) {
+			ModelTemplates.FLAT_ITEM.create(model, TextureMapping.layer0(new Material(model)), items.modelOutput);
+		}
+		items.itemModelOutput.accept(item, ItemModelUtils.tintedModel(model, MaterialTintSource.INSTANCE));
+	}
+
 
 	private void plasticItem (ItemDefinition<?> item, String parent, ItemModelGenerators generator) {
 		var model = Resource.get("item/plastic/" + parent.toLowerCase().replace(' ', '_'));

@@ -27,6 +27,8 @@ public final class GMMaterials {
 	public static final ResourceKey<Material> POLYTETRAFLUOROETHYLENE         = ResourceKey.create(GenFormula.MATERIAL_REGISTRY, Resource.get("polytetrafluoroethylene"));
 	public static final ResourceKey<Material> POLYETHERETHERKETONE            = ResourceKey.create(GenFormula.MATERIAL_REGISTRY, Resource.get("polyetheretherketone"));
 
+	public static final ResourceKey<Material> STEEL                           = ResourceKey.create(GenFormula.MATERIAL_REGISTRY, Resource.get("steel"));
+
 	/**
 	 * Standard materials.
 	 */
@@ -52,6 +54,12 @@ public final class GMMaterials {
 		ctx.register(POLYTETRAFLUOROETHYLENE, Material.builder("Polytetrafluoroethylene").category(categories.getOrThrow(FormulaCategories.POLYMER)).formula(Formula.builder().atom(atoms.getOrThrow(FormulaAtoms.CARBON), 2).atom(atoms.getOrThrow(FormulaAtoms.FLUORINE), 4)).trait(traits.getOrThrow(FormulaTraits.STRUCTURAL)).trait(traits.getOrThrow(FormulaTraits.ORGANIC)).color(0xFFD0D0D0).form(ItemForm.DUST, ItemForm.INGOT, ItemForm.NUGGET, ItemForm.PLATE).build());
 		ctx.register(POLYETHERETHERKETONE, Material.builder("Polyetheretherketone").category(categories.getOrThrow(FormulaCategories.POLYMER)).formula(Formula.builder().atom(atoms.getOrThrow(FormulaAtoms.CARBON), 19).atom(atoms.getOrThrow(FormulaAtoms.HYDROGEN), 12).atom(atoms.getOrThrow(FormulaAtoms.OXYGEN), 3)).trait(traits.getOrThrow(FormulaTraits.STRUCTURAL)).trait(traits.getOrThrow(FormulaTraits.ORGANIC)).color(0xFFD0D0D0).form(ItemForm.DUST, ItemForm.INGOT, ItemForm.NUGGET, ItemForm.PLATE).build());
 
-		ctx.register(WATER, Material.builder("Water").category(categories.getOrThrow(FormulaCategories.FLUID)).formula(Formula.builder().atom(atoms.getOrThrow(FormulaAtoms.HYDROGEN), 2).atom(atoms.getOrThrow(FormulaAtoms.OXYGEN), 1)).trait(traits.getOrThrow(FormulaTraits.ORGANIC)).build());
+		ctx.register(WATER, Material.builder("Water").category(categories.getOrThrow(FormulaCategories.FLUID))
+				.formula(Formula.builder().atom(atoms.getOrThrow(FormulaAtoms.HYDROGEN), 2).atom(atoms.getOrThrow(FormulaAtoms.OXYGEN), 1))
+				.trait(traits.getOrThrow(FormulaTraits.ORGANIC)).build());
+
+		ctx.register(STEEL, Material.builder("Steel").category(categories.getOrThrow(FormulaCategories.ALLOY))
+				.formula(Formula.builder().atom(atoms.getOrThrow(FormulaAtoms.IRON), 106).atom(atoms.getOrThrow(FormulaAtoms.CARBON), 1))
+				.trait(traits.getOrThrow(FormulaTraits.STRUCTURAL)).trait(traits.getOrThrow(FormulaTraits.CONDUCTIVE)).color(0xFF8C8C9C).form(ItemForm.INGOT, ItemForm.PLATE, ItemForm.ROD, ItemForm.GEAR).build());
 	}
 }

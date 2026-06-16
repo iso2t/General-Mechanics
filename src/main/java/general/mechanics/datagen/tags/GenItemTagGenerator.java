@@ -7,6 +7,7 @@ import general.api.tag.CoreTags;
 import general.mechanics.item.tools.*;
 import general.mechanics.registries.GenBlocks;
 import general.mechanics.registries.GenItems;
+import general.mechanics.registries.GenParts;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.tags.TagKey;
@@ -79,11 +80,11 @@ public class GenItemTagGenerator extends ItemTagsProvider {
 
 		}
 
-		/*this.tag(CoreTags.Items.BOLTS)
-				.add(CoreItems.BOLT.asItem());
+		this.tag(CoreTags.Items.BOLTS)
+				.add(GenParts.BOLT.asItem());
 
 		this.tag(CoreTags.Items.SCREWS)
-				.add(CoreItems.SCREW.asItem());*/
+				.add(GenParts.SCREW.asItem());
 
 		this.tag(CoreTags.Items.CARBON)
 				.add(Items.COAL)

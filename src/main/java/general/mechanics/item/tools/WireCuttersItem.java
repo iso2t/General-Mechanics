@@ -2,6 +2,8 @@ package general.mechanics.item.tools;
 
 import general.api.crafting.IRecipeProvider;
 import general.api.item.ToolItem;
+import general.api.tag.CoreTags;
+import general.mechanics.registries.GenParts;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -17,17 +19,17 @@ public class WireCuttersItem extends ToolItem {
 
 	@Override
 	public void registerCraftingRecipes (HolderGetter<Item> holder, RecipeOutput consumer, Criterion<?> criterion) {
-		/*ShapedRecipeBuilder.shaped(holder, RecipeCategory.MISC, this, 1)
+		ShapedRecipeBuilder.shaped(holder, RecipeCategory.MISC, this, 1)
 				.pattern("PFP")
 				.pattern("HPS")
 				.pattern("RBR")
-				.define('P', CoreElements.STEEL_INGOT.get().getPlateItem())
+				.define('P', GenParts.STEEL.get().getPlateItem())
 				.define('F', CoreTags.Items.FILES)
 				.define('H', CoreTags.Items.HAMMERS)
 				.define('S', CoreTags.Items.SOCKET_DRIVERS)
-				.define('R', CoreElements.STEEL_INGOT.get().getRodItem())
+				.define('R', GenParts.STEEL.get().getRodItem())
 				.define('B', CoreTags.Items.BOLTS)
 				.unlockedBy("has_any", criterion)
-				.save(consumer, IRecipeProvider.createKey("tools/wire_cutters"));*/
+				.save(consumer, IRecipeProvider.createKey("tools/wire_cutters"));
 	}
 }

@@ -45,6 +45,7 @@ public abstract class Base implements GenMech {
 	private void registerModRegistries () {
 		GenItems.INSTANCE.getRegistry().register(getBus());
 		GenTools.INSTANCE.getRegistry().register(getBus());
+		GenParts.INSTANCE.getRegistry().register(getBus());
 		GenBlocks.INSTANCE.getRegistry().register(getBus());
 		GenSounds.REGISTRY.register(getBus());
 		GenComponents.REGISTRY.register(getBus());
@@ -61,6 +62,7 @@ public abstract class Base implements GenMech {
 
 			var tooltab = new TabBuilder.MultiTabBuilder();
 			tooltab.addTab(new TabBuilder.Builder().setTranslationKey(String.format("itemGroup.%s.tools", GenAPI.getModId())).setDisplayItem(GenTools.WRENCH).setResourceKey(Resource.get("tools")).setCreateModeTab(GenTools.INSTANCE).build());
+			tooltab.addTab(new TabBuilder.Builder().setTranslationKey(String.format("itemGroup.%s.parts", GenAPI.getModId())).setDisplayItem(GenParts.BOLT).setResourceKey(Resource.get("parts")).setCreateModeTab(GenParts.INSTANCE).build());
 			tooltab.build(helper);
 		}));
 	}

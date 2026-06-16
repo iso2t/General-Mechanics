@@ -2,6 +2,7 @@ package general.mechanics.item.tools;
 
 import general.api.crafting.IRecipeProvider;
 import general.api.item.ToolItem;
+import general.mechanics.registries.GenParts;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -18,13 +19,13 @@ public class HammerItem extends ToolItem {
 
 	@Override
 	public void registerCraftingRecipes (HolderGetter<Item> holder, RecipeOutput consumer, Criterion<?> criterion) {
-		/*ShapedRecipeBuilder.shaped(holder, RecipeCategory.MISC, this, 1)
+		ShapedRecipeBuilder.shaped(holder, RecipeCategory.MISC, this, 1)
 				.pattern("II ")
 				.pattern("IIS")
 				.pattern("II ")
-				.define('I', CoreElements.STEEL_INGOT.get())
+				.define('I', GenParts.STEEL.get())
 				.define('S', Items.STICK)
 				.unlockedBy("has_any", criterion)
-				.save(consumer, IRecipeProvider.createKey("tools/hammer"));*/
+				.save(consumer, IRecipeProvider.createKey("tools/hammer"));
 	}
 }

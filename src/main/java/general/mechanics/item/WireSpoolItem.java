@@ -1,6 +1,7 @@
 package general.mechanics.item;
 
 import general.api.crafting.IRecipeProvider;
+import general.api.resources.Resource;
 import general.mechanics.registries.GenItems;
 import lombok.Getter;
 import net.minecraft.advancements.Criterion;
@@ -95,7 +96,8 @@ public class WireSpoolItem extends Item implements IRecipeProvider {
 
 	@Override
 	public void registerCraftingRecipes (HolderGetter<Item> holder, RecipeOutput consumer, Criterion<?> criterion) {
-		ShapelessRecipeBuilder.shapeless(holder, RecipeCategory.MISC, this).requires(GenItems.WIRE_SPOOL.get()).requires(getHeldWire()).unlockedBy("has_any", criterion).save(consumer, IRecipeProvider.createKey(this.descriptionId + "_from_spool"));
+		var path = Resource.getFromItem(this).getPath();
+		ShapelessRecipeBuilder.shapeless(holder, RecipeCategory.MISC, this).requires(GenItems.WIRE_SPOOL.get()).requires(getHeldWire()).unlockedBy("has_any", criterion).save(consumer, IRecipeProvider.createKey(path + "_from_spool"));
 	}
 
 	@Override

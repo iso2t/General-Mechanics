@@ -4,6 +4,7 @@ import general.api.block.plastic.ColoredPlasticBlock;
 import general.api.block.plastic.PlasticTypeBlock;
 import general.api.definitions.BlockDefinition;
 import general.api.resources.Resource;
+import general.mechanics.client.color.MaterialTintSource;
 import general.mechanics.client.color.PlasticBlockTintSource;
 import general.mechanics.client.color.PlasticTintSource;
 import general.mechanics.registries.GenBlocks;
@@ -16,6 +17,7 @@ public class ClientColors {
 
 	public static void registerItemColors (RegisterColorHandlersEvent.ItemTintSources event) {
 		event.register(Resource.get("plastic"), PlasticTintSource.MAP_CODEC);
+		event.register(Resource.get("material"), MaterialTintSource.MAP_CODEC);
 	}
 
 	public static void registerBlockColors (RegisterColorHandlersEvent.BlockTintSources event) {
