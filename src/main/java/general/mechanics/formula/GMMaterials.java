@@ -28,6 +28,10 @@ public final class GMMaterials {
 	public static final ResourceKey<Material> POLYETHERETHERKETONE            = ResourceKey.create(GenFormula.MATERIAL_REGISTRY, Resource.get("polyetheretherketone"));
 
 	public static final ResourceKey<Material> STEEL                           = ResourceKey.create(GenFormula.MATERIAL_REGISTRY, Resource.get("steel"));
+	public static final ResourceKey<Material> IRON                            = ResourceKey.create(GenFormula.MATERIAL_REGISTRY, Resource.get("iron"));
+	public static final ResourceKey<Material> COPPER                          = ResourceKey.create(GenFormula.MATERIAL_REGISTRY, Resource.get("copper"));
+	public static final ResourceKey<Material> GOLD                            = ResourceKey.create(GenFormula.MATERIAL_REGISTRY, Resource.get("gold"));
+
 
 	/**
 	 * Standard materials.
@@ -61,5 +65,14 @@ public final class GMMaterials {
 		ctx.register(STEEL, Material.builder("Steel").category(categories.getOrThrow(FormulaCategories.ALLOY))
 				.formula(Formula.builder().atom(atoms.getOrThrow(FormulaAtoms.IRON), 106).atom(atoms.getOrThrow(FormulaAtoms.CARBON), 1))
 				.trait(traits.getOrThrow(FormulaTraits.STRUCTURAL)).trait(traits.getOrThrow(FormulaTraits.CONDUCTIVE)).color(0xFF8C8C9C).form(ItemForm.INGOT, ItemForm.PLATE, ItemForm.ROD, ItemForm.GEAR).build());
+		ctx.register(IRON, Material.builder("Iron").category(categories.getOrThrow(FormulaCategories.METAL))
+				.formula(Formula.builder().atom(atoms.getOrThrow(FormulaAtoms.IRON), 1))
+				.trait(traits.getOrThrow(FormulaTraits.CONDUCTIVE)).trait(traits.getOrThrow(FormulaTraits.MAGNETIC)).trait(traits.getOrThrow(FormulaTraits.STRUCTURAL)).color(0xFFD8D8D8).form(ItemForm.DUST, ItemForm.INGOT, ItemForm.NUGGET, ItemForm.PLATE).build());
+		ctx.register(COPPER, Material.builder("Copper").category(categories.getOrThrow(FormulaCategories.METAL))
+				.formula(Formula.builder().atom(atoms.getOrThrow(FormulaAtoms.COPPER), 1))
+				.trait(traits.getOrThrow(FormulaTraits.CONDUCTIVE)).color(0xFFE0853F).form(ItemForm.DUST, ItemForm.INGOT, ItemForm.WIRE, ItemForm.PLATE).build());
+		ctx.register(GOLD, Material.builder("Gold").category(categories.getOrThrow(FormulaCategories.METAL))
+				.formula(Formula.builder().atom(atoms.getOrThrow(FormulaAtoms.GOLD), 1))
+				.trait(traits.getOrThrow(FormulaTraits.CONDUCTIVE)).color(0xFFFFD700).form(ItemForm.DUST, ItemForm.INGOT, ItemForm.WIRE, ItemForm.PLATE).build());
 	}
 }
