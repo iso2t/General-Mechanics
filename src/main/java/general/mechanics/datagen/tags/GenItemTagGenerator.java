@@ -1,6 +1,7 @@
 package general.mechanics.datagen.tags;
 
 import general.api.item.ToolItem;
+import general.api.item.materials.*;
 import general.api.item.plastic.PlasticType;
 import general.api.mod.GenAPI;
 import general.api.tag.CoreTags;
@@ -8,6 +9,7 @@ import general.mechanics.item.tools.*;
 import general.mechanics.registries.GenBlocks;
 import general.mechanics.registries.GenItems;
 import general.mechanics.registries.GenParts;
+import general.mechanics.registries.GenTools;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.tags.TagKey;
@@ -27,23 +29,23 @@ public class GenItemTagGenerator extends ItemTagsProvider {
 
 	@Override
 	protected void addTags (HolderLookup.@NonNull Provider provider) {
-		/*for (var element : CoreElements.getElements()) {
-			if (element.get() instanceof ElementItem) {
+		for (var element : GenParts.INSTANCE.getItems()) {
+			if (element.get() instanceof IngotItem) {
 				this.tag(Tags.Items.INGOTS).add(element.asItem());
-			} else if (element.get() instanceof ElementNuggetItem) {
+			} else if (element.get() instanceof NuggetItem) {
 				this.tag(Tags.Items.NUGGETS).add(element.asItem());
-			} else if (element.get() instanceof ElementRawItem) {
+			} else if (element.get() instanceof RawItem) {
 				this.tag(Tags.Items.RAW_MATERIALS).add(element.asItem());
-			} else if (element.get() instanceof ElementDustItem) {
+			} else if (element.get() instanceof DustItem) {
 				this.tag(Tags.Items.DUSTS).add(element.asItem());
-			} else if (element.get() instanceof ElementPlateItem) {
+			} else if (element.get() instanceof PlateItem) {
 				this.tag(CoreTags.Items.PLATES).add(element.asItem());
-			} else if (element.get() instanceof ElementPileItem) {
+			} else if (element.get() instanceof PileItem) {
 				this.tag(CoreTags.Items.PILES).add(element.asItem());
-			} else if (element.get() instanceof ElementRodItem) {
+			} else if (element.get() instanceof RodItem) {
 				this.tag(CoreTags.Items.RODS).add(element.asItem());
 			}
-		}*/
+		}
 
 		// Add all colored plastics to the general plastic tag
 		for (var plastic : GenItems.getAllColoredPlastics()) {
@@ -63,7 +65,7 @@ public class GenItemTagGenerator extends ItemTagsProvider {
 			}
 		}
 
-		for (var tool : GenItems.INSTANCE.getItems()) {
+		for (var tool : GenTools.INSTANCE.getItems()) {
 			if (tool.get() instanceof ToolItem toolItem) {
 				if (toolItem instanceof FileItem) this.tag(CoreTags.Items.FILES).add(toolItem);
 				if (toolItem instanceof FlatheadScrewdriverItem)
