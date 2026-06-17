@@ -10,7 +10,7 @@ import general.api.registry.RegistryString;
 import general.api.registry.item.ItemRegistry;
 import general.api.resources.Resource;
 import general.api.tag.CoreTags;
-import general.mechanics.formula.GMMaterials;
+import general.mechanics.materials.Materials;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -37,30 +37,10 @@ public class GenParts extends ItemRegistry {
 	private static final List<ItemDefinition<?>>                               ITEMS            = new ArrayList<>();
 	private static final Map<ResourceKey<Material>, ItemDefinition<IngotItem>> ELEMENTS_BY_TYPE = new HashMap<>();
 
-	public static final ItemDefinition<PartItem> BOLT  = registerItem("Bolt", properties -> new PartItem(properties) {
-		@Override
-		public void registerCraftingRecipes (HolderGetter<Item> holder, RecipeOutput consumer, Criterion<?> criterion) {
-			ShapelessRecipeBuilder.shapeless(holder, RecipeCategory.MISC, this).requires(CoreTags.Items.SCREWS).requires(CoreTags.Items.FILES).unlockedBy("has_any", criterion).save(consumer, IRecipeProvider.createKey("parts/bolt"));
-		}
-
-		@Override
-		public ItemLike getCriterionItem () {
-			return Items.STICK;
-		}
-	});
-	public static final ItemDefinition<PartItem> SCREW = registerItem("Screw", properties -> new PartItem(properties) {
-		@Override
-		public void registerCraftingRecipes (HolderGetter<Item> holder, RecipeOutput consumer, Criterion<?> criterion) {
-			ShapelessRecipeBuilder.shapeless(holder, RecipeCategory.MISC, this, 2).requires(CoreTags.Items.FILES).requires(CoreTags.Items.SAWS).requires(Tags.Items.INGOTS).unlockedBy("has_any", criterion).save(consumer, IRecipeProvider.createKey("parts/screw"));
-		}
-
-		@Override
-		public ItemLike getCriterionItem () {
-			return Items.STICK;
-		}
-	});
-
-	public static final ItemDefinition<IngotItem> STEEL = ingotBuilder("Steel", properties -> new IngotItem(properties, GMMaterials.STEEL), GMMaterials.STEEL);
+	public static final ItemDefinition<IngotItem> STEEL  = ingotBuilder("Steel", properties -> new IngotItem(properties, Materials.STEEL), Materials.STEEL);
+	public static final ItemDefinition<IngotItem> COPPER = ingotBuilder("Copper", properties -> new IngotItem(properties, Materials.COPPER), Materials.COPPER);
+	public static final ItemDefinition<IngotItem> GOLD   = ingotBuilder("Gold", properties -> new IngotItem(properties, Materials.GOLD), Materials.GOLD);
+	public static final ItemDefinition<IngotItem> IRON   = ingotBuilder("Iron", properties -> new IngotItem(properties, Materials.IRON), Materials.IRON);
 
 	public static ItemDefinition<IngotItem> ingotBuilder (String baseName, Function<Item.Properties, IngotItem> factory, ResourceKey<Material> material) {
 		ItemDefinition<IngotItem> elementDef = ingot(baseName, factory);
@@ -95,6 +75,12 @@ public class GenParts extends ItemRegistry {
 		// Register the rod item
 		String rodName = String.format("%s Rod", name);
 		registerItem(rodName, properties -> new RodItem(ingot.get(), properties));
+
+		String boltName = String.format("%s Bolt", name);
+		registerItem(boltName, properties -> new BoltItem(ingot.get(), properties));
+
+		String screwName = String.format("%s Screw", name);
+		registerItem(screwName, properties -> new ScrewItem(ingot.get(), properties));
 
 		return ingot;
 	}

@@ -1,12 +1,13 @@
 package general.mechanics;
 
+import general.api.definitions.ItemDefinition;
 import general.api.formula.item.HasFormula;
 import general.api.item.ITooltipProvider;
 import general.api.mod.GenAPI;
 import general.api.resources.Resource;
 import general.api.tab.TabBuilder;
 import general.mechanics.registries.*;
-import general.mechanics.formula.GMFormula;
+import general.mechanics.formula.Formulas;
 import lombok.Getter;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.MinecraftServer;
@@ -52,7 +53,7 @@ public abstract class Base implements GenMech {
 	}
 
 	private void registerModListeners () {
-		getBus().addListener(GMFormula::onNewDataPackRegistry);
+		getBus().addListener(Formulas::onNewDataPackRegistry);
 
 		getBus().addListener((RegisterEvent event) -> event.register(Registries.CREATIVE_MODE_TAB, helper -> {
 			var multitab = new TabBuilder.MultiTabBuilder();
@@ -60,10 +61,10 @@ public abstract class Base implements GenMech {
 					.addTab(new TabBuilder.Builder().setTranslationKey(String.format("itemGroup.%s.blocks", GenAPI.getModId())).setResourceKey(Resource.get("blocks")).setCreateModeTab(GenBlocks.INSTANCE).build());
 			multitab.build(helper);
 
-			var tooltab = new TabBuilder.MultiTabBuilder();
-			tooltab.addTab(new TabBuilder.Builder().setTranslationKey(String.format("itemGroup.%s.tools", GenAPI.getModId())).setDisplayItem(GenTools.WRENCH).setResourceKey(Resource.get("tools")).setCreateModeTab(GenTools.INSTANCE).build());
-			tooltab.addTab(new TabBuilder.Builder().setTranslationKey(String.format("itemGroup.%s.parts", GenAPI.getModId())).setDisplayItem(GenParts.BOLT).setResourceKey(Resource.get("parts")).setCreateModeTab(GenParts.INSTANCE).build());
-			tooltab.build(helper);
+			new TabBuilder.MultiTabBuilder()
+			       .addTab(new TabBuilder.Builder().setTranslationKey(String.format("itemGroup.%s.tools", GenAPI.getModId())).setDisplayItem(GenTools.WRENCH).setResourceKey(Resource.get("tools")).setCreateModeTab(GenTools.INSTANCE).build())
+			       .addTab(new TabBuilder.Builder().setTranslationKey(String.format("itemGroup.%s.parts", GenAPI.getModId())).setResourceKey(Resource.get("parts")).setCreateModeTab(GenParts.INSTANCE).build())
+			       .build(helper);
 		}));
 	}
 

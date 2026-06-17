@@ -49,6 +49,14 @@ public class IngotItem extends Item implements IRecipeProvider, IMaterialItem {
 	@Setter
 	private RodItem rodItem;
 
+	@Getter
+	@Setter
+	private BoltItem boltItem;
+
+	@Getter
+	@Setter
+	private ScrewItem screwItem;
+
 	public IngotItem (Properties properties, ResourceKey<Material> material) {
 		super(properties.component(GenComponents.FORMULA_TOOLTIP.get(), FormulaTooltip.ofMaterial(material)));
 		this.properties = properties.component(GenComponents.FORMULA_TOOLTIP.get(), FormulaTooltip.ofMaterial(material));
@@ -105,6 +113,21 @@ public class IngotItem extends Item implements IRecipeProvider, IMaterialItem {
 				.requires(this)
 				.unlockedBy("has_element", criterion)
 				.save(consumer, IRecipeProvider.createKey("materials/" + path + "_to_rod"));
+
+		// Bolt
+		ShapelessRecipeBuilder.shapeless(holder, RecipeCategory.MISC, this::getBoltItem)
+				.requires(this::getScrewItem)
+				.requires(CoreTags.Items.FILES)
+				.unlockedBy("has_any", criterion)
+				.save(consumer, IRecipeProvider.createKey("materials/" + path + "_to_bolt"));
+
+		// Screw
+		ShapelessRecipeBuilder.shapeless(holder, RecipeCategory.MISC, this::getScrewItem, 2)
+				.requires(CoreTags.Items.FILES)
+				.requires(CoreTags.Items.SAWS)
+				.requires(this)
+				.unlockedBy("has_any", criterion)
+				.save(consumer, IRecipeProvider.createKey("materials/" + path + "_to_screw"));
 	}
 
 	@Override

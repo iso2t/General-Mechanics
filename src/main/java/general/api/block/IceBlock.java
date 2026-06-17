@@ -3,7 +3,7 @@ package general.api.block;
 import com.mojang.serialization.MapCodec;
 import general.api.formula.tooltip.FormulaTooltip;
 import general.api.item.ITooltipProvider;
-import general.mechanics.formula.GMMaterials;
+import general.mechanics.materials.Materials;
 import general.mechanics.registries.GenComponents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -103,6 +103,6 @@ public class IceBlock extends BaseBlock implements ITooltipProvider {
 
 	@Override
 	public void addTooltipComponents (DataComponentMap.Builder builder) {
-		builder.set(GenComponents.FORMULA_TOOLTIP.get(), FormulaTooltip.ofMaterial(GMMaterials.WATER));
+		builder.set(GenComponents.FORMULA_TOOLTIP.get(), FormulaTooltip.ofMaterial(Materials.WATER));
 	}
 }

@@ -3,19 +3,14 @@ package general.mechanics.formula;
 import general.api.formula.GenFormula;
 import general.api.formula.builtin.GenFormulaBootstrap;
 import general.api.formula.codec.FormulaCodecs;
+import general.mechanics.materials.Materials;
 import net.minecraft.core.RegistrySetBuilder;
 import net.neoforged.neoforge.registries.DataPackRegistryEvent;
 
-/**
- * Mod-side wiring for the GenAPI Formula API: registers the datapack registries (synced) on the mod
- * bus and exposes the built-in {@link RegistrySetBuilder} used by datagen to emit the {@code genapi}
- * JSON entries.
- */
-public final class GMFormula {
+public final class Formulas {
 
-	private GMFormula () {}
+	private Formulas () {}
 
-	/** Registers the five Formula API datapack registries with element + network codecs (synced). */
 	public static void onNewDataPackRegistry (DataPackRegistryEvent.NewRegistry event) {
 		event.dataPackRegistry(GenFormula.CATEGORY_REGISTRY, FormulaCodecs.CATEGORY, FormulaCodecs.CATEGORY);
 		event.dataPackRegistry(GenFormula.TRAIT_REGISTRY, FormulaCodecs.TRAIT, FormulaCodecs.TRAIT);
@@ -24,7 +19,6 @@ public final class GMFormula {
 		event.dataPackRegistry(GenFormula.MATERIAL_REGISTRY, FormulaCodecs.MATERIAL, FormulaCodecs.MATERIAL);
 	}
 
-	/** A fresh {@link RegistrySetBuilder} with the built-in {@code genapi} entries + this mod's materials. */
 	public static RegistrySetBuilder formulaRegistrySet () {
 		return new RegistrySetBuilder()
 				.add(GenFormula.CATEGORY_REGISTRY, GenFormulaBootstrap::categories)
@@ -33,7 +27,7 @@ public final class GMFormula {
 				.add(GenFormula.COMPOUND_REGISTRY, GenFormulaBootstrap::compounds)
 				.add(GenFormula.MATERIAL_REGISTRY, ctx -> {
 					GenFormulaBootstrap.materials(ctx);
-					GMMaterials.bootstrap(ctx);
+					Materials.bootstrap(ctx);
 				});
 	}
 }

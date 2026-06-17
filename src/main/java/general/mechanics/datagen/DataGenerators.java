@@ -9,7 +9,7 @@ import general.mechanics.datagen.model.ItemModelProvider;
 import general.mechanics.datagen.recipe.GenRecipeProvider;
 import general.mechanics.datagen.tags.GenBlockTagGenerator;
 import general.mechanics.datagen.tags.GenItemTagGenerator;
-import general.mechanics.formula.GMFormula;
+import general.mechanics.formula.Formulas;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
@@ -38,8 +38,8 @@ public class DataGenerators {
 		// Sounds
 		pack.addProvider(SoundProvider::new);
 
-		// Formula API datapack registries (genapi built-ins + this mod's materials)
-		pack.addProvider(output -> new DatapackBuiltinEntriesProvider(output, registries, GMFormula.formulaRegistrySet(), Set.of(GenFormula.NAMESPACE, GenMech.MOD_ID)));
+		// Formula API datapack registries
+		pack.addProvider(output -> new DatapackBuiltinEntriesProvider(output, registries, Formulas.formulaRegistrySet(), Set.of(GenFormula.NAMESPACE, GenMech.MOD_ID)));
 
 		// Tags
 		var blockTagsProvider = pack.addProvider(output -> new GenBlockTagGenerator(output, registries));

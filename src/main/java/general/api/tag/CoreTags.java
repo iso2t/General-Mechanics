@@ -31,6 +31,7 @@ public class CoreTags {
 		public static final TagKey<Item> PILES = createTag("piles");
 
 		public static final TagKey<Item> WRENCHES = createTag("wrenches");
+		public static final TagKey<Item> TORQUE_WRENCHES = createTag("torque_wrenches");
 		public static final TagKey<Item> FLATHEAD_SCREWDRIVERS = createTag("flathead_screwdrivers");
 		public static final TagKey<Item> PHILLIPS_SCREWDRIVERS = createTag("philips_screwdrivers");
 		public static final TagKey<Item> HAMMERS = createTag("hammers");

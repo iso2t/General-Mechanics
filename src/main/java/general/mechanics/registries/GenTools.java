@@ -29,6 +29,7 @@ public class GenTools extends ItemRegistry {
 	public static final ItemDefinition<WireCuttersItem>         WIRE_CUTTERS         = registerItem("Wire Cutters", WireCuttersItem::new);
 	public static final ItemDefinition<SawItem>                 SAW                  = registerItem("Saw", SawItem::new);
 	public static final ItemDefinition<FileItem>                FILE                 = registerItem("File", FileItem::new);
+	public static final ItemDefinition<TorqueWrenchItem>        TORQUE_WRENCH        = registerItem("Torque Wrench", TorqueWrenchItem::new);
 
 	public static <T extends Item> ItemDefinition<T> registerItem (final String localizedName, Function<Item.Properties, T> factory) {
 		return ItemRegistry.registerItem(INSTANCE, localizedName, Resource.get(new RegistryString(localizedName).getRegistryName()), factory);

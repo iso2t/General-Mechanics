@@ -44,6 +44,10 @@ public class GenItemTagGenerator extends ItemTagsProvider {
 				this.tag(CoreTags.Items.PILES).add(element.asItem());
 			} else if (element.get() instanceof RodItem) {
 				this.tag(CoreTags.Items.RODS).add(element.asItem());
+			} else if (element.get() instanceof BoltItem) {
+				this.tag(CoreTags.Items.BOLTS).add(element.asItem());
+			} else if (element.get() instanceof ScrewItem) {
+				this.tag(CoreTags.Items.SCREWS).add(element.asItem());
 			}
 		}
 
@@ -77,16 +81,11 @@ public class GenItemTagGenerator extends ItemTagsProvider {
 				if (toolItem instanceof SawItem) this.tag(CoreTags.Items.SAWS).add(toolItem);
 				if (toolItem instanceof WireCuttersItem) this.tag(CoreTags.Items.WIRE_CUTTERS).add(toolItem);
 				if (toolItem instanceof WrenchItem) this.tag(CoreTags.Items.WRENCHES).add(toolItem);
+				if (toolItem instanceof TorqueWrenchItem) this.tag(CoreTags.Items.TORQUE_WRENCHES).add(toolItem);
 				this.tag(Tags.Items.TOOLS).add(toolItem);
 			}
 
 		}
-
-		this.tag(CoreTags.Items.BOLTS)
-				.add(GenParts.BOLT.asItem());
-
-		this.tag(CoreTags.Items.SCREWS)
-				.add(GenParts.SCREW.asItem());
 
 		this.tag(CoreTags.Items.CARBON)
 				.add(Items.COAL)
