@@ -126,6 +126,12 @@ public final class Materials {
 			.trait(l.trait(FormulaTraits.CONDUCTIVE))
 			.color(0xFFFFD700).form(ItemForm.DUST, ItemForm.INGOT, ItemForm.WIRE, ItemForm.PLATE));
 
+	public static final ResourceKey<Material> STAINLESS_STEEL = register("Stainless Steel", (b, l) -> b
+			.category(l.category(FormulaCategories.ALLOY))
+			.formula(Formula.builder().atom(l.atom(FormulaAtoms.IRON), 25).atom(l.atom(FormulaAtoms.CHROMIUM), 6).atom(l.atom(FormulaAtoms.NICKEL), 2))
+			.trait(l.trait(FormulaTraits.STRUCTURAL)).trait(l.trait(FormulaTraits.CONDUCTIVE))
+			.color(0xFF8C8C9C).form(ItemForm.INGOT, ItemForm.PLATE, ItemForm.ROD, ItemForm.GEAR));
+
 	/**
 	 * Declares a material: creates its {@link ResourceKey} (path derived from {@code name}) and records the
 	 * recipe for {@link #bootstrap(BootstrapContext)}.

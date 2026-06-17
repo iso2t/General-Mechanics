@@ -1,27 +1,16 @@
 package general.mechanics.registries;
 
-import general.api.crafting.IRecipeProvider;
 import general.api.definitions.ItemDefinition;
 import general.api.formula.core.Material;
-import general.api.item.PartItem;
 import general.api.item.materials.*;
 import general.api.mod.GenAPI;
 import general.api.registry.RegistryString;
 import general.api.registry.item.ItemRegistry;
 import general.api.resources.Resource;
-import general.api.tag.CoreTags;
 import general.mechanics.materials.Materials;
-import net.minecraft.advancements.Criterion;
-import net.minecraft.core.HolderGetter;
-import net.minecraft.data.recipes.RecipeCategory;
-import net.minecraft.data.recipes.RecipeOutput;
-import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.level.ItemLike;
-import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.ArrayList;
@@ -37,10 +26,11 @@ public class GenParts extends ItemRegistry {
 	private static final List<ItemDefinition<?>>                               ITEMS            = new ArrayList<>();
 	private static final Map<ResourceKey<Material>, ItemDefinition<IngotItem>> ELEMENTS_BY_TYPE = new HashMap<>();
 
-	public static final ItemDefinition<IngotItem> STEEL  = ingotBuilder("Steel", properties -> new IngotItem(properties, Materials.STEEL), Materials.STEEL);
-	public static final ItemDefinition<IngotItem> COPPER = ingotBuilder("Copper", properties -> new IngotItem(properties, Materials.COPPER), Materials.COPPER);
-	public static final ItemDefinition<IngotItem> GOLD   = ingotBuilder("Gold", properties -> new IngotItem(properties, Materials.GOLD), Materials.GOLD);
-	public static final ItemDefinition<IngotItem> IRON   = ingotBuilder("Iron", properties -> new IngotItem(properties, Materials.IRON), Materials.IRON);
+	public static final ItemDefinition<IngotItem> STEEL           = ingotBuilder("Steel", properties -> new IngotItem(properties, Materials.STEEL), Materials.STEEL);
+	public static final ItemDefinition<IngotItem> COPPER          = ingotBuilder("Copper", properties -> new IngotItem(properties, Materials.COPPER), Materials.COPPER);
+	public static final ItemDefinition<IngotItem> GOLD            = ingotBuilder("Gold", properties -> new IngotItem(properties, Materials.GOLD), Materials.GOLD);
+	public static final ItemDefinition<IngotItem> IRON            = ingotBuilder("Iron", properties -> new IngotItem(properties, Materials.IRON), Materials.IRON);
+	public static final ItemDefinition<IngotItem> STAINLESS_STEEL = ingotBuilder("Stainless Steel", properties -> new IngotItem(properties, Materials.STAINLESS_STEEL), Materials.STAINLESS_STEEL);
 
 	public static ItemDefinition<IngotItem> ingotBuilder (String baseName, Function<Item.Properties, IngotItem> factory, ResourceKey<Material> material) {
 		ItemDefinition<IngotItem> elementDef = ingot(baseName, factory);

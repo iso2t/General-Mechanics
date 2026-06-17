@@ -87,6 +87,7 @@ public final class GenFormulaBootstrap {
 		atom(ctx, FormulaAtoms.TITANIUM, "Ti", "Titanium", 22, 47.867, cats, FormulaCategories.METAL);
 		atom(ctx, FormulaAtoms.CHROMIUM, "Cr", "Chromium", 24, 51.996, cats, FormulaCategories.METAL);
 		atom(ctx, FormulaAtoms.IRON, "Fe", "Iron", 26, 55.845, cats, FormulaCategories.METAL);
+		atom(ctx, FormulaAtoms.NICKEL, "Ni", "Nickel", 28, 58.6934, cats, FormulaCategories.METAL);
 		atom(ctx, FormulaAtoms.COPPER, "Cu", "Copper", 29, 63.546, cats, FormulaCategories.METAL);
 		atom(ctx, FormulaAtoms.ZINC, "Zn", "Zinc", 30, 65.38, cats, FormulaCategories.METAL);
 		atom(ctx, FormulaAtoms.GOLD, "Au", "Gold", 79, 196.97, cats, FormulaCategories.METAL);

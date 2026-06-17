@@ -30,6 +30,7 @@ public final class FormulaAtoms {
 	public static final ResourceKey<Atom> COPPER     = GenFormula.atomKey("copper");
 	public static final ResourceKey<Atom> ZINC       = GenFormula.atomKey("zinc");
 	public static final ResourceKey<Atom> GOLD       = GenFormula.atomKey("gold");
+	public static final ResourceKey<Atom> NICKEL     = GenFormula.atomKey("nickel");
 
 	public static final ResourceKey<Atom> REDSTONE   = GenFormula.atomKey("redstone");
 }

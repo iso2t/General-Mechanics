@@ -10,6 +10,7 @@ import general.api.mod.GenAPI;
 import general.api.resources.Resource;
 import general.mechanics.client.color.MaterialTintSource;
 import general.mechanics.client.color.PlasticTintSource;
+import general.mechanics.item.tools.SawItem;
 import general.mechanics.registries.GenItems;
 import general.mechanics.registries.GenParts;
 import general.mechanics.registries.GenTools;
@@ -26,7 +27,9 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.level.block.Block;
+import net.neoforged.neoforge.client.model.generators.template.ExtendedModelTemplateBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
 
@@ -56,7 +59,13 @@ public final class ItemModelProvider extends ModelProviders {
 		}
 
 		for (var tool : GenTools.INSTANCE.getItems()) {
-			if (tool.get() instanceof ToolItem) itemModels.generateFlatItem(tool.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
+			if (tool.get() instanceof ToolItem) {
+				/*if (!(tool.get() instanceof SawItem))*/ itemModels.generateFlatItem(tool.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
+				/*else itemModels.generateFlatItem(tool.get(), ModelTemplates.FLAT_HANDHELD_ITEM.extend()
+						.transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, t -> t.rotation(0, 90, 0).translation(0, 3, 1).scale(0.55f, -0.55f, 0.55f))
+						.transform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND, t -> t.rotation(0, 90, 0).translation(1.13f, 3.2f, 1.13f).scale(0.68f, -0.68f, 0.68f))
+						.build());*/
+			}
 		}
 
 		for (var part : GenParts.INSTANCE.getItems()) {
@@ -90,6 +99,18 @@ public final class ItemModelProvider extends ModelProviders {
 		items.itemModelOutput.accept(item, ItemModelUtils.tintedModel(model, MaterialTintSource.INSTANCE));
 	}
 
+	private void sawModel (Item item, ItemModelGenerators items) {
+		var model = Resource.getFromItem(item);
+		// Flat item, but mirrored vertically in-hand (negative Y scale) so the saw's teeth face away from
+		// the player. Only the held contexts are overridden; GUI/ground/etc. inherit item/generated, so the
+		// inventory icon keeps its current orientation. (Left-hand auto-mirrors the right-hand transform.)
+		var template = ExtendedModelTemplateBuilder.of(ModelTemplates.FLAT_HANDHELD_ITEM)
+				.transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, t -> t.rotation(0, 0, 0).translation(0, 3, 1).scale(0.55f, -0.55f, 0.55f))
+				.transform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND, t -> t.rotation(0, -90, 25).translation(1.13f, 3.2f, 1.13f).scale(0.68f, -0.68f, 0.68f))
+				.build();
+		template.create(model, TextureMapping.layer0(new Material(model)), items.modelOutput);
+		items.itemModelOutput.accept(item, ItemModelUtils.tintedModel(model, MaterialTintSource.INSTANCE));
+	}
 
 	private void plasticItem (ItemDefinition<?> item, String parent, ItemModelGenerators generator) {
 		var model = Resource.get("item/plastic/" + parent.toLowerCase().replace(' ', '_'));
