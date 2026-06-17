@@ -132,6 +132,146 @@ public final class Materials {
 			.trait(l.trait(FormulaTraits.STRUCTURAL)).trait(l.trait(FormulaTraits.CONDUCTIVE))
 			.color(0xFF8C8C9C).form(ItemForm.INGOT, ItemForm.PLATE, ItemForm.ROD, ItemForm.GEAR));
 
+	public static final ResourceKey<Material> ALUMINIUM = register("Aluminium", (b, l) -> b
+			.category(l.category(FormulaCategories.METAL))
+			.formula(Formula.builder().atom(l.atom(FormulaAtoms.ALUMINIUM), 1))
+			.trait(l.trait(FormulaTraits.CONDUCTIVE)).trait(l.trait(FormulaTraits.LIGHTWEIGHT)).trait(l.trait(FormulaTraits.STRUCTURAL))
+			.color(0xFFD0D2D5).form(ItemForm.DUST, ItemForm.INGOT, ItemForm.NUGGET, ItemForm.PLATE, ItemForm.WIRE));
+
+	public static final ResourceKey<Material> TITANIUM = register("Titanium", (b, l) -> b
+			.category(l.category(FormulaCategories.METAL))
+			.formula(Formula.builder().atom(l.atom(FormulaAtoms.TITANIUM), 1))
+			.trait(l.trait(FormulaTraits.STRUCTURAL)).trait(l.trait(FormulaTraits.LIGHTWEIGHT))
+			.color(0xFFB0B5BA).form(ItemForm.DUST, ItemForm.INGOT, ItemForm.NUGGET, ItemForm.PLATE));
+
+	public static final ResourceKey<Material> TUNGSTEN = register("Tungsten", (b, l) -> b
+			.category(l.category(FormulaCategories.METAL))
+			.formula(Formula.builder().atom(l.atom(FormulaAtoms.TUNGSTEN), 1))
+			.trait(l.trait(FormulaTraits.DENSE)).trait(l.trait(FormulaTraits.STRUCTURAL))
+			.color(0xFF6F7378).form(ItemForm.DUST, ItemForm.INGOT, ItemForm.NUGGET, ItemForm.PLATE));
+
+	public static final ResourceKey<Material> COBALT = register("Cobalt", (b, l) -> b
+			.category(l.category(FormulaCategories.METAL))
+			.formula(Formula.builder().atom(l.atom(FormulaAtoms.COBALT), 1))
+			.trait(l.trait(FormulaTraits.MAGNETIC)).trait(l.trait(FormulaTraits.STRUCTURAL))
+			.color(0xFF4A6FB0).form(ItemForm.DUST, ItemForm.INGOT, ItemForm.NUGGET, ItemForm.PLATE));
+
+	public static final ResourceKey<Material> NICKEL = register("Nickel", (b, l) -> b
+			.category(l.category(FormulaCategories.METAL))
+			.formula(Formula.builder().atom(l.atom(FormulaAtoms.NICKEL), 1))
+			.trait(l.trait(FormulaTraits.MAGNETIC)).trait(l.trait(FormulaTraits.STRUCTURAL)).trait(l.trait(FormulaTraits.CONDUCTIVE))
+			.color(0xFFC9C6B8).form(ItemForm.DUST, ItemForm.INGOT, ItemForm.NUGGET, ItemForm.PLATE));
+
+	public static final ResourceKey<Material> ZINC = register("Zinc", (b, l) -> b
+			.category(l.category(FormulaCategories.METAL))
+			.formula(Formula.builder().atom(l.atom(FormulaAtoms.ZINC), 1))
+			.trait(l.trait(FormulaTraits.CONDUCTIVE))
+			.color(0xFFBFC9CC).form(ItemForm.DUST, ItemForm.INGOT, ItemForm.NUGGET, ItemForm.PLATE));
+
+	public static final ResourceKey<Material> TIN = register("Tin", (b, l) -> b
+			.category(l.category(FormulaCategories.METAL))
+			.formula(Formula.builder().atom(l.atom(FormulaAtoms.TIN), 1))
+			.trait(l.trait(FormulaTraits.CONDUCTIVE))
+			.color(0xFFC8CDD0).form(ItemForm.DUST, ItemForm.INGOT, ItemForm.NUGGET, ItemForm.PLATE));
+
+	public static final ResourceKey<Material> LEAD = register("Lead", (b, l) -> b
+			.category(l.category(FormulaCategories.METAL))
+			.formula(Formula.builder().atom(l.atom(FormulaAtoms.LEAD), 1))
+			.trait(l.trait(FormulaTraits.DENSE)).trait(l.trait(FormulaTraits.TOXIC))
+			.color(0xFF575E66).form(ItemForm.DUST, ItemForm.INGOT, ItemForm.NUGGET, ItemForm.PLATE));
+
+	public static final ResourceKey<Material> SILVER = register("Silver", (b, l) -> b
+			.category(l.category(FormulaCategories.METAL))
+			.formula(Formula.builder().atom(l.atom(FormulaAtoms.SILVER), 1))
+			.trait(l.trait(FormulaTraits.CONDUCTIVE))
+			.color(0xFFE8E8EE).form(ItemForm.DUST, ItemForm.INGOT, ItemForm.NUGGET, ItemForm.PLATE, ItemForm.WIRE));
+
+	public static final ResourceKey<Material> PLATINUM = register("Platinum", (b, l) -> b
+			.category(l.category(FormulaCategories.METAL))
+			.formula(Formula.builder().atom(l.atom(FormulaAtoms.PLATINUM), 1))
+			.trait(l.trait(FormulaTraits.CONDUCTIVE)).trait(l.trait(FormulaTraits.CATALYTIC)).trait(l.trait(FormulaTraits.DENSE))
+			.color(0xFFE5E4DF).form(ItemForm.DUST, ItemForm.INGOT, ItemForm.NUGGET, ItemForm.PLATE));
+
+	public static final ResourceKey<Material> CHROMIUM = register("Chromium", (b, l) -> b
+			.category(l.category(FormulaCategories.METAL))
+			.formula(Formula.builder().atom(l.atom(FormulaAtoms.CHROMIUM), 1))
+			.trait(l.trait(FormulaTraits.STRUCTURAL)).trait(l.trait(FormulaTraits.BRITTLE))
+			.color(0xFFC6CDD2).form(ItemForm.DUST, ItemForm.INGOT, ItemForm.NUGGET, ItemForm.PLATE));
+
+	public static final ResourceKey<Material> MANGANESE = register("Manganese", (b, l) -> b
+			.category(l.category(FormulaCategories.METAL))
+			.formula(Formula.builder().atom(l.atom(FormulaAtoms.MANGANESE), 1))
+			.trait(l.trait(FormulaTraits.BRITTLE)).trait(l.trait(FormulaTraits.STRUCTURAL))
+			.color(0xFF9C9AA0).form(ItemForm.DUST, ItemForm.INGOT, ItemForm.NUGGET, ItemForm.PLATE));
+
+	public static final ResourceKey<Material> MAGNESIUM = register("Magnesium", (b, l) -> b
+			.category(l.category(FormulaCategories.METAL))
+			.formula(Formula.builder().atom(l.atom(FormulaAtoms.MAGNESIUM), 1))
+			.trait(l.trait(FormulaTraits.LIGHTWEIGHT)).trait(l.trait(FormulaTraits.FLAMMABLE)).trait(l.trait(FormulaTraits.REACTIVE))
+			.color(0xFFCFCFC9).form(ItemForm.DUST, ItemForm.INGOT, ItemForm.NUGGET, ItemForm.PLATE));
+
+	public static final ResourceKey<Material> LITHIUM = register("Lithium", (b, l) -> b
+			.category(l.category(FormulaCategories.METAL))
+			.formula(Formula.builder().atom(l.atom(FormulaAtoms.LITHIUM), 1))
+			.trait(l.trait(FormulaTraits.LIGHTWEIGHT)).trait(l.trait(FormulaTraits.REACTIVE)).trait(l.trait(FormulaTraits.CONDUCTIVE))
+			.color(0xFFB8BBC0).form(ItemForm.DUST, ItemForm.INGOT, ItemForm.NUGGET, ItemForm.PLATE));
+
+	public static final ResourceKey<Material> URANIUM = register("Uranium", (b, l) -> b
+			.category(l.category(FormulaCategories.RADIOACTIVE))
+			.formula(Formula.builder().atom(l.atom(FormulaAtoms.URANIUM), 1))
+			.trait(l.trait(FormulaTraits.RADIOACTIVE)).trait(l.trait(FormulaTraits.DENSE)).trait(l.trait(FormulaTraits.ENERGETIC))
+			.color(0xFF5E7042).form(ItemForm.DUST, ItemForm.INGOT, ItemForm.NUGGET, ItemForm.PLATE));
+
+	// Alloys — atom-ratio formulas (consistent with Steel/Stainless Steel above), approximating real
+	// compositions. Declared after the pure metals so their constituents already exist.
+	public static final ResourceKey<Material> BRONZE = register("Bronze", (b, l) -> b
+			.category(l.category(FormulaCategories.ALLOY))
+			.formula(Formula.builder().atom(l.atom(FormulaAtoms.COPPER), 7).atom(l.atom(FormulaAtoms.TIN), 1))
+			.trait(l.trait(FormulaTraits.STRUCTURAL)).trait(l.trait(FormulaTraits.CONDUCTIVE))
+			.color(0xFFCD7F32).form(ItemForm.INGOT, ItemForm.PLATE, ItemForm.ROD, ItemForm.GEAR));
+
+	public static final ResourceKey<Material> BRASS = register("Brass", (b, l) -> b
+			.category(l.category(FormulaCategories.ALLOY))
+			.formula(Formula.builder().atom(l.atom(FormulaAtoms.COPPER), 2).atom(l.atom(FormulaAtoms.ZINC), 1))
+			.trait(l.trait(FormulaTraits.STRUCTURAL)).trait(l.trait(FormulaTraits.CONDUCTIVE))
+			.color(0xFFD1B642).form(ItemForm.INGOT, ItemForm.PLATE, ItemForm.ROD, ItemForm.GEAR));
+
+	public static final ResourceKey<Material> ELECTRUM = register("Electrum", (b, l) -> b
+			.category(l.category(FormulaCategories.ALLOY))
+			.formula(Formula.builder().atom(l.atom(FormulaAtoms.GOLD), 1).atom(l.atom(FormulaAtoms.SILVER), 1))
+			.trait(l.trait(FormulaTraits.CONDUCTIVE))
+			.color(0xFFE8D98A).form(ItemForm.INGOT, ItemForm.PLATE, ItemForm.WIRE));
+
+	public static final ResourceKey<Material> INVAR = register("Invar", (b, l) -> b
+			.category(l.category(FormulaCategories.ALLOY))
+			.formula(Formula.builder().atom(l.atom(FormulaAtoms.IRON), 2).atom(l.atom(FormulaAtoms.NICKEL), 1))
+			.trait(l.trait(FormulaTraits.STRUCTURAL)).trait(l.trait(FormulaTraits.MAGNETIC))
+			.color(0xFF9AA0A6).form(ItemForm.INGOT, ItemForm.PLATE, ItemForm.ROD, ItemForm.GEAR));
+
+	public static final ResourceKey<Material> CONSTANTAN = register("Constantan", (b, l) -> b
+			.category(l.category(FormulaCategories.ALLOY))
+			.formula(Formula.builder().atom(l.atom(FormulaAtoms.COPPER), 5).atom(l.atom(FormulaAtoms.NICKEL), 4))
+			.trait(l.trait(FormulaTraits.CONDUCTIVE))
+			.color(0xFFB08D6A).form(ItemForm.INGOT, ItemForm.PLATE, ItemForm.WIRE));
+
+	public static final ResourceKey<Material> CUPRONICKEL = register("Cupronickel", (b, l) -> b
+			.category(l.category(FormulaCategories.ALLOY))
+			.formula(Formula.builder().atom(l.atom(FormulaAtoms.COPPER), 3).atom(l.atom(FormulaAtoms.NICKEL), 1))
+			.trait(l.trait(FormulaTraits.CONDUCTIVE)).trait(l.trait(FormulaTraits.STRUCTURAL))
+			.color(0xFFC2A98E).form(ItemForm.INGOT, ItemForm.PLATE, ItemForm.ROD));
+
+	public static final ResourceKey<Material> SOLDER = register("Solder", (b, l) -> b
+			.category(l.category(FormulaCategories.ALLOY))
+			.formula(Formula.builder().atom(l.atom(FormulaAtoms.TIN), 3).atom(l.atom(FormulaAtoms.LEAD), 2))
+			.trait(l.trait(FormulaTraits.CONDUCTIVE))
+			.color(0xFFB7BDC2).form(ItemForm.INGOT, ItemForm.PLATE, ItemForm.WIRE));
+
+	public static final ResourceKey<Material> NICHROME = register("Nichrome", (b, l) -> b
+			.category(l.category(FormulaCategories.ALLOY))
+			.formula(Formula.builder().atom(l.atom(FormulaAtoms.NICKEL), 4).atom(l.atom(FormulaAtoms.CHROMIUM), 1))
+			.trait(l.trait(FormulaTraits.CONDUCTIVE)).trait(l.trait(FormulaTraits.STRUCTURAL))
+			.color(0xFF8E8E94).form(ItemForm.INGOT, ItemForm.PLATE, ItemForm.WIRE, ItemForm.ROD));
+
 	/**
 	 * Declares a material: creates its {@link ResourceKey} (path derived from {@code name}) and records the
 	 * recipe for {@link #bootstrap(BootstrapContext)}.

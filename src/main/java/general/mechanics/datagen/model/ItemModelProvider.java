@@ -87,8 +87,8 @@ public final class ItemModelProvider extends ModelProviders {
 		elementModel(ingot.getPlateItem(), "item/ingot/plate", items);
 		elementModel(ingot.getPileItem(), "item/ingot/pile", items);
 		elementModel(ingot.getRodItem(), "item/ingot/rod", items);
-		elementModel(ingot.getBoltItem(), "item/ingot/bolt", items);
-		elementModel(ingot.getScrewItem(), "item/ingot/screw", items);
+		if (ingot.getBoltItem() != null) elementModel(ingot.getBoltItem(), "item/ingot/bolt", items);
+		if (ingot.getBoltItem() != null) elementModel(ingot.getScrewItem(), "item/ingot/screw", items);
 	}
 
 	private void elementModel (Item item, String path, ItemModelGenerators items) {

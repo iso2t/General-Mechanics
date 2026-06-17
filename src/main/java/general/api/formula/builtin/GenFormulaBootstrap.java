@@ -1,13 +1,7 @@
 package general.api.formula.builtin;
 
 import general.api.formula.GenFormula;
-import general.api.formula.core.Atom;
-import general.api.formula.core.Category;
-import general.api.formula.core.Compound;
-import general.api.formula.core.Formula;
-import general.api.formula.core.ItemForm;
-import general.api.formula.core.Material;
-import general.api.formula.core.Trait;
+import general.api.formula.core.*;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.data.worldgen.BootstrapContext;
 
