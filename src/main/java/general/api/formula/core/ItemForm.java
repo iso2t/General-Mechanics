@@ -4,6 +4,8 @@ import com.mojang.serialization.Codec;
 import net.minecraft.util.StringRepresentable;
 import org.jspecify.annotations.NonNull;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -15,11 +17,13 @@ import java.util.Locale;
  */
 public enum ItemForm implements StringRepresentable {
 	DUST,
-	SMALL_DUST,
+	PILE,
 	INGOT,
 	NUGGET,
 	PLATE,
-
+	RAW,
+	BOLT,
+	SCREW,
 	ROD,
 	WIRE,
 	GEAR,
@@ -33,6 +37,10 @@ public enum ItemForm implements StringRepresentable {
 	public static final Codec<ItemForm> CODEC = StringRepresentable.fromEnum(ItemForm::values);
 
 	private final String serializedName = name().toLowerCase(Locale.ROOT);
+
+	public static List<ItemForm> getDefaultForms () {
+		return List.of(DUST, PILE, INGOT, NUGGET, PLATE, RAW, BOLT, SCREW, ROD);
+	}
 
 	@Override
 	public @NonNull String getSerializedName () {

@@ -51,21 +51,19 @@ public class GenParts extends ItemRegistry {
 	public static final ItemDefinition<IngotItem> CUPRONICKEL     = ingotBuilder("Cupronickel", properties -> new IngotItem(properties, Materials.CUPRONICKEL), Materials.CUPRONICKEL);
 	public static final ItemDefinition<IngotItem> NICHROME        = ingotBuilder("Nichrome", properties -> new IngotItem(properties, Materials.NICHROME), Materials.NICHROME);
 	public static final ItemDefinition<IngotItem> STAINLESS_STEEL = ingotBuilder("Stainless Steel", properties -> new IngotItem(properties, Materials.STAINLESS_STEEL), Materials.STAINLESS_STEEL);
-	public static final ItemDefinition<IngotItem> SOLDER          = ingotBuilder("Solder", properties -> new IngotItem(properties, Materials.SOLDER), Materials.SOLDER, false);
-	public static final ItemDefinition<IngotItem> URANIUM         = ingotBuilder("Uranium", properties -> new IngotItem(properties, Materials.URANIUM), Materials.URANIUM, false);
-	public static final ItemDefinition<IngotItem> LITHIUM         = ingotBuilder("Lithium", properties -> new IngotItem(properties, Materials.LITHIUM), Materials.LITHIUM, false);
+	public static final ItemDefinition<IngotItem> SOLDER          = ingotBuilder("Solder", properties -> new IngotItem(properties, Materials.SOLDER), Materials.SOLDER);
+	public static final ItemDefinition<IngotItem> URANIUM         = ingotBuilder("Uranium", properties -> new IngotItem(properties, Materials.URANIUM), Materials.URANIUM);
+	public static final ItemDefinition<IngotItem> LITHIUM         = ingotBuilder("Lithium", properties -> new IngotItem(properties, Materials.LITHIUM), Materials.LITHIUM);
 
 	public static ItemDefinition<IngotItem> ingotBuilder (String baseName, Function<Item.Properties, IngotItem> factory, ResourceKey<Material> material) {
-		return ingotBuilder(baseName, factory, material, true);
-	}
-
-	public static ItemDefinition<IngotItem> ingotBuilder (String baseName, Function<Item.Properties, IngotItem> factory, ResourceKey<Material> material, boolean makeBolts) {
-		ItemDefinition<IngotItem> elementDef = ingot(baseName, factory, makeBolts);
+		ItemDefinition<IngotItem> elementDef = ingot(baseName, factory, material);
 		ELEMENTS_BY_TYPE.put(material, elementDef);
 		return elementDef;
 	}
 
-	static <T extends IngotItem> ItemDefinition<T> ingot (String name, Function<Item.Properties, T> factory, boolean makeBolts) {
+	static <T extends IngotItem> ItemDefinition<T> ingot (String name, Function<Item.Properties, T> factory, ResourceKey<Material> material) {
+		//var supportedParts = material
+
 		// Create the main element item
 		ItemDefinition<T> ingot = registerItem(String.format("%s Ingot", name), factory);
 
@@ -93,13 +91,11 @@ public class GenParts extends ItemRegistry {
 		String rodName = String.format("%s Rod", name);
 		registerItem(rodName, properties -> new RodItem(ingot.get(), properties));
 
-		if (makeBolts) {
-			String boltName = String.format("%s Bolt", name);
-			registerItem(boltName, properties -> new BoltItem(ingot.get(), properties));
+		String boltName = String.format("%s Bolt", name);
+		registerItem(boltName, properties -> new BoltItem(ingot.get(), properties));
 
-			String screwName = String.format("%s Screw", name);
-			registerItem(screwName, properties -> new ScrewItem(ingot.get(), properties));
-		}
+		String screwName = String.format("%s Screw", name);
+		registerItem(screwName, properties -> new ScrewItem(ingot.get(), properties));
 
 		return ingot;
 	}
