@@ -11,6 +11,7 @@ import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
 import net.minecraft.world.level.levelgen.feature.foliageplacers.FoliagePlacer;
 import net.minecraft.world.level.levelgen.feature.foliageplacers.FoliagePlacerType;
+import org.jspecify.annotations.NonNull;
 
 public class RubberFoliagePlacer extends FoliagePlacer {
 
@@ -24,12 +25,12 @@ public class RubberFoliagePlacer extends FoliagePlacer {
 	}
 
 	@Override
-	protected FoliagePlacerType<?> type () {
+	protected @NonNull FoliagePlacerType<?> type () {
 		return GenFoliagePlacers.RUBBER.get();
 	}
 
 	@Override
-	protected void createFoliage (WorldGenLevel level, FoliageSetter foliageSetter, RandomSource random, TreeConfiguration config, int treeHeight, FoliageAttachment attachment, int foliageHeight, int leafRadius, int offset) {
+	protected void createFoliage (@NonNull WorldGenLevel level, @NonNull FoliageSetter foliageSetter, @NonNull RandomSource random, @NonNull TreeConfiguration config, int treeHeight, FoliageAttachment attachment, int foliageHeight, int leafRadius, int offset) {
 		BlockPos origin = attachment.pos();
 		boolean doubleTrunk = attachment.doubleTrunk();
 		int body = leafRadius + attachment.radiusOffset();
@@ -89,12 +90,12 @@ public class RubberFoliagePlacer extends FoliagePlacer {
 	}
 
 	@Override
-	public int foliageHeight (RandomSource random, int treeHeight, TreeConfiguration config) {
+	public int foliageHeight (@NonNull RandomSource random, int treeHeight, @NonNull TreeConfiguration config) {
 		return Math.min(treeHeight - 1, this.height.sample(random));
 	}
 
 	@Override
-	protected boolean shouldSkipLocation (RandomSource random, int dx, int y, int dz, int currentRadius, boolean doubleTrunk) {
+	protected boolean shouldSkipLocation (@NonNull RandomSource random, int dx, int y, int dz, int currentRadius, boolean doubleTrunk) {
 		return false;
 	}
 }
