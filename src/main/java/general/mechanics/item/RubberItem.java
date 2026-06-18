@@ -1,7 +1,9 @@
 package general.mechanics.item;
 
 import general.api.formula.core.Material;
+import general.api.formula.tooltip.FormulaTooltip;
 import general.api.item.materials.IMaterialItem;
+import general.mechanics.registries.GenComponents;
 import lombok.Getter;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.DyeColor;
@@ -22,7 +24,7 @@ public class RubberItem extends Item implements IMaterialItem {
 	private final ResourceKey<Material> material;
 
 	public RubberItem (Properties properties, ResourceKey<Material> material) {
-		super(properties);
+		super(properties.component(GenComponents.FORMULA_TOOLTIP.get(), FormulaTooltip.ofMaterial(material)));
 		this.properties = properties;
 		this.material = material;
 	}

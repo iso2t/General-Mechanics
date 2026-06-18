@@ -1,7 +1,6 @@
 package general.mechanics.registries;
 
 import general.api.definitions.ItemDefinition;
-import general.api.formula.core.Material;
 import general.api.item.plastic.PlasticItem;
 import general.api.item.plastic.PlasticType;
 import general.api.item.plastic.PlasticTypeItem;
@@ -13,7 +12,6 @@ import general.mechanics.item.RubberColoredItem;
 import general.mechanics.item.RubberItem;
 import general.mechanics.item.WireSpoolItem;
 import general.mechanics.materials.Materials;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
@@ -47,7 +45,10 @@ public class GenItems extends ItemRegistry {
 	public static final ItemDefinition<PlasticTypeItem> POLYURETHANE                    = plasticType("Polyurethane", (properties) -> new PlasticTypeItem(properties, PlasticType.POLYURETHANE, Materials.POLYURETHANE));
 	public static final ItemDefinition<PlasticTypeItem> POLYTETRAFLUOROETHYLENE         = plasticType("Polytetrafluoroethylene", (properties) -> new PlasticTypeItem(properties, PlasticType.POLYTETRAFLUOROETHYLENE, Materials.POLYTETRAFLUOROETHYLENE));
 	public static final ItemDefinition<PlasticTypeItem> POLYETHERETHERKETONE            = plasticType("Polyetheretherketone", (properties) -> new PlasticTypeItem(properties, PlasticType.POLYETHERETHERKETONE, Materials.POLYETHERETHERKETONE));
-	public static final ItemDefinition<RubberItem>      ISOPRENE                        = registerRubber("Isoprene", properties -> new RubberItem(properties, Materials.ISOPRENE), Materials.ISOPRENE);
+	public static final ItemDefinition<Item> TREE_SAP = registerItem("Tree Sap", Item::new);
+
+	// Rubber
+	public static final ItemDefinition<RubberItem>      ISOPRENE                        = registerRubber("Isoprene", properties -> new RubberItem(properties, Materials.ISOPRENE));
 
 	public static <T extends Item> ItemDefinition<T> registerItem (final String localizedName, Function<Item.Properties, T> factory) {
 		return ItemRegistry.registerItem(INSTANCE, localizedName, Resource.get(new RegistryString(localizedName).getRegistryName()), factory);
@@ -57,7 +58,7 @@ public class GenItems extends ItemRegistry {
 		return ItemRegistry.registerItem(INSTANCE, localizedName, Resource.get(unlocalizedName), factory);
 	}
 
-	static <T extends RubberItem> ItemDefinition<T> registerRubber (final String localizedName, Function<Item.Properties, T> factory, ResourceKey<Material> material) {
+	static <T extends RubberItem> ItemDefinition<T> registerRubber (final String localizedName, Function<Item.Properties, T> factory) {
 		var definition = registerItem(localizedName, factory);
 		for (DyeColor color : PlasticType.getAllColors()) {
 			ItemRegistry.registerItem(INSTANCE, String.format("%s %s", formatColorName(color.getName()), localizedName), Resource.get(new RegistryString(String.format("%s %s", formatColorName(color.getName()), localizedName)).getRegistryName()),

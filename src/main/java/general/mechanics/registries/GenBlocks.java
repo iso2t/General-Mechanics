@@ -1,5 +1,6 @@
 package general.mechanics.registries;
 
+import general.api.block.DecorativeBlock;
 import general.api.block.IceBlock;
 import general.api.block.plastic.ColoredPlasticBlock;
 import general.api.block.plastic.PlasticTypeBlock;
@@ -9,13 +10,19 @@ import general.api.mod.GenAPI;
 import general.api.registry.RegistryString;
 import general.api.registry.block.BlockRegistry;
 import general.api.resources.Resource;
-import general.mechanics.client.block.Ice7Block;
+import general.mechanics.block.Ice7Block;
+import general.mechanics.block.LogBlock;
+import general.mechanics.worldgen.GenFeatures;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,22 +48,45 @@ public class GenBlocks extends BlockRegistry {
 	public static final BlockDefinition<PlasticTypeBlock> POLYETHERETHERKETONE_BLOCK            = plasticTypeBlock("Polyetheretherketone Block", PlasticType.POLYETHERETHERKETONE);
 
 
-	public static final BlockDefinition<IceBlock> ICE2 = registerBlock("Ice II", "ice_2", IceBlock::new);
-	public static final BlockDefinition<IceBlock> ICE3 = registerBlock("Ice III", "ice_3", IceBlock::new);
-	public static final BlockDefinition<IceBlock> ICE4 = registerBlock("Ice IV", "ice_4", IceBlock::new);
-	public static final BlockDefinition<IceBlock> ICE5 = registerBlock("Ice V", "ice_5", IceBlock::new);
+	public static final BlockDefinition<IceBlock>  ICE2 = registerBlock("Ice II", "ice_2", IceBlock::new);
+	public static final BlockDefinition<IceBlock>  ICE3 = registerBlock("Ice III", "ice_3", IceBlock::new);
+	public static final BlockDefinition<IceBlock>  ICE4 = registerBlock("Ice IV", "ice_4", IceBlock::new);
+	public static final BlockDefinition<IceBlock>  ICE5 = registerBlock("Ice V", "ice_5", IceBlock::new);
 	public static final BlockDefinition<IceBlock>  ICE6 = registerBlock("Ice VI", "ice_6", IceBlock::new);
 	public static final BlockDefinition<Ice7Block> ICE7 = registerBlock("Ice VII", "ice_7", Ice7Block::new);
 
-	private static String formatColorName(String colorName) {
+	public static final BlockDefinition<LogBlock>                  RUBBER_LOG            = registerBlock("Rubber Log", LogBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_LOG));
+	public static final BlockDefinition<LogBlock>                  RUBBER_WOOD           = registerBlock("Rubber Wood", LogBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_WOOD));
+	public static final BlockDefinition<LogBlock>                  STRIPPED_RUBBER_LOG   = registerBlock("Stripped Rubber Log", LogBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.STRIPPED_OAK_LOG));
+	public static final BlockDefinition<LogBlock>                  STRIPPED_RUBBER_WOOD  = registerBlock("Stripped Rubber Wood", LogBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.STRIPPED_OAK_WOOD));
+	public static final BlockDefinition<DecorativeBlock>           RUBBER_PLANKS         = registerBlock("Rubber Planks", props -> new DecorativeBlock(props) {
+		@Override
+		public boolean isFlammable (@NonNull BlockState state, @NonNull BlockGetter level, @NonNull BlockPos pos, @NonNull Direction direction) {
+			return true;
+		}
+
+		@Override
+		public int getFlammability (@NonNull BlockState state, @NonNull BlockGetter level, @NonNull BlockPos pos, @NonNull Direction direction) {
+			return 20;
+		}
+
+		@Override
+		public int getFireSpreadSpeed (@NonNull BlockState state, @NonNull BlockGetter level, @NonNull BlockPos pos, @NonNull Direction direction) {
+			return 5;
+		}
+	}, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS));
+	public static final BlockDefinition<TintedParticleLeavesBlock> RUBBER_LEAVES         = registerBlock("Rubber Leaves", props -> new TintedParticleLeavesBlock(0.01F, props), () -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_LEAVES));
+	public static final BlockDefinition<SaplingBlock>              RUBBER_SAPLING        = registerBlock("Rubber Sapling", props -> new SaplingBlock(GenFeatures.RUBBER, props), () -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_SAPLING));
+	public static final BlockDefinition<FlowerPotBlock>            POTTED_RUBBER_SAPLING = registerBlock("Potted Rubber Sapling", props -> new FlowerPotBlock(RUBBER_SAPLING.get(), props), () -> BlockBehaviour.Properties.ofFullCopy(Blocks.POTTED_OAK_SAPLING));
+
+	private static String formatColorName (String colorName) {
 		String[] words = colorName.split("_");
 		StringBuilder formatted = new StringBuilder();
 		for (int i = 0; i < words.length; i++) {
 			if (i > 0) {
 				formatted.append(" ");
 			}
-			formatted.append(words[i].substring(0, 1).toUpperCase())
-					.append(words[i].substring(1));
+			formatted.append(words[i].substring(0, 1).toUpperCase()).append(words[i].substring(1));
 		}
 		return formatted.toString();
 	}
@@ -65,17 +95,13 @@ public class GenBlocks extends BlockRegistry {
 		String resource = name.toLowerCase().replace(' ', '_');
 
 		// Create the main plastic type block.
-		var plasticTypeDef = registerBlock(name, resource,
-				props -> new PlasticTypeBlock(props, plasticType),
-				() -> BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK));
+		var plasticTypeDef = registerBlock(name, resource, props -> new PlasticTypeBlock(props, plasticType), () -> BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK));
 
 		// Register all colored plastic block variants.
 		for (DyeColor color : PlasticType.getAllColors()) {
 			String coloredName = formatColorName(color.getName()) + " " + name;
 			String coloredResource = color.getName().toLowerCase() + "_" + resource;
-			registerBlock(coloredName, coloredResource,
-					props -> new ColoredPlasticBlock(plasticTypeDef.get(), color, props),
-					() -> BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK));
+			registerBlock(coloredName, coloredResource, props -> new ColoredPlasticBlock(plasticTypeDef.get(), color, props), () -> BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK));
 		}
 
 		return plasticTypeDef;
@@ -93,10 +119,14 @@ public class GenBlocks extends BlockRegistry {
 		return BlockRegistry.registerBlock(INSTANCE, GenItems.INSTANCE, localizedName, Resource.get(new RegistryString(localizedName).getRegistryName()), factory);
 	}
 
+	public static <T extends Block> BlockDefinition<T> registerBlock (final String localizedName, final Function<BlockBehaviour.Properties, T> factory, final Supplier<BlockBehaviour.Properties> baseProperties) {
+		return BlockRegistry.registerBlock(INSTANCE, GenItems.INSTANCE, localizedName, Resource.get(new RegistryString(localizedName).getRegistryName()), factory, baseProperties);
+	}
+
 	/**
 	 * Get all colored plastic blocks for a specific plastic type
 	 */
-	public static List<ColoredPlasticBlock> getColoredPlasticBlocksForType(PlasticType plasticType) {
+	public static List<ColoredPlasticBlock> getColoredPlasticBlocksForType (PlasticType plasticType) {
 		List<ColoredPlasticBlock> coloredVariants = new ArrayList<>();
 		for (var block : BLOCKS) {
 			if (block.get() instanceof ColoredPlasticBlock colored) {
@@ -111,7 +141,7 @@ public class GenBlocks extends BlockRegistry {
 	/**
 	 * Get all colored plastic blocks
 	 */
-	public static List<ColoredPlasticBlock> getAllColoredPlasticBlocks() {
+	public static List<ColoredPlasticBlock> getAllColoredPlasticBlocks () {
 		List<ColoredPlasticBlock> allColored = new ArrayList<>();
 		for (var block : BLOCKS) {
 			if (block.get() instanceof ColoredPlasticBlock colored) {
@@ -121,7 +151,7 @@ public class GenBlocks extends BlockRegistry {
 		return allColored;
 	}
 
-	public static List<PlasticTypeBlock> getAllPlasticTypeBlocks() {
+	public static List<PlasticTypeBlock> getAllPlasticTypeBlocks () {
 		List<PlasticTypeBlock> allPlastic = new ArrayList<>();
 		for (var block : BLOCKS) {
 			if (block.get() instanceof PlasticTypeBlock plastic) {

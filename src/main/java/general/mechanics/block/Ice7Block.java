@@ -1,4 +1,4 @@
-package general.mechanics.client.block;
+package general.mechanics.block;
 
 import general.api.block.IceBlock;
 import net.minecraft.core.BlockPos;

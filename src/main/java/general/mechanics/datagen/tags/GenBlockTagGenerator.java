@@ -5,6 +5,8 @@ import general.api.mod.GenAPI;
 import general.mechanics.registries.GenBlocks;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.world.level.block.LeavesBlock;
 import net.neoforged.neoforge.common.data.BlockTagsProvider;
 import org.jspecify.annotations.NonNull;
 
@@ -23,6 +25,10 @@ public class GenBlockTagGenerator extends BlockTagsProvider {
 				for (var tag : tagsProvider.getBlockTags()) {
 					this.tag(tag).add(block.get());
 				}
+			}
+
+			if (block.get() instanceof LeavesBlock) {
+				this.tag(BlockTags.LEAVES).add(block.get());
 			}
 		}
 	}

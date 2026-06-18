@@ -16,11 +16,7 @@ import net.minecraft.client.data.models.MultiVariant;
 import net.minecraft.client.data.models.blockstates.ConditionBuilder;
 import net.minecraft.client.data.models.blockstates.MultiPartGenerator;
 import net.minecraft.client.data.models.blockstates.PropertyDispatch;
-import net.minecraft.client.data.models.model.ItemModelUtils;
-import net.minecraft.client.data.models.model.ModelTemplates;
-import net.minecraft.client.data.models.model.TextureMapping;
-import net.minecraft.client.data.models.model.TextureSlot;
-import net.minecraft.client.data.models.model.TexturedModel;
+import net.minecraft.client.data.models.model.*;
 import net.minecraft.client.renderer.block.dispatch.VariantMutator;
 import net.minecraft.client.resources.model.UnbakedModel;
 import net.minecraft.client.resources.model.sprite.Material;
@@ -91,6 +87,12 @@ public final class BlockModelProvider extends ModelProviders {
 				heater(block);
 			}*/
 		}
+
+		// Rubber tree set
+		blockModels.createTintedLeaves(GenBlocks.RUBBER_LEAVES.get(), TexturedModel.LEAVES, -12012264);
+		blockModels.createPlantWithDefaultItem(GenBlocks.RUBBER_SAPLING.get(), GenBlocks.POTTED_RUBBER_SAPLING.get(), BlockModelGenerators.PlantType.NOT_TINTED);
+		blockModels.woodProvider(GenBlocks.RUBBER_LOG.get()).logWithHorizontal(GenBlocks.RUBBER_LOG.get()).wood(GenBlocks.RUBBER_WOOD.get());
+		blockModels.woodProvider(GenBlocks.STRIPPED_RUBBER_LOG.get()).logWithHorizontal(GenBlocks.STRIPPED_RUBBER_LOG.get()).wood(GenBlocks.STRIPPED_RUBBER_WOOD.get());
 	}
 
 	private void blockWithItem (BlockDefinition<?> block) {

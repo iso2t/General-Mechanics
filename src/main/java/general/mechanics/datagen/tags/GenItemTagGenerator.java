@@ -12,6 +12,7 @@ import general.mechanics.registries.GenParts;
 import general.mechanics.registries.GenTools;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -90,6 +91,9 @@ public class GenItemTagGenerator extends ItemTagsProvider {
 		this.tag(CoreTags.Items.CARBON)
 				.add(Items.COAL)
 				.add(Items.CHARCOAL);
+
+		this.tag(ItemTags.PLANKS)
+				.add(GenBlocks.RUBBER_PLANKS.asItem());
 
 	}
 

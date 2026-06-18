@@ -4,13 +4,16 @@ import general.api.formula.GenFormula;
 import general.mechanics.GenMech;
 import general.mechanics.datagen.data.SoundProvider;
 import general.mechanics.datagen.lang.GenMechEnLangProvider;
+import general.mechanics.datagen.loot.GenLootTableProvider;
 import general.mechanics.datagen.model.BlockModelProvider;
 import general.mechanics.datagen.model.ItemModelProvider;
 import general.mechanics.datagen.recipe.GenRecipeProvider;
 import general.mechanics.datagen.tags.GenBlockTagGenerator;
 import general.mechanics.datagen.tags.GenItemTagGenerator;
 import general.mechanics.formula.Formulas;
+import general.mechanics.worldgen.GenFeatures;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -38,8 +41,11 @@ public class DataGenerators {
 		// Sounds
 		pack.addProvider(SoundProvider::new);
 
-		// Formula API datapack registries
-		pack.addProvider(output -> new DatapackBuiltinEntriesProvider(output, registries, Formulas.formulaRegistrySet(), Set.of(GenFormula.NAMESPACE, GenMech.MOD_ID)));
+		pack.addProvider(bindRegistries(GenLootTableProvider::new, registries));
+
+		// Formula API datapack registries + worldgen (rubber tree configured feature)
+		var registrySet = Formulas.formulaRegistrySet().add(Registries.CONFIGURED_FEATURE, GenFeatures::bootstrap);
+		pack.addProvider(output -> new DatapackBuiltinEntriesProvider(output, registries, registrySet, Set.of(GenFormula.NAMESPACE, GenMech.MOD_ID)));
 
 		// Tags
 		var blockTagsProvider = pack.addProvider(output -> new GenBlockTagGenerator(output, registries));
