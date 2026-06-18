@@ -42,6 +42,12 @@ public enum ItemForm implements StringRepresentable {
 		return List.of(DUST, PILE, INGOT, NUGGET, PLATE, RAW, BOLT, SCREW, ROD);
 	}
 
+	public static List<ItemForm> getDefaultFormsAndGear() {
+		var forms = new ArrayList<>(getDefaultForms());
+		forms.add(GEAR);
+		return forms;
+	}
+
 	@Override
 	public @NonNull String getSerializedName () {
 		return serializedName;

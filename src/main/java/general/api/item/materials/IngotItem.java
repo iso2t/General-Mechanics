@@ -57,6 +57,10 @@ public class IngotItem extends Item implements IRecipeProvider, IMaterialItem {
 	@Setter
 	private ScrewItem screwItem;
 
+	@Getter
+	@Setter
+	private GearItem gearItem;
+
 	public IngotItem (Properties properties, ResourceKey<Material> material) {
 		super(properties.component(GenComponents.FORMULA_TOOLTIP.get(), FormulaTooltip.ofMaterial(material)));
 		this.properties = properties.component(GenComponents.FORMULA_TOOLTIP.get(), FormulaTooltip.ofMaterial(material));
@@ -67,55 +71,72 @@ public class IngotItem extends Item implements IRecipeProvider, IMaterialItem {
 	public void registerCraftingRecipes (HolderGetter<Item> holder, RecipeOutput consumer, Criterion<?> criterion) {
 		var path = Resource.getFromItem(this).getPath();
 
+		// Each recipe is emitted only when every sub-item it references exists — GenParts may skip forms
+		// the material doesn't support, leaving the matching getter null.
+
 		// Ingot -> Nugget
-		ShapelessRecipeBuilder.shapeless(holder, RecipeCategory.MISC, getNuggetItem(), 9)
-				.requires(this)
-				.unlockedBy("has_element", criterion)
-				.save(consumer, IRecipeProvider.createKey("materials/" + path + "_to_nugget"));
+		if (getNuggetItem() != null) {
+			ShapelessRecipeBuilder.shapeless(holder, RecipeCategory.MISC, getNuggetItem(), 9)
+					.requires(this)
+					.unlockedBy("has_element", criterion)
+					.save(consumer, IRecipeProvider.createKey("materials/" + path + "_to_nugget"));
+		}
 
 		// Hammer + this -> Dust
-		ShapelessRecipeBuilder.shapeless(holder, RecipeCategory.MISC, getDustItem(), 1)
-				.requires(CoreTags.Items.HAMMERS)
-				.requires(this)
-				.unlockedBy("has_element", criterion)
-				.save(consumer, IRecipeProvider.createKey("materials/" + path + "_to_dust"));
+		if (getDustItem() != null) {
+			ShapelessRecipeBuilder.shapeless(holder, RecipeCategory.MISC, getDustItem(), 1)
+					.requires(CoreTags.Items.HAMMERS)
+					.requires(this)
+					.unlockedBy("has_element", criterion)
+					.save(consumer, IRecipeProvider.createKey("materials/" + path + "_to_dust"));
+		}
 
 		// Hammer + this + this -> Plate
-		ShapedRecipeBuilder.shaped(holder, RecipeCategory.MISC, getPlateItem(), 1)
-				.pattern("H")
-				.pattern("I")
-				.pattern("I")
-				.define('H', CoreTags.Items.HAMMERS)
-				.define('I', this)
-				.unlockedBy("has_element", criterion)
-				.save(consumer, IRecipeProvider.createKey("materials/" + path + "_to_plate"));
+		if (getPlateItem() != null) {
+			ShapedRecipeBuilder.shaped(holder, RecipeCategory.MISC, getPlateItem(), 1)
+					.pattern("H")
+					.pattern("I")
+					.pattern("I")
+					.define('H', CoreTags.Items.HAMMERS)
+					.define('I', this)
+					.unlockedBy("has_element", criterion)
+					.save(consumer, IRecipeProvider.createKey("materials/" + path + "_to_plate"));
+		}
 
 		// Dust -> Raw
-		SimpleCookingRecipeBuilder.smelting(Ingredient.of(this::getDustItem), RecipeCategory.MISC, CookingBookCategory.MISC, this::getRawItem, 0.6f, 200)
-				.unlockedBy("has_element", criterion)
-				.save(consumer, IRecipeProvider.createKey("materials/" + path + "_smelt_to_raw"));
+		if (getDustItem() != null && getRawItem() != null) {
+			SimpleCookingRecipeBuilder.smelting(Ingredient.of(this::getDustItem), RecipeCategory.MISC, CookingBookCategory.MISC, this::getRawItem, 0.6f, 200)
+					.unlockedBy("has_element", criterion)
+					.save(consumer, IRecipeProvider.createKey("materials/" + path + "_smelt_to_raw"));
+		}
 
 		// Raw -> Ingot
-		SimpleCookingRecipeBuilder.smelting(Ingredient.of(this::getRawItem), RecipeCategory.MISC, CookingBookCategory.MISC, this, 0.6f, 250)
-				.unlockedBy("has_element", criterion)
-				.save(consumer, IRecipeProvider.createKey("materials/" + path + "_smelt_to_ingot"));
+		if (getRawItem() != null) {
+			SimpleCookingRecipeBuilder.smelting(Ingredient.of(this::getRawItem), RecipeCategory.MISC, CookingBookCategory.MISC, this, 0.6f, 250)
+					.unlockedBy("has_element", criterion)
+					.save(consumer, IRecipeProvider.createKey("materials/" + path + "_smelt_to_ingot"));
+		}
 
 		// Dust -> Pile
-		ShapelessRecipeBuilder.shapeless(holder, RecipeCategory.MISC, this::getPileItem, 4)
-				.requires(CoreTags.Items.HAMMERS)
-				.requires(this::getDustItem)
-				.unlockedBy("has_element", criterion)
-				.save(consumer, IRecipeProvider.createKey("materials/" + path + "_dust_to_pile"));
+		if (getDustItem() != null && getPileItem() != null) {
+			ShapelessRecipeBuilder.shapeless(holder, RecipeCategory.MISC, this::getPileItem, 4)
+					.requires(CoreTags.Items.HAMMERS)
+					.requires(this::getDustItem)
+					.unlockedBy("has_element", criterion)
+					.save(consumer, IRecipeProvider.createKey("materials/" + path + "_dust_to_pile"));
+		}
 
 		// File + this -> Rod
-		ShapelessRecipeBuilder.shapeless(holder, RecipeCategory.MISC, this::getRodItem, 1)
-				.requires(CoreTags.Items.FILES)
-				.requires(this)
-				.unlockedBy("has_element", criterion)
-				.save(consumer, IRecipeProvider.createKey("materials/" + path + "_to_rod"));
+		if (getRodItem() != null) {
+			ShapelessRecipeBuilder.shapeless(holder, RecipeCategory.MISC, this::getRodItem, 1)
+					.requires(CoreTags.Items.FILES)
+					.requires(this)
+					.unlockedBy("has_element", criterion)
+					.save(consumer, IRecipeProvider.createKey("materials/" + path + "_to_rod"));
+		}
 
 		// Bolt
-		if (getBoltItem() != null) {
+		if (getBoltItem() != null && getScrewItem() != null) {
 			ShapelessRecipeBuilder.shapeless(holder, RecipeCategory.MISC, this::getBoltItem)
 					.requires(this::getScrewItem)
 					.requires(CoreTags.Items.FILES)
@@ -132,10 +153,26 @@ public class IngotItem extends Item implements IRecipeProvider, IMaterialItem {
 					.unlockedBy("has_any", criterion)
 					.save(consumer, IRecipeProvider.createKey("materials/" + path + "_to_screw"));
 		}
+
+		if (getGearItem() != null) {
+			ShapedRecipeBuilder.shaped(holder, RecipeCategory.MISC, this::getGearItem, 1)
+					.pattern("FPS")
+					.pattern("PBP")
+					.pattern("DPH")
+					.define('F', CoreTags.Items.FILES)
+					.define('H', CoreTags.Items.HAMMERS)
+					.define('S', CoreTags.Items.SAWS)
+					.define('D', CoreTags.Items.SOCKET_DRIVERS)
+					.define('P', this::getPlateItem)
+					.define('B', this::getBoltItem)
+					.unlockedBy("has_any", criterion)
+					.save(consumer, IRecipeProvider.createKey("materials/" + path + "_to_gear"));
+		}
 	}
 
 	@Override
 	public ItemLike getCriterionItem () {
-		return this::getPileItem;
+		// Fall back to the always-present ingot when this material has no pile form.
+		return getPileItem() != null ? this::getPileItem : this;
 	}
 }

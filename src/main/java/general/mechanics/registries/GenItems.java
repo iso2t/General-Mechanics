@@ -1,6 +1,7 @@
 package general.mechanics.registries;
 
 import general.api.definitions.ItemDefinition;
+import general.api.formula.core.Material;
 import general.api.item.plastic.PlasticItem;
 import general.api.item.plastic.PlasticType;
 import general.api.item.plastic.PlasticTypeItem;
@@ -8,8 +9,11 @@ import general.api.mod.GenAPI;
 import general.api.registry.RegistryString;
 import general.api.registry.item.ItemRegistry;
 import general.api.resources.Resource;
-import general.mechanics.materials.Materials;
+import general.mechanics.item.RubberColoredItem;
+import general.mechanics.item.RubberItem;
 import general.mechanics.item.WireSpoolItem;
+import general.mechanics.materials.Materials;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
@@ -43,6 +47,7 @@ public class GenItems extends ItemRegistry {
 	public static final ItemDefinition<PlasticTypeItem> POLYURETHANE                    = plasticType("Polyurethane", (properties) -> new PlasticTypeItem(properties, PlasticType.POLYURETHANE, Materials.POLYURETHANE));
 	public static final ItemDefinition<PlasticTypeItem> POLYTETRAFLUOROETHYLENE         = plasticType("Polytetrafluoroethylene", (properties) -> new PlasticTypeItem(properties, PlasticType.POLYTETRAFLUOROETHYLENE, Materials.POLYTETRAFLUOROETHYLENE));
 	public static final ItemDefinition<PlasticTypeItem> POLYETHERETHERKETONE            = plasticType("Polyetheretherketone", (properties) -> new PlasticTypeItem(properties, PlasticType.POLYETHERETHERKETONE, Materials.POLYETHERETHERKETONE));
+	public static final ItemDefinition<RubberItem>      ISOPRENE                        = registerRubber("Isoprene", properties -> new RubberItem(properties, Materials.ISOPRENE), Materials.ISOPRENE);
 
 	public static <T extends Item> ItemDefinition<T> registerItem (final String localizedName, Function<Item.Properties, T> factory) {
 		return ItemRegistry.registerItem(INSTANCE, localizedName, Resource.get(new RegistryString(localizedName).getRegistryName()), factory);
@@ -52,13 +57,20 @@ public class GenItems extends ItemRegistry {
 		return ItemRegistry.registerItem(INSTANCE, localizedName, Resource.get(unlocalizedName), factory);
 	}
 
+	static <T extends RubberItem> ItemDefinition<T> registerRubber (final String localizedName, Function<Item.Properties, T> factory, ResourceKey<Material> material) {
+		var definition = registerItem(localizedName, factory);
+		for (DyeColor color : PlasticType.getAllColors()) {
+			ItemRegistry.registerItem(INSTANCE, String.format("%s %s", formatColorName(color.getName()), localizedName), Resource.get(new RegistryString(String.format("%s %s", formatColorName(color.getName()), localizedName)).getRegistryName()),
+					properties -> new RubberColoredItem(definition.get(), color, properties));
+		}
+		return definition;
+	}
+
 	static <T extends PlasticTypeItem> ItemDefinition<T> plasticType (final String localizedName, Function<Item.Properties, T> factory) {
 		var definition = registerItem(localizedName, factory);
 
 		for (DyeColor color : PlasticType.getAllColors()) {
-			var coloredName = formatColorName(color.getName()) + " " + localizedName;
-			var coloredResourceName = color.getName().toLowerCase() + "_" + localizedName.toLowerCase().replace(" ", "_");
-			ItemRegistry.registerItem(INSTANCE, coloredName, Resource.get(coloredResourceName), properties -> new PlasticItem(definition.get(), color, properties));
+			ItemRegistry.registerItem(INSTANCE, String.format("%s %s", formatColorName(color.getName()), localizedName), Resource.get(new RegistryString(String.format("%s %s", formatColorName(color.getName()), localizedName)).getRegistryName()), properties -> new PlasticItem(definition.get(), color, properties));
 		}
 		return definition;
 	}
@@ -75,7 +87,7 @@ public class GenItems extends ItemRegistry {
 		return formatted.toString();
 	}
 
-	public static List<PlasticItem> getAllColoredPlastics() {
+	public static List<PlasticItem> getAllColoredPlastics () {
 		List<PlasticItem> allColored = new ArrayList<>();
 		for (var item : ITEMS) {
 			if (item.get() instanceof PlasticItem colored) {
@@ -88,14 +100,25 @@ public class GenItems extends ItemRegistry {
 	/**
 	 * Get all colored variants for a specific plastic type
 	 */
-	public static List<Item> getColoredPlasticsForType(PlasticType plasticType) {
+	public static List<Item> getColoredPlasticsForType (PlasticType plasticType) {
 		List<Item> coloredVariants = new ArrayList<>();
 		for (var item : ITEMS) {
 			if (item.get() instanceof PlasticItem colored) {
 				if (colored.getParent().getPlasticType() == plasticType) {
 					coloredVariants.add(colored);
-					if (!coloredVariants.contains(colored.getParent()))
-						coloredVariants.add(colored.getParent());
+					if (!coloredVariants.contains(colored.getParent())) coloredVariants.add(colored.getParent());
+				}
+			}
+		}
+		return coloredVariants;
+	}
+
+	public static List<Item> getAllPlasticsForColor (DyeColor color) {
+		List<Item> coloredVariants = new ArrayList<>();
+		for (var item : ITEMS) {
+			if (item.get() instanceof PlasticItem colored) {
+				if (colored.getColor() == color) {
+					coloredVariants.add(colored);
 				}
 			}
 		}

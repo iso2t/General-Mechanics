@@ -85,6 +85,8 @@ public record FormulaTooltip(Optional<ResourceKey<Material>> material, Optional<
 		if (!isShiftDown()) {
 			if (abbreviation != null) consumer.accept(Component.literal("§o" + abbreviation));
 			consumer.accept(Component.literal(TextColors.FORMULA + mat.formula().unicode()));
+			consumer.accept(Component.empty());
+			consumer.accept(Component.translatable("genapi.hold_shift"));
 		} else {
 			consumer.accept(Component.translatable("genapi.formulas.tooltip.formula", TextColors.FORMULA + mat.formula().unicode()));
 			consumer.accept(Component.translatable("genapi.formulas.tooltip.material", mat.name()));

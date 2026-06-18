@@ -10,7 +10,9 @@ import general.api.mod.GenAPI;
 import general.api.resources.Resource;
 import general.mechanics.client.color.MaterialTintSource;
 import general.mechanics.client.color.PlasticTintSource;
-import general.mechanics.item.tools.SawItem;
+import general.mechanics.client.color.RubberTintSource;
+import general.mechanics.item.RubberColoredItem;
+import general.mechanics.item.RubberItem;
 import general.mechanics.registries.GenItems;
 import general.mechanics.registries.GenParts;
 import general.mechanics.registries.GenTools;
@@ -19,7 +21,6 @@ import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
-import net.minecraft.client.data.models.model.TextureSlot;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -27,9 +28,7 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.level.block.Block;
-import net.neoforged.neoforge.client.model.generators.template.ExtendedModelTemplateBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
 
@@ -41,6 +40,7 @@ public final class ItemModelProvider extends ModelProviders {
 
 	private final Set<Identifier> createdPlasticModels = new HashSet<>();
 	private final Set<Identifier> createdElementModels = new HashSet<>();
+	private final Set<Identifier> createdRubberModels = new HashSet<>();
 
 	public ItemModelProvider (PackOutput output) {
 		super(output);
@@ -53,6 +53,10 @@ public final class ItemModelProvider extends ModelProviders {
 				plasticItem(item, plastic.getParent().getPlasticType().getDisplayName().toLowerCase(), itemModels);
 			} else if (item.get() instanceof PlasticTypeItem plastic) {
 				plasticItem(item, plastic.getPlasticType().getDisplayName().toLowerCase(), itemModels);
+			} else if (item.get() instanceof RubberItem) {
+				rubberItem(item, itemModels);
+			} else if (item.get() instanceof RubberColoredItem) {
+				rubberItem(item, itemModels);
 			} else {
 				itemModels.generateFlatItem(item.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
 			}
@@ -60,17 +64,13 @@ public final class ItemModelProvider extends ModelProviders {
 
 		for (var tool : GenTools.INSTANCE.getItems()) {
 			if (tool.get() instanceof ToolItem) {
-				/*if (!(tool.get() instanceof SawItem))*/ itemModels.generateFlatItem(tool.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
-				/*else itemModels.generateFlatItem(tool.get(), ModelTemplates.FLAT_HANDHELD_ITEM.extend()
-						.transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, t -> t.rotation(0, 90, 0).translation(0, 3, 1).scale(0.55f, -0.55f, 0.55f))
-						.transform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND, t -> t.rotation(0, 90, 0).translation(1.13f, 3.2f, 1.13f).scale(0.68f, -0.68f, 0.68f))
-						.build());*/
+				itemModels.generateFlatItem(tool.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
 			}
 		}
 
 		for (var part : GenParts.INSTANCE.getItems()) {
 			if (part.get() instanceof IngotItem ingot) {
-				registerElementModels(ingot, itemModels);
+				registerPartModels(ingot, itemModels);
 			} else if (part.get() instanceof IMaterialItem) {
 				// Element sub-item (raw/nugget/dust/...): emitted by its parent ingot's registerElementModels.
 			} else {
@@ -79,36 +79,25 @@ public final class ItemModelProvider extends ModelProviders {
 		}
 	}
 
-	private void registerElementModels (IngotItem ingot, ItemModelGenerators items) {
-		elementModel(ingot, "item/ingot/ingot", items);
-		elementModel(ingot.getNuggetItem(), "item/ingot/nugget", items);
-		elementModel(ingot.getRawItem(), "item/ingot/raw_ore", items);
-		elementModel(ingot.getDustItem(), "item/ingot/dust", items);
-		elementModel(ingot.getPlateItem(), "item/ingot/plate", items);
-		elementModel(ingot.getPileItem(), "item/ingot/pile", items);
-		elementModel(ingot.getRodItem(), "item/ingot/rod", items);
-		if (ingot.getBoltItem() != null) elementModel(ingot.getBoltItem(), "item/ingot/bolt", items);
-		if (ingot.getBoltItem() != null) elementModel(ingot.getScrewItem(), "item/ingot/screw", items);
+	private void registerPartModels (IngotItem ingot, ItemModelGenerators items) {
+		// The ingot is always present; every other form is emitted only when GenParts created it.
+		partModel(ingot, "item/material/ingot", items);
+		if (ingot.getNuggetItem() != null) partModel(ingot.getNuggetItem(), "item/material/nugget", items);
+		if (ingot.getRawItem() != null) partModel(ingot.getRawItem(), "item/material/raw_ore", items);
+		if (ingot.getDustItem() != null) partModel(ingot.getDustItem(), "item/material/dust", items);
+		if (ingot.getPlateItem() != null) partModel(ingot.getPlateItem(), "item/material/plate", items);
+		if (ingot.getPileItem() != null) partModel(ingot.getPileItem(), "item/material/pile", items);
+		if (ingot.getRodItem() != null) partModel(ingot.getRodItem(), "item/material/rod", items);
+		if (ingot.getBoltItem() != null) partModel(ingot.getBoltItem(), "item/material/bolt", items);
+		if (ingot.getScrewItem() != null) partModel(ingot.getScrewItem(), "item/material/screw", items);
+		if (ingot.getGearItem() != null) partModel(ingot.getGearItem(), "item/material/gear", items);
 	}
 
-	private void elementModel (Item item, String path, ItemModelGenerators items) {
+	private void partModel (Item item, String path, ItemModelGenerators items) {
 		var model = Resource.get(path);
 		if (createdElementModels.add(model)) {
 			ModelTemplates.FLAT_ITEM.create(model, TextureMapping.layer0(new Material(model)), items.modelOutput);
 		}
-		items.itemModelOutput.accept(item, ItemModelUtils.tintedModel(model, MaterialTintSource.INSTANCE));
-	}
-
-	private void sawModel (Item item, ItemModelGenerators items) {
-		var model = Resource.getFromItem(item);
-		// Flat item, but mirrored vertically in-hand (negative Y scale) so the saw's teeth face away from
-		// the player. Only the held contexts are overridden; GUI/ground/etc. inherit item/generated, so the
-		// inventory icon keeps its current orientation. (Left-hand auto-mirrors the right-hand transform.)
-		var template = ExtendedModelTemplateBuilder.of(ModelTemplates.FLAT_HANDHELD_ITEM)
-				.transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, t -> t.rotation(0, 0, 0).translation(0, 3, 1).scale(0.55f, -0.55f, 0.55f))
-				.transform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND, t -> t.rotation(0, -90, 25).translation(1.13f, 3.2f, 1.13f).scale(0.68f, -0.68f, 0.68f))
-				.build();
-		template.create(model, TextureMapping.layer0(new Material(model)), items.modelOutput);
 		items.itemModelOutput.accept(item, ItemModelUtils.tintedModel(model, MaterialTintSource.INSTANCE));
 	}
 
@@ -118,6 +107,14 @@ public final class ItemModelProvider extends ModelProviders {
 			ModelTemplates.FLAT_ITEM.create(model, TextureMapping.layer0(new Material(model)), generator.modelOutput);
 		}
 		generator.itemModelOutput.accept(item.get(), ItemModelUtils.tintedModel(model, PlasticTintSource.INSTANCE));
+	}
+
+	private void rubberItem (ItemDefinition<?> item, ItemModelGenerators generator) {
+		var model = Resource.get("item/rubber");
+		if (createdRubberModels.add(model)) {
+			ModelTemplates.FLAT_ITEM.create(model, TextureMapping.layer0(new Material(model)), generator.modelOutput);
+		}
+		generator.itemModelOutput.accept(item.get(), ItemModelUtils.tintedModel(model, RubberTintSource.INSTANCE));
 	}
 
 	@Override

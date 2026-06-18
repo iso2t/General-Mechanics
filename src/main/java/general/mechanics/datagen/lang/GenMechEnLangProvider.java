@@ -54,5 +54,6 @@ public class GenMechEnLangProvider extends LanguageProvider {
 		add("genapi.formulas.tooltip.category", "§7Category: §f%s");
 		add("genapi.formulas.tooltip.mass", "§7Mass: §f%s g/mol");
 		add("genapi.formulats.tooltip.traits", "§7Traits: §f%s");
+		add("genapi.hold_shift", "§o§8Hold §e[SHIFT]§8 for more info");
 	}
 }

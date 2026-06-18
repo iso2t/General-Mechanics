@@ -1,6 +1,7 @@
 package general.mechanics.registries;
 
 import general.api.definitions.ItemDefinition;
+import general.api.formula.core.ItemForm;
 import general.api.formula.core.Material;
 import general.api.item.materials.*;
 import general.api.mod.GenAPI;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
 public class GenParts extends ItemRegistry {
@@ -62,40 +64,23 @@ public class GenParts extends ItemRegistry {
 	}
 
 	static <T extends IngotItem> ItemDefinition<T> ingot (String name, Function<Item.Properties, T> factory, ResourceKey<Material> material) {
-		//var supportedParts = material
+		// The material's supported forms dictate which items get created. Read eagerly (the built Material
+		// lives in a datapack registry that doesn't exist yet at item-registration time).
+		Set<ItemForm> forms = Materials.getDefaultForms(material);
 
-		// Create the main element item
+		// The ingot is always created — it carries the material reference and anchors every sub-item.
 		ItemDefinition<T> ingot = registerItem(String.format("%s Ingot", name), factory);
 
-		// Register the raw item
-		String rawName = String.format("Raw %s", name);
-		registerItem(rawName, properties -> new RawItem(ingot.get(), properties));
-
-		// Register the nugget item
-		String nuggetName = String.format("%s Nugget", name);
-		registerItem(nuggetName, properties -> new NuggetItem(ingot.get(), properties));
-
-		// Register the dust item
-		String dustName = String.format("%s Dust", name);
-		registerItem(dustName, properties -> new DustItem(ingot.get(), properties));
-
-		// Register the plate item
-		String plateName = String.format("%s Plate", name);
-		registerItem(plateName, properties -> new PlateItem(ingot.get(), properties));
-
-		// Register the pile item
-		String pileName = String.format("%s Pile", name);
-		registerItem(pileName, properties -> new PileItem(ingot.get(), properties));
-
-		// Register the rod item
-		String rodName = String.format("%s Rod", name);
-		registerItem(rodName, properties -> new RodItem(ingot.get(), properties));
-
-		String boltName = String.format("%s Bolt", name);
-		registerItem(boltName, properties -> new BoltItem(ingot.get(), properties));
-
-		String screwName = String.format("%s Screw", name);
-		registerItem(screwName, properties -> new ScrewItem(ingot.get(), properties));
+		// Each remaining form is created only if the material supports it.
+		if (forms.contains(ItemForm.RAW)) registerItem(String.format("Raw %s", name), properties -> new RawItem(ingot.get(), properties));
+		if (forms.contains(ItemForm.NUGGET)) registerItem(String.format("%s Nugget", name), properties -> new NuggetItem(ingot.get(), properties));
+		if (forms.contains(ItemForm.DUST)) registerItem(String.format("%s Dust", name), properties -> new DustItem(ingot.get(), properties));
+		if (forms.contains(ItemForm.PLATE)) registerItem(String.format("%s Plate", name), properties -> new PlateItem(ingot.get(), properties));
+		if (forms.contains(ItemForm.PILE)) registerItem(String.format("%s Pile", name), properties -> new PileItem(ingot.get(), properties));
+		if (forms.contains(ItemForm.ROD)) registerItem(String.format("%s Rod", name), properties -> new RodItem(ingot.get(), properties));
+		if (forms.contains(ItemForm.BOLT)) registerItem(String.format("%s Bolt", name), properties -> new BoltItem(ingot.get(), properties));
+		if (forms.contains(ItemForm.SCREW)) registerItem(String.format("%s Screw", name), properties -> new ScrewItem(ingot.get(), properties));
+		if (forms.contains(ItemForm.GEAR)) registerItem(String.format("%s Gear", name), properties -> new GearItem(ingot.get(), properties));
 
 		return ingot;
 	}
