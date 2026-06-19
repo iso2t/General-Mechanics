@@ -49,29 +49,20 @@ public class SawItem extends ToolItem {
 
 	@Override
 	public boolean mineBlock (@NonNull ItemStack stack, @NonNull Level level, @NonNull BlockState state, @NonNull BlockPos pos, @NonNull LivingEntity owner) {
-		// mineBlock runs before the origin block is removed, so use the passed `state` (the live block at
-		// `pos` may still be present and the vanilla flow handles its removal + loot).
-		boolean result = super.mineBlock(stack, level, state, pos, owner); // applies the saw's per-block tool damage
+		boolean result = super.mineBlock(stack, level, state, pos, owner);
 		if (level.isClientSide() || !(owner instanceof Player player)) return result;
 
 		if (state.is(BlockTags.PLANKS)) {
 			dropSawdust(level, pos, 0.15f);
 		} else if (state.is(BlockTags.LOGS_THAT_BURN)) {
-			// Origin log: the game removes + drops it after mineBlock, so just add our extras here.
 			dropSawdust(level, pos, 0.15f);
 			if (RubberLogBlock.isSappy(state)) dropRubberResin(level, pos);
-			// Fell the rest of the tree upward (like a real saw — nothing below the cut).
 			if (!player.isCrouching()) fellTreeUpward(stack, level, pos, state.getBlock(), player);
 		}
 
 		return result;
 	}
 
-	/**
-	 * Breaks every connected log of the same type at or above {@code origin}'s height (a GTCEu-style tree
-	 * fell), damaging the saw once per log and stopping if it breaks. The origin itself is left to the
-	 * vanilla mining flow; only the rest of the tree above the cut is broken.
-	 */
 	private void fellTreeUpward (ItemStack stack, Level level, BlockPos origin, Block logBlock, Player player) {
 		int minY = origin.getY();
 		Set<BlockPos> visited = new HashSet<>();
@@ -96,7 +87,7 @@ public class SawItem extends ToolItem {
 						level.destroyBlock(n, true, player);
 						dropSawdust(level, n, 0.15f);
 						stack.hurtAndBreak(1, player, EquipmentSlot.MAINHAND);
-						if (stack.isEmpty()) return; // saw broke — stop felling
+						if (stack.isEmpty()) return; // saw broke — stop
 
 						queue.add(n);
 						felled++;
@@ -117,15 +108,15 @@ public class SawItem extends ToolItem {
 	}
 
 	public @NonNull InteractionResult useOn (UseOnContext context) {
-		Level level = context.getLevel();
-		BlockPos pos = context.getClickedPos();
-		Player player = context.getPlayer();
+		var level = context.getLevel();
+		var pos = context.getClickedPos();
+		var player = context.getPlayer();
 
-		Optional<BlockState> newBlock = this.evaluateNewBlockState(level, pos, player, level.getBlockState(pos), context);
+		var newBlock = this.evaluateNewBlockState(level, pos, player, level.getBlockState(pos), context);
 		if (newBlock.isEmpty()) {
 			return InteractionResult.PASS;
 		} else {
-			ItemStack itemInHand = context.getItemInHand();
+			var itemInHand = context.getItemInHand();
 			if (player instanceof ServerPlayer) {
 				CriteriaTriggers.ITEM_USED_ON_BLOCK.trigger((ServerPlayer) player, pos, itemInHand);
 			}
@@ -141,17 +132,17 @@ public class SawItem extends ToolItem {
 	}
 
 	private Optional<BlockState> evaluateNewBlockState (Level level, BlockPos pos, @Nullable Player player, BlockState oldState, UseOnContext context) {
-		Optional<BlockState> strippedBlock = Optional.ofNullable(oldState.getToolModifiedState(context, ItemAbilities.AXE_STRIP, false));
+		var strippedBlock = Optional.ofNullable(oldState.getToolModifiedState(context, ItemAbilities.AXE_STRIP, false));
 		if (strippedBlock.isPresent()) {
 			level.playSound(player, pos, SoundEvents.AXE_STRIP, SoundSource.BLOCKS, 1.0F, 1.0F);
 			return strippedBlock;
 		} else {
-			Optional<BlockState> scrapedBlock = Optional.ofNullable(oldState.getToolModifiedState(context, ItemAbilities.AXE_SCRAPE, false));
+			var scrapedBlock = Optional.ofNullable(oldState.getToolModifiedState(context, ItemAbilities.AXE_SCRAPE, false));
 			if (scrapedBlock.isPresent()) {
 				spawnSoundAndParticle(level, pos, player, oldState, SoundEvents.AXE_SCRAPE, 3005);
 				return scrapedBlock;
 			} else {
-				Optional<BlockState> waxoffBlock = Optional.ofNullable(oldState.getToolModifiedState(context, ItemAbilities.AXE_WAX_OFF, false));
+				var waxoffBlock = Optional.ofNullable(oldState.getToolModifiedState(context, ItemAbilities.AXE_WAX_OFF, false));
 				if (waxoffBlock.isPresent()) {
 					spawnSoundAndParticle(level, pos, player, oldState, SoundEvents.AXE_WAX_OFF, 3004);
 					return waxoffBlock;
@@ -166,7 +157,7 @@ public class SawItem extends ToolItem {
 		level.playSound(player, pos, soundEvent, SoundSource.BLOCKS, 1.0F, 1.0F);
 		level.levelEvent(player, particle, pos, 0);
 		if (oldState.getBlock() instanceof ChestBlock && oldState.getValue(ChestBlock.TYPE) != ChestType.SINGLE) {
-			BlockPos neighborPos = ChestBlock.getConnectedBlockPos(pos, oldState);
+			var neighborPos = ChestBlock.getConnectedBlockPos(pos, oldState);
 			level.gameEvent(GameEvent.BLOCK_CHANGE, neighborPos, GameEvent.Context.of(player, level.getBlockState(neighborPos)));
 			level.levelEvent(player, particle, neighborPos, 0);
 		}
