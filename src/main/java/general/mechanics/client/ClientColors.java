@@ -9,6 +9,7 @@ import general.mechanics.client.color.PlasticBlockTintSource;
 import general.mechanics.client.color.PlasticTintSource;
 import general.mechanics.client.color.RubberTintSource;
 import general.mechanics.registries.GenBlocks;
+import net.minecraft.client.color.block.BlockTintSources;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 
@@ -30,6 +31,9 @@ public class ClientColors {
 		if (blocks.length > 0) {
 			event.register(List.of(PlasticBlockTintSource.INSTANCE), blocks);
 		}
+
+		// Biome foliage tint for rubber leaves (tintindex 0), matching vanilla oak/jungle leaves.
+		event.register(List.of(BlockTintSources.foliage()), GenBlocks.RUBBER_LEAVES.get());
 	}
 
 }

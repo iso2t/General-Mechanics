@@ -12,7 +12,7 @@ public abstract class ToolItem extends Item implements IRecipeProvider {
 	private final int durability;
 
 	public ToolItem (Properties properties, int durability) {
-		super(properties.durability(durability).setNoCombineRepair().stacksTo(1));
+		super(properties.durability(durability).setNoCombineRepair());
 		this.durability = durability;
 	}
 
@@ -37,7 +37,7 @@ public abstract class ToolItem extends Item implements IRecipeProvider {
 
 	@Override
 	public boolean isBarVisible(@NotNull ItemStack stack) {
-		return false;
+		return stack.isDamaged();
 	}
 
 	@Override
