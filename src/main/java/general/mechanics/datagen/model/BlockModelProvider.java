@@ -8,6 +8,7 @@ import general.api.block.plastic.PlasticTypeBlock;
 import general.api.definitions.BlockDefinition;
 import general.api.mod.GenAPI;
 import general.api.resources.Resource;
+import general.mechanics.block.RubberLogBlock;
 import general.mechanics.client.color.PlasticTintSource;
 import general.mechanics.registries.GenBlocks;
 import net.minecraft.client.data.models.BlockModelGenerators;
@@ -27,6 +28,8 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.neoforged.neoforge.client.model.generators.template.ExtendedModelTemplateBuilder;
@@ -47,6 +50,8 @@ public final class BlockModelProvider extends ModelProviders {
 	// Custom texture slots used by the layered ore models and machine-frame overlay models.
 	private static final TextureSlot BASE    = TextureSlot.create("base");
 	private static final TextureSlot OVERLAY = TextureSlot.create("overlay");
+	// Resin-spot face texture for a full rubber log.
+	private static final TextureSlot RESIN   = TextureSlot.create("resin");
 
 	private BlockModelGenerators generators;
 
@@ -91,7 +96,8 @@ public final class BlockModelProvider extends ModelProviders {
 		// Rubber tree set
 		blockModels.createTintedLeaves(GenBlocks.RUBBER_LEAVES.get(), TexturedModel.LEAVES, -12012264);
 		blockModels.createPlantWithDefaultItem(GenBlocks.RUBBER_SAPLING.get(), GenBlocks.POTTED_RUBBER_SAPLING.get(), BlockModelGenerators.PlantType.NOT_TINTED);
-		blockModels.woodProvider(GenBlocks.RUBBER_LOG.get()).logWithHorizontal(GenBlocks.RUBBER_LOG.get()).wood(GenBlocks.RUBBER_WOOD.get());
+		rubberLogWithResin(GenBlocks.RUBBER_LOG.get(), "rubber_log", Resource.get("block/rubber_log_top"));
+		rubberLogWithResin(GenBlocks.RUBBER_WOOD.get(), "rubber_wood", Resource.get("block/rubber_log"));
 		blockModels.woodProvider(GenBlocks.STRIPPED_RUBBER_LOG.get()).logWithHorizontal(GenBlocks.STRIPPED_RUBBER_LOG.get()).wood(GenBlocks.STRIPPED_RUBBER_WOOD.get());
 	}
 
@@ -99,6 +105,56 @@ public final class BlockModelProvider extends ModelProviders {
 		var model = TexturedModel.CUBE.create(block.get(), generators.modelOutput);
 		generators.blockStateOutput.accept(createSimpleBlock(block.get(), plainVariant(model)));
 		generators.registerSimpleItemModel(block.get(), model);
+	}
+
+	/**
+	 * Rubber log/wood with sap states. Renders the plain pillar by {@code AXIS}; an upright log at
+	 * {@link RubberLogBlock#MAX_SAP} swaps to a model whose north face shows {@code rubber_log_resin},
+	 * rotated to {@link RubberLogBlock#RESIN_FACING}. The plain {@code SAP 0/1/2} variants and the resin
+	 * variants are mutually exclusive, so the resin model fully replaces the face (no overlay z-fighting).
+	 */
+	private void rubberLogWithResin (Block block, String name, Identifier endTex) {
+		var sideTex  = Resource.get("block/rubber_log");
+		var resinTex = Resource.get("block/rubber_log_resin");
+
+		// Plain pillar model (also the inventory icon).
+		var plain = ModelTemplates.CUBE_COLUMN.create(Resource.get("block/" + name), TextureMapping.column(mat(sideTex), mat(endTex)), generators.modelOutput);
+
+		// Resin variant: identical cube, but the north face uses the resin texture.
+		var resin = ExtendedModelTemplateBuilder.builder()
+				.parent(Resource.getMinecraftResource("block/block"))
+				.requiredTextureSlot(TextureSlot.SIDE).requiredTextureSlot(TextureSlot.END).requiredTextureSlot(RESIN).requiredTextureSlot(TextureSlot.PARTICLE)
+				.element(element -> element.from(0, 0, 0).to(16, 16, 16)
+						.face(Direction.DOWN, face -> face.texture(TextureSlot.END).uvs(0, 0, 16, 16).cullface(Direction.DOWN))
+						.face(Direction.UP, face -> face.texture(TextureSlot.END).uvs(0, 0, 16, 16).cullface(Direction.UP))
+						.face(Direction.NORTH, face -> face.texture(RESIN).uvs(0, 0, 16, 16).cullface(Direction.NORTH))
+						.face(Direction.SOUTH, face -> face.texture(TextureSlot.SIDE).uvs(0, 0, 16, 16).cullface(Direction.SOUTH))
+						.face(Direction.WEST, face -> face.texture(TextureSlot.SIDE).uvs(0, 0, 16, 16).cullface(Direction.WEST))
+						.face(Direction.EAST, face -> face.texture(TextureSlot.SIDE).uvs(0, 0, 16, 16).cullface(Direction.EAST)))
+				.build()
+				.create(Resource.get("block/" + name + "_resin"),
+						new TextureMapping().put(TextureSlot.SIDE, mat(sideTex)).put(TextureSlot.END, mat(endTex)).put(RESIN, mat(resinTex)).put(TextureSlot.PARTICLE, mat(sideTex)),
+						generators.modelOutput);
+
+		var axis = RotatedPillarBlock.AXIS;
+		generators.blockStateOutput.accept(MultiPartGenerator.multiPart(block)
+				.with(new ConditionBuilder().term(axis, Direction.Axis.X), rotated(plain, 90, 90))
+				.with(new ConditionBuilder().term(axis, Direction.Axis.Z), rotated(plain, 90, 0))
+				.with(new ConditionBuilder().term(axis, Direction.Axis.Y).term(RubberLogBlock.SAP, 0, 1, 2), plainVariant(plain))
+				.with(new ConditionBuilder().term(axis, Direction.Axis.Y).term(RubberLogBlock.SAP, RubberLogBlock.MAX_SAP).term(RubberLogBlock.RESIN_FACING, Direction.NORTH), plainVariant(resin))
+				.with(new ConditionBuilder().term(axis, Direction.Axis.Y).term(RubberLogBlock.SAP, RubberLogBlock.MAX_SAP).term(RubberLogBlock.RESIN_FACING, Direction.EAST), rotated(resin, 0, 90))
+				.with(new ConditionBuilder().term(axis, Direction.Axis.Y).term(RubberLogBlock.SAP, RubberLogBlock.MAX_SAP).term(RubberLogBlock.RESIN_FACING, Direction.SOUTH), rotated(resin, 0, 180))
+				.with(new ConditionBuilder().term(axis, Direction.Axis.Y).term(RubberLogBlock.SAP, RubberLogBlock.MAX_SAP).term(RubberLogBlock.RESIN_FACING, Direction.WEST), rotated(resin, 0, 270)));
+
+		generators.registerSimpleItemModel(block, plain);
+	}
+
+	/** A model variant rotated by the given X/Y quadrant angles (no uv-lock — texture follows the face). */
+	private static MultiVariant rotated (Identifier model, int rotX, int rotY) {
+		var variant = plainVariant(model);
+		if (rotX != 0) variant = variant.with(VariantMutator.X_ROT.withValue(quadrant(rotX)));
+		if (rotY != 0) variant = variant.with(VariantMutator.Y_ROT.withValue(quadrant(rotY)));
+		return variant;
 	}
 
 	/**

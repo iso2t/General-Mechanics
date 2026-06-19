@@ -12,6 +12,7 @@ import general.api.registry.block.BlockRegistry;
 import general.api.resources.Resource;
 import general.mechanics.block.Ice7Block;
 import general.mechanics.block.LogBlock;
+import general.mechanics.block.RubberLogBlock;
 import general.mechanics.worldgen.GenFeatures;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -55,8 +56,8 @@ public class GenBlocks extends BlockRegistry {
 	public static final BlockDefinition<IceBlock>  ICE6 = registerBlock("Ice VI", "ice_6", IceBlock::new);
 	public static final BlockDefinition<Ice7Block> ICE7 = registerBlock("Ice VII", "ice_7", Ice7Block::new);
 
-	public static final BlockDefinition<LogBlock>                  RUBBER_LOG            = registerBlock("Rubber Log", LogBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_LOG));
-	public static final BlockDefinition<LogBlock>                  RUBBER_WOOD           = registerBlock("Rubber Wood", LogBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_WOOD));
+	public static final BlockDefinition<RubberLogBlock>            RUBBER_LOG            = registerBlock("Rubber Log", RubberLogBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_LOG));
+	public static final BlockDefinition<RubberLogBlock>            RUBBER_WOOD           = registerBlock("Rubber Wood", RubberLogBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_WOOD));
 	public static final BlockDefinition<LogBlock>                  STRIPPED_RUBBER_LOG   = registerBlock("Stripped Rubber Log", LogBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.STRIPPED_OAK_LOG));
 	public static final BlockDefinition<LogBlock>                  STRIPPED_RUBBER_WOOD  = registerBlock("Stripped Rubber Wood", LogBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.STRIPPED_OAK_WOOD));
 	public static final BlockDefinition<DecorativeBlock>           RUBBER_PLANKS         = registerBlock("Rubber Planks", props -> new DecorativeBlock(props) {
@@ -173,6 +174,13 @@ public class GenBlocks extends BlockRegistry {
 
 	@Override
 	public void buildDisplayItems (CreativeModeTab.ItemDisplayParameters parameters, CreativeModeTab.Output output) {
-		for (var block : getBlocks()) output.accept(block);
+		for (var block : getBlocks()) {
+			if (!dnaTab().contains(block)) output.accept(block);
+		}
+	}
+
+	@Override
+	protected List<BlockDefinition<?>> dnaTab () {
+		return List.of(POTTED_RUBBER_SAPLING);
 	}
 }

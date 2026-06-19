@@ -3,7 +3,7 @@ package general.mechanics.item.tools;
 import general.api.crafting.IRecipeProvider;
 import general.api.item.ToolItem;
 import general.api.tag.CoreTags;
-import general.mechanics.registries.GenBlocks;
+import general.mechanics.block.RubberLogBlock;
 import general.mechanics.registries.GenItems;
 import general.mechanics.registries.GenParts;
 import net.minecraft.advancements.Criterion;
@@ -57,7 +57,7 @@ public class SawItem extends ToolItem {
 			context.getItemInHand().hurtAndBreak(1, player, context.getHand());
 			dropSawdust(level, pos);
 
-			if (block.is(GenBlocks.RUBBER_LOG.get()) || block.is(GenBlocks.RUBBER_WOOD.get())) dropRubberResin(level, pos);
+			if (RubberLogBlock.isSappy(block)) dropRubberResin(level, pos);
 			return InteractionResult.SUCCESS;
 		}
 

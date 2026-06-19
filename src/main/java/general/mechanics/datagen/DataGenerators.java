@@ -20,6 +20,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.data.DatapackBuiltinEntriesProvider;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -43,8 +44,11 @@ public class DataGenerators {
 
 		pack.addProvider(bindRegistries(GenLootTableProvider::new, registries));
 
-		// Formula API datapack registries + worldgen (rubber tree configured feature)
-		var registrySet = Formulas.formulaRegistrySet().add(Registries.CONFIGURED_FEATURE, GenFeatures::bootstrap);
+		// Formula API datapack registries + worldgen (rubber tree configured/placed feature + biome modifier)
+		var registrySet = Formulas.formulaRegistrySet()
+				.add(Registries.CONFIGURED_FEATURE, GenFeatures::bootstrap)
+				.add(Registries.PLACED_FEATURE, GenFeatures::placedFeatures)
+				.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, GenFeatures::biomeModifiers);
 		pack.addProvider(output -> new DatapackBuiltinEntriesProvider(output, registries, registrySet, Set.of(GenFormula.NAMESPACE, GenMech.MOD_ID)));
 
 		// Tags

@@ -54,4 +54,9 @@ public abstract class BlockRegistry implements ICreativeModeTab {
 		return blockDefinition;
 	}
 
+	// blocks on this list will not be added to the creative tabs
+	protected List<BlockDefinition<?>> dnaTab () {
+		return List.of();
+	}
+
 }

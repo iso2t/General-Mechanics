@@ -61,6 +61,7 @@ public class GenItems extends ItemRegistry {
 
 	// Misc
 	public static final ItemDefinition<Item> SAWDUST = registerItem("Sawdust", Item::new);
+	public static final ItemDefinition<Item> UNTREATED_RUBBER = registerItem("Untreated Rubber", Item::new);
 	public static final ItemDefinition<PartItem> WET_PAPER = registerItem("Wet Paper", properties -> new PartItem(properties) {
 		@Override
 		public void registerCraftingRecipes (HolderGetter<Item> holder, RecipeOutput consumer, Criterion<?> criterion) {
