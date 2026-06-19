@@ -3,19 +3,21 @@ package general.mechanics.item.tools;
 import general.api.crafting.IRecipeProvider;
 import general.api.item.ToolItem;
 import general.api.tag.CoreTags;
+import general.mechanics.registries.GenBlocks;
+import general.mechanics.registries.GenItems;
 import general.mechanics.registries.GenParts;
 import net.minecraft.advancements.Criterion;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemInstance;
-import net.minecraft.world.item.Items;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.common.ItemAbilities;
 import net.neoforged.neoforge.common.ItemAbility;
 import org.jspecify.annotations.NonNull;
@@ -23,7 +25,7 @@ import org.jspecify.annotations.NonNull;
 public class SawItem extends ToolItem {
 
 	public SawItem (Properties properties) {
-		super(properties, 143);
+		super(properties.axe(ToolMaterial.IRON, 1.5f, -3.f), 143);
 	}
 
 	@Override
@@ -52,11 +54,44 @@ public class SawItem extends ToolItem {
 
 		if (player == null || !player.getActiveItem().is(CoreTags.Items.SAWS) || !(block.is(BlockTags.LOGS_THAT_BURN) || block.is(BlockTags.PLANKS))) return InteractionResult.PASS;
 		if (level.destroyBlock(pos, true, player)) {
-			this.damageItem(player.getActiveItem(), 1, player, _ -> player.getActiveItem().hurtAndBreak(1, player, EquipmentSlot.MAINHAND));
+			context.getItemInHand().hurtAndBreak(1, player, context.getHand());
+			dropSawdust(level, pos);
+
+			if (block.is(GenBlocks.RUBBER_LOG.get()) || block.is(GenBlocks.RUBBER_WOOD.get())) dropRubberResin(level, pos);
 			return InteractionResult.SUCCESS;
 		}
 
 		return InteractionResult.PASS;
+	}
+
+	/**
+	 * Drops sawdust at the specified block position in the world when certain conditions are met.
+	 * The method only executes on the server side and has a random chance to spawn sawdust items.
+	 *
+	 * @param level The game world where the sawdust should be dropped.
+	 * @param pos The position of the block where the sawdust is dropped.
+	 */
+	private void dropSawdust (Level level, BlockPos pos) {
+		if (level.isClientSide()) return;
+
+		if (level.getRandom().nextFloat() < 0.15f) {
+			Block.popResource(level, pos, new ItemStack(GenItems.SAWDUST.get(), level.getRandom().nextInt(1, 4)));
+		}
+	}
+
+	/**
+	 * Drops rubber resin at the specified block position in the world if certain conditions are met.
+	 * The method does not execute on the client side and has a random chance to spawn rubber resin items.
+	 *
+	 * @param level The game world where the rubber resin should be dropped.
+	 * @param pos The position of the block where the rubber resin is dropped.
+	 */
+	private void dropRubberResin (Level level, BlockPos pos) {
+		if (level.isClientSide()) return;
+
+		if (level.getRandom().nextFloat() < 0.5f) {
+			Block.popResource(level, pos, new ItemStack(GenItems.TREE_SAP.get(), level.getRandom().nextInt(1, 3)));
+		}
 	}
 
 }

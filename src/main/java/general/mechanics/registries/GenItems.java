@@ -1,6 +1,7 @@
 package general.mechanics.registries;
 
 import general.api.definitions.ItemDefinition;
+import general.api.item.PartItem;
 import general.api.item.plastic.PlasticItem;
 import general.api.item.plastic.PlasticType;
 import general.api.item.plastic.PlasticTypeItem;
@@ -12,10 +13,18 @@ import general.mechanics.item.RubberColoredItem;
 import general.mechanics.item.RubberItem;
 import general.mechanics.item.WireSpoolItem;
 import general.mechanics.materials.Materials;
+import net.minecraft.advancements.Criterion;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.data.recipes.RecipeCategory;
+import net.minecraft.data.recipes.RecipeOutput;
+import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ItemLike;
+import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.ArrayList;
@@ -49,6 +58,42 @@ public class GenItems extends ItemRegistry {
 
 	// Rubber
 	public static final ItemDefinition<RubberItem>      ISOPRENE                        = registerRubber("Isoprene", properties -> new RubberItem(properties, Materials.ISOPRENE));
+
+	// Misc
+	public static final ItemDefinition<Item> SAWDUST = registerItem("Sawdust", Item::new);
+	public static final ItemDefinition<PartItem> WET_PAPER = registerItem("Wet Paper", properties -> new PartItem(properties) {
+		@Override
+		public void registerCraftingRecipes (HolderGetter<Item> holder, RecipeOutput consumer, Criterion<?> criterion) {
+			ShapedRecipeBuilder.shaped(holder, RecipeCategory.MISC, this, 1)
+					.pattern("WS")
+					.pattern("SS")
+					.define('W', Tags.Items.BUCKETS_WATER)
+					.define('S', SAWDUST.get())
+					.unlockedBy("has_any", criterion)
+					.save(consumer);
+		}
+
+		@Override
+		public ItemLike getCriterionItem () {
+			return SAWDUST.get();
+		}
+	});
+	public static final ItemDefinition<PartItem> CARDBOARD = registerItem("Cardboard", properties -> new PartItem(properties) {
+		@Override
+		public void registerCraftingRecipes (HolderGetter<Item> holder, RecipeOutput consumer, Criterion<?> criterion) {
+			ShapedRecipeBuilder.shaped(holder, RecipeCategory.MISC, this, 1)
+					.pattern("WW")
+					.pattern("WW")
+					.define('W', WET_PAPER.get())
+					.unlockedBy("has_any", criterion)
+					.save(consumer);
+		}
+
+		@Override
+		public ItemLike getCriterionItem () {
+			return WET_PAPER.get();
+		}
+	});
 
 	public static <T extends Item> ItemDefinition<T> registerItem (final String localizedName, Function<Item.Properties, T> factory) {
 		return ItemRegistry.registerItem(INSTANCE, localizedName, Resource.get(new RegistryString(localizedName).getRegistryName()), factory);
