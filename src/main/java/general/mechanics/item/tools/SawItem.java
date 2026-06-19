@@ -19,6 +19,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
@@ -34,7 +35,11 @@ import net.neoforged.neoforge.common.ItemAbility;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 public class SawItem extends ToolItem {
 
@@ -44,19 +49,61 @@ public class SawItem extends ToolItem {
 
 	@Override
 	public boolean mineBlock (@NonNull ItemStack stack, @NonNull Level level, @NonNull BlockState state, @NonNull BlockPos pos, @NonNull LivingEntity owner) {
-		if (!(owner instanceof Player player)) return false;
-		var block = level.getBlockState(pos);
+		// mineBlock runs before the origin block is removed, so use the passed `state` (the live block at
+		// `pos` may still be present and the vanilla flow handles its removal + loot).
+		boolean result = super.mineBlock(stack, level, state, pos, owner); // applies the saw's per-block tool damage
+		if (level.isClientSide() || !(owner instanceof Player player)) return result;
 
-		if (!player.getActiveItem().is(CoreTags.Items.SAWS) || !(block.is(BlockTags.LOGS_THAT_BURN) || block.is(BlockTags.PLANKS))) return false;
-		if (level.destroyBlock(pos, true, player)) {
-			player.getItemInHand(player.getUsedItemHand()).hurtAndBreak(1, player, player.getUsedItemHand());
+		if (state.is(BlockTags.PLANKS)) {
 			dropSawdust(level, pos, 0.15f);
-
-			if (RubberLogBlock.isSappy(block)) dropRubberResin(level, pos);
-			return true;
+		} else if (state.is(BlockTags.LOGS_THAT_BURN)) {
+			// Origin log: the game removes + drops it after mineBlock, so just add our extras here.
+			dropSawdust(level, pos, 0.15f);
+			if (RubberLogBlock.isSappy(state)) dropRubberResin(level, pos);
+			// Fell the rest of the tree upward (like a real saw — nothing below the cut).
+			if (!player.isCrouching()) fellTreeUpward(stack, level, pos, state.getBlock(), player);
 		}
 
-		return false;
+		return result;
+	}
+
+	/**
+	 * Breaks every connected log of the same type at or above {@code origin}'s height (a GTCEu-style tree
+	 * fell), damaging the saw once per log and stopping if it breaks. The origin itself is left to the
+	 * vanilla mining flow; only the rest of the tree above the cut is broken.
+	 */
+	private void fellTreeUpward (ItemStack stack, Level level, BlockPos origin, Block logBlock, Player player) {
+		int minY = origin.getY();
+		Set<BlockPos> visited = new HashSet<>();
+		Deque<BlockPos> queue = new ArrayDeque<>();
+		visited.add(origin);
+		queue.add(origin);
+
+		int felled = 0;
+		while (!queue.isEmpty() && felled < 256) {
+			BlockPos cur = queue.poll();
+			for (int dx = -1; dx <= 1; dx++) {
+				for (int dy = -1; dy <= 1; dy++) {
+					for (int dz = -1; dz <= 1; dz++) {
+						if (dx == 0 && dy == 0 && dz == 0) continue;
+						BlockPos n = cur.offset(dx, dy, dz);
+						if (n.getY() < minY || !visited.add(n)) continue;
+
+						BlockState ns = level.getBlockState(n);
+						if (!ns.is(logBlock)) continue;
+
+						if (RubberLogBlock.isSappy(ns)) dropRubberResin(level, n);
+						level.destroyBlock(n, true, player);
+						dropSawdust(level, n, 0.15f);
+						stack.hurtAndBreak(1, player, EquipmentSlot.MAINHAND);
+						if (stack.isEmpty()) return; // saw broke — stop felling
+
+						queue.add(n);
+						felled++;
+					}
+				}
+			}
+		}
 	}
 
 	@Override
