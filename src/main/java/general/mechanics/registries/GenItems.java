@@ -18,7 +18,6 @@ import net.minecraft.core.HolderGetter;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
@@ -31,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
+// Order dictates list in creative tab.
 public class GenItems extends ItemRegistry {
 
 	public static final  ItemRegistry            INSTANCE = new GenItems();
@@ -54,24 +54,18 @@ public class GenItems extends ItemRegistry {
 	public static final ItemDefinition<PlasticTypeItem> POLYURETHANE                    = plasticType("Polyurethane", (properties) -> new PlasticTypeItem(properties, PlasticType.POLYURETHANE, Materials.POLYURETHANE));
 	public static final ItemDefinition<PlasticTypeItem> POLYTETRAFLUOROETHYLENE         = plasticType("Polytetrafluoroethylene", (properties) -> new PlasticTypeItem(properties, PlasticType.POLYTETRAFLUOROETHYLENE, Materials.POLYTETRAFLUOROETHYLENE));
 	public static final ItemDefinition<PlasticTypeItem> POLYETHERETHERKETONE            = plasticType("Polyetheretherketone", (properties) -> new PlasticTypeItem(properties, PlasticType.POLYETHERETHERKETONE, Materials.POLYETHERETHERKETONE));
-	public static final ItemDefinition<Item> TREE_SAP = registerItem("Tree Sap", Item::new);
 
 	// Rubber
-	public static final ItemDefinition<RubberItem>      ISOPRENE                        = registerRubber("Isoprene", properties -> new RubberItem(properties, Materials.ISOPRENE));
+	public static final ItemDefinition<RubberItem> ISOPRENE = registerRubber("Isoprene", properties -> new RubberItem(properties, Materials.ISOPRENE));
 
 	// Misc
-	public static final ItemDefinition<Item> SAWDUST = registerItem("Sawdust", Item::new);
-	public static final ItemDefinition<Item> UNTREATED_RUBBER = registerItem("Untreated Rubber", Item::new);
-	public static final ItemDefinition<PartItem> WET_PAPER = registerItem("Wet Paper", properties -> new PartItem(properties) {
+	public static final ItemDefinition<Item>     TREE_SAP         = registerItem("Tree Sap", Item::new);
+	public static final ItemDefinition<Item>     UNTREATED_RUBBER = registerItem("Untreated Rubber", Item::new);
+	public static final ItemDefinition<Item>     SAWDUST          = registerItem("Sawdust", Item::new);
+	public static final ItemDefinition<PartItem> WET_PAPER        = registerItem("Wet Paper", properties -> new PartItem(properties) {
 		@Override
 		public void registerCraftingRecipes (HolderGetter<Item> holder, RecipeOutput consumer, Criterion<?> criterion) {
-			ShapedRecipeBuilder.shaped(holder, RecipeCategory.MISC, this, 1)
-					.pattern("WS")
-					.pattern("SS")
-					.define('W', Tags.Items.BUCKETS_WATER)
-					.define('S', SAWDUST.get())
-					.unlockedBy("has_any", criterion)
-					.save(consumer);
+			ShapedRecipeBuilder.shaped(holder, RecipeCategory.MISC, this, 1).pattern("WS").pattern("SS").define('W', Tags.Items.BUCKETS_WATER).define('S', SAWDUST.get()).unlockedBy("has_any", criterion).save(consumer);
 		}
 
 		@Override
@@ -79,15 +73,10 @@ public class GenItems extends ItemRegistry {
 			return SAWDUST.get();
 		}
 	});
-	public static final ItemDefinition<PartItem> CARDBOARD = registerItem("Cardboard", properties -> new PartItem(properties) {
+	public static final ItemDefinition<PartItem> CARDBOARD        = registerItem("Cardboard", properties -> new PartItem(properties) {
 		@Override
 		public void registerCraftingRecipes (HolderGetter<Item> holder, RecipeOutput consumer, Criterion<?> criterion) {
-			ShapedRecipeBuilder.shaped(holder, RecipeCategory.MISC, this, 1)
-					.pattern("WW")
-					.pattern("WW")
-					.define('W', WET_PAPER.get())
-					.unlockedBy("has_any", criterion)
-					.save(consumer);
+			ShapedRecipeBuilder.shaped(holder, RecipeCategory.MISC, this, 1).pattern("WW").pattern("WW").define('W', WET_PAPER.get()).unlockedBy("has_any", criterion).save(consumer);
 		}
 
 		@Override
@@ -107,8 +96,7 @@ public class GenItems extends ItemRegistry {
 	static <T extends RubberItem> ItemDefinition<T> registerRubber (final String localizedName, Function<Item.Properties, T> factory) {
 		var definition = registerItem(localizedName, factory);
 		for (DyeColor color : PlasticType.getAllColors()) {
-			ItemRegistry.registerItem(INSTANCE, String.format("%s %s", formatColorName(color.getName()), localizedName), Resource.get(new RegistryString(String.format("%s %s", formatColorName(color.getName()), localizedName)).getRegistryName()),
-					properties -> new RubberColoredItem(definition.get(), color, properties));
+			ItemRegistry.registerItem(INSTANCE, String.format("%s %s", formatColorName(color.getName()), localizedName), Resource.get(new RegistryString(String.format("%s %s", formatColorName(color.getName()), localizedName)).getRegistryName()), properties -> new RubberColoredItem(definition.get(), color, properties));
 		}
 		return definition;
 	}
