@@ -6,6 +6,7 @@ import general.api.mod.GenAPI;
 import general.api.registry.RegistryString;
 import general.api.registry.item.ItemRegistry;
 import general.api.resources.Resource;
+import general.mechanics.common.item.NetworkDebuggerItem;
 import general.mechanics.item.WireSpoolItem;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.core.HolderGetter;
@@ -34,6 +35,9 @@ public class GenItems extends ItemRegistry {
 	public static final ItemDefinition<Item>          WIRE_SPOOL          = registerItem("Wire Spool", "spool", Item::new);
 	public static final ItemDefinition<WireSpoolItem> COPPER_WIRE_SPOOL   = registerItem("Copper Wire Spool", (properties) -> new WireSpoolItem(properties, Items.COPPER_INGOT));
 	public static final ItemDefinition<WireSpoolItem> REDSTONE_WIRE_SPOOL = registerItem("Redstone Wire Spool", (properties) -> new WireSpoolItem(properties, Items.REDSTONE));
+
+	// Tools or Something
+	public static final ItemDefinition<NetworkDebuggerItem> NETWORK_DEBUGGER = registerItem("Network Debugger", NetworkDebuggerItem::new);
 
 	// Misc
 	public static final ItemDefinition<Item>     TREE_SAP         = registerItem("Tree Sap", Item::new);
