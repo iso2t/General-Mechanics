@@ -201,7 +201,8 @@ public class CableBlock extends BaseBlock implements SimpleWaterloggedBlock, Ent
 		if (te == null) {
 			return false;
 		}
-		return level.getCapability(Capabilities.NETWORK_HANDLER_BLOCK, connectorPos, facing) != null;
+		var networkInterface = level.getCapability(Capabilities.NETWORK_HANDLER_BLOCK, pos, facing.getOpposite());
+		return networkInterface != null && networkInterface.isNetworkEnabled();
 	}
 
 	@Override

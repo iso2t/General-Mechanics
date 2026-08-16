@@ -1,15 +1,21 @@
 package general.mechanics.common.block.entity;
 
 import general.api.network.INetworkInterface;
+import general.api.network.NetworkEndpoint;
 import general.api.network.NetworkNode;
+import general.mechanics.common.network.NetworkConnectorServices;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
+import java.util.List;
+
 public class NetworkConnectorBlockEntity extends BlockEntity implements INetworkInterface {
 
 	private final NetworkNode networkNode;
+	private Direction serviceDirection;
 
 	public NetworkConnectorBlockEntity (BlockEntityType<NetworkConnectorBlockEntity> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
@@ -19,5 +25,41 @@ public class NetworkConnectorBlockEntity extends BlockEntity implements INetwork
 	@Override
 	public NetworkNode getNetworkNode () {
 		return networkNode;
+	}
+
+	@Override
+	public void onLoad () {
+		super.onLoad();
+		refreshServices();
+	}
+
+	@Override
+	public void setRemoved () {
+		networkNode.getServices().clear();
+		super.setRemoved();
+	}
+
+	/** Re-discovers the target block's capabilities without retaining stale capability instances. */
+	public void refreshServices () {
+		if (level == null || level.isClientSide()) return;
+		serviceDirection = null;
+		for (Direction direction : Direction.values()) {
+			if (NetworkConnectorServices.refresh(networkNode, level, worldPosition.relative(direction), direction.getOpposite())) {
+				serviceDirection = direction;
+				return;
+			}
+		}
+	}
+
+	@Override
+	public boolean isNetworkEnabled () {
+		refreshServices();
+		return serviceDirection != null;
+	}
+
+	@Override
+	public List<NetworkEndpoint> getNetworkEndpoints () {
+		refreshServices();
+		return serviceDirection == null ? List.of() : List.of(new NetworkEndpoint(worldPosition.relative(serviceDirection)));
 	}
 }

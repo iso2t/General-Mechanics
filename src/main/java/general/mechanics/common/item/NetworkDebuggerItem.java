@@ -2,6 +2,7 @@ package general.mechanics.common.item;
 
 import general.api.capabilities.Capabilities;
 import general.api.network.INetworkInterface;
+import general.api.network.NetworkEndpoint;
 import general.api.network.util.NetworkHelper;
 import general.mechanics.common.block.entity.CableBlockEntity;
 import net.minecraft.core.BlockPos;
@@ -39,12 +40,23 @@ public class NetworkDebuggerItem extends Item {
 		}
 
 		Set<BlockPos> network = findNetwork(level, origin);
-		context.getPlayer().sendSystemMessage(Component.literal("§6Network contains §e" + network.size() + " §6block" + (network.size() == 1 ? "" : "s") + ":"));
+		context.getPlayer().sendSystemMessage(Component.literal("\u00A76Network contains \u00A7e" + network.size() + " \u00A76block" + (network.size() == 1 ? "" : "s") + ":"));
 
 		for (var pos : network) {
 			var state = level.getBlockState(pos);
 			var id = BuiltInRegistries.BLOCK.getKey(state.getBlock());
-			context.getPlayer().sendSystemMessage(Component.literal("§7 - §f" + id + " §8[" + pos.getX() + ", " + pos.getY() + ", " + pos.getZ() + "]"));
+			INetworkInterface networkInterface = getInterface(level, pos);
+			String services = networkInterface == null ? "none" : networkInterface.getNetworkNode().getServices().getAll().stream().map(service -> service.getType().toString()).sorted().reduce((first, second) -> first + ", " + second).orElse("none");
+			context.getPlayer().sendSystemMessage(Component.literal("\u00A77 - \u00A7f" + id + " \u00A78[" + pos.getX() + ", " + pos.getY() + ", " + pos.getZ() + "] \u00A77services: \u00A7b" + services));
+
+			if (networkInterface != null) {
+				for (NetworkEndpoint endpoint : networkInterface.getNetworkEndpoints()) {
+					var endpointState = level.getBlockState(endpoint.pos());
+					var endpointId = BuiltInRegistries.BLOCK.getKey(endpointState.getBlock());
+					var endpointPos = endpoint.pos();
+					context.getPlayer().sendSystemMessage(Component.literal("\u00A78   -> \u00A7f" + endpointId + " \u00A78[" + endpointPos.getX() + ", " + endpointPos.getY() + ", " + endpointPos.getZ() + "]"));
+				}
+			}
 		}
 
 		return InteractionResult.SUCCESS;
@@ -68,11 +80,7 @@ public class NetworkDebuggerItem extends Item {
 			for (Direction direction : Direction.values()) {
 				BlockPos neighbor = current.relative(direction);
 
-				if (visited.contains(neighbor)) {
-					continue;
-				}
-
-				if (!NetworkHelper.canConnect(level, current, direction)) {
+				if (visited.contains(neighbor) || !NetworkHelper.canConnect(level, current, direction)) {
 					continue;
 				}
 
@@ -85,14 +93,16 @@ public class NetworkDebuggerItem extends Item {
 	}
 
 	private static boolean isNetworkBlock (Level level, BlockPos pos) {
+		return getInterface(level, pos) != null;
+	}
+
+	private static INetworkInterface getInterface (Level level, BlockPos pos) {
 		for (Direction direction : Direction.values()) {
 			INetworkInterface networkInterface = level.getCapability(Capabilities.NETWORK_HANDLER_BLOCK, pos, direction);
-
 			if (networkInterface != null && networkInterface.isNetworkEnabled()) {
-				return true;
+				return networkInterface;
 			}
 		}
-
-		return false;
+		return null;
 	}
 }
