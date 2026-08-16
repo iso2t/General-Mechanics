@@ -5,7 +5,6 @@ import general.api.item.ToolItem;
 import general.api.tag.CoreTags;
 import general.mechanics.common.block.RubberLogBlock;
 import general.mechanics.registries.GenItems;
-import general.mechanics.registries.GenParts;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.core.BlockPos;
@@ -99,7 +98,14 @@ public class SawItem extends ToolItem {
 
 	@Override
 	public void registerCraftingRecipes (HolderGetter<Item> holder, RecipeOutput consumer, Criterion<?> criterion) {
-		ShapedRecipeBuilder.shaped(holder, RecipeCategory.MISC, this, 1).pattern("PPS").pattern("FHS").define('P', GenParts.STEEL.get().getPlateItem()).define('S', Items.STICK).define('F', CoreTags.Items.FILES).define('H', CoreTags.Items.HAMMERS).unlockedBy("has_any", criterion).save(consumer, IRecipeProvider.createKey("tools/saw"));
+		/*ShapedRecipeBuilder.shaped(holder, RecipeCategory.MISC, this, 1)
+				.pattern("PPS")
+				.pattern("FHS")
+				.define('P', GenParts.STEEL.get().getPlateItem())
+				.define('S', Items.STICK)
+				.define('F', CoreTags.Items.FILES)
+				.define('H', CoreTags.Items.HAMMERS)
+				.unlockedBy("has_any", criterion).save(consumer, IRecipeProvider.createKey("tools/saw"));*/
 	}
 
 	@Override

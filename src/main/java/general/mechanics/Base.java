@@ -1,13 +1,10 @@
 package general.mechanics;
 
-import general.api.definitions.ItemDefinition;
-import general.api.formula.item.HasFormula;
 import general.api.item.ITooltipProvider;
 import general.api.mod.GenAPI;
 import general.api.resources.Resource;
 import general.api.tab.TabBuilder;
 import general.mechanics.registries.*;
-import general.mechanics.formula.Formulas;
 import lombok.Getter;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.MinecraftServer;
@@ -46,16 +43,12 @@ public abstract class Base implements GenMech {
 	private void registerModRegistries () {
 		GenItems.INSTANCE.getRegistry().register(getBus());
 		GenTools.INSTANCE.getRegistry().register(getBus());
-		GenParts.INSTANCE.getRegistry().register(getBus());
 		GenBlocks.INSTANCE.getRegistry().register(getBus());
 		GenSounds.REGISTRY.register(getBus());
-		GenComponents.REGISTRY.register(getBus());
 		GenFoliagePlacers.REGISTRY.register(getBus());
 	}
 
 	private void registerModListeners () {
-		getBus().addListener(Formulas::onNewDataPackRegistry);
-
 		getBus().addListener((RegisterEvent event) -> event.register(Registries.CREATIVE_MODE_TAB, helper -> {
 			var multitab = new TabBuilder.MultiTabBuilder();
 			multitab.addTab(new TabBuilder.Builder().setTranslationKey(String.format("itemGroup.%s.items", GenAPI.getModId())).setDisplayItem(GenItems.REDSTONE_WIRE_SPOOL).setResourceKey(Resource.get("items")).setCreateModeTab(GenItems.INSTANCE).build())
@@ -64,7 +57,6 @@ public abstract class Base implements GenMech {
 
 			new TabBuilder.MultiTabBuilder()
 			       .addTab(new TabBuilder.Builder().setTranslationKey(String.format("itemGroup.%s.tools", GenAPI.getModId())).setDisplayItem(GenTools.WRENCH).setResourceKey(Resource.get("tools")).setCreateModeTab(GenTools.INSTANCE).build())
-			       .addTab(new TabBuilder.Builder().setTranslationKey(String.format("itemGroup.%s.parts", GenAPI.getModId())).setResourceKey(Resource.get("parts")).setCreateModeTab(GenParts.INSTANCE).build())
 			       .build(helper);
 		}));
 	}
@@ -76,16 +68,10 @@ public abstract class Base implements GenMech {
 				if (def.get() instanceof ITooltipProvider provider) {
 					event.modify(def.get(), (builder, lookup, item) -> provider.addTooltipComponents(builder));
 				}
-				if (def.get() instanceof HasFormula holder) {
-					event.modify(def.get(), (builder, lookup, item) -> builder.set(GenComponents.FORMULA_TOOLTIP.get(), holder.getFormula()));
-				}
 			}
 			for (var def : GenBlocks.INSTANCE.getBlocks()) {
 				if (def.get() instanceof ITooltipProvider provider) {
 					event.modify(def.asItem(), (builder, lookup, item) -> provider.addTooltipComponents(builder));
-				}
-				if (def.get() instanceof HasFormula holder) {
-					event.modify(def.asItem(), (builder, lookup, item) -> builder.set(GenComponents.FORMULA_TOOLTIP.get(), holder.getFormula()));
 				}
 			}
 		});

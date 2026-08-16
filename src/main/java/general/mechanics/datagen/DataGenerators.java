@@ -1,6 +1,5 @@
 package general.mechanics.datagen;
 
-import general.api.formula.GenFormula;
 import general.mechanics.GenMech;
 import general.mechanics.datagen.data.SoundProvider;
 import general.mechanics.datagen.lang.GenMechEnLangProvider;
@@ -10,21 +9,15 @@ import general.mechanics.datagen.model.ItemModelProvider;
 import general.mechanics.datagen.recipe.GenRecipeProvider;
 import general.mechanics.datagen.tags.GenBlockTagGenerator;
 import general.mechanics.datagen.tags.GenItemTagGenerator;
-import general.mechanics.formula.Formulas;
-import general.mechanics.worldgen.GenFeatures;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.common.data.DatapackBuiltinEntriesProvider;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
-import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
 
@@ -43,13 +36,6 @@ public class DataGenerators {
 		pack.addProvider(SoundProvider::new);
 
 		pack.addProvider(bindRegistries(GenLootTableProvider::new, registries));
-
-		// Formula API datapack registries + worldgen (rubber tree configured/placed feature + biome modifier)
-		var registrySet = Formulas.formulaRegistrySet()
-				.add(Registries.CONFIGURED_FEATURE, GenFeatures::bootstrap)
-				.add(Registries.PLACED_FEATURE, GenFeatures::placedFeatures)
-				.add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, GenFeatures::biomeModifiers);
-		pack.addProvider(output -> new DatapackBuiltinEntriesProvider(output, registries, registrySet, Set.of(GenFormula.NAMESPACE, GenMech.MOD_ID)));
 
 		// Tags
 		var blockTagsProvider = pack.addProvider(output -> new GenBlockTagGenerator(output, registries));

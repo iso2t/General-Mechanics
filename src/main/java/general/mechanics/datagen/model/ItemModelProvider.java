@@ -1,24 +1,13 @@
 package general.mechanics.datagen.model;
 
-import general.api.definitions.ItemDefinition;
 import general.api.item.ToolItem;
-import general.api.item.materials.IMaterialItem;
 import general.api.item.materials.IngotItem;
-import general.api.item.plastic.PlasticItem;
-import general.api.item.plastic.PlasticTypeItem;
 import general.api.mod.GenAPI;
 import general.api.resources.Resource;
-import general.mechanics.client.color.MaterialTintSource;
-import general.mechanics.client.color.PlasticTintSource;
-import general.mechanics.client.color.RubberTintSource;
-import general.mechanics.item.RubberColoredItem;
-import general.mechanics.item.RubberItem;
 import general.mechanics.registries.GenItems;
-import general.mechanics.registries.GenParts;
 import general.mechanics.registries.GenTools;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
-import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.resources.model.sprite.Material;
@@ -49,32 +38,12 @@ public final class ItemModelProvider extends ModelProviders {
 	@Override
 	protected void registerModels (@NonNull BlockModelGenerators blockModels, @NonNull ItemModelGenerators itemModels) {
 		for (var item : GenItems.INSTANCE.getItems()) {
-			if (item.get() instanceof PlasticItem plastic) {
-				plasticItem(item, plastic.getParent().getPlasticType().getDisplayName().toLowerCase(), itemModels);
-			} else if (item.get() instanceof PlasticTypeItem plastic) {
-				plasticItem(item, plastic.getPlasticType().getDisplayName().toLowerCase(), itemModels);
-			} else if (item.get() instanceof RubberItem) {
-				rubberItem(item, itemModels);
-			} else if (item.get() instanceof RubberColoredItem) {
-				rubberItem(item, itemModels);
-			} else {
-				itemModels.generateFlatItem(item.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
-			}
+			itemModels.generateFlatItem(item.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
 		}
 
 		for (var tool : GenTools.INSTANCE.getItems()) {
 			if (tool.get() instanceof ToolItem) {
 				itemModels.generateFlatItem(tool.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
-			}
-		}
-
-		for (var part : GenParts.INSTANCE.getItems()) {
-			if (part.get() instanceof IngotItem ingot) {
-				registerPartModels(ingot, itemModels);
-			} else if (part.get() instanceof IMaterialItem) {
-				// Element sub-item (raw/nugget/dust/...): emitted by its parent ingot's registerElementModels.
-			} else {
-				itemModels.generateFlatItem(part.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
 			}
 		}
 	}
@@ -86,10 +55,6 @@ public final class ItemModelProvider extends ModelProviders {
 		if (ingot.getRawItem() != null) partModel(ingot.getRawItem(), "item/material/raw_ore", items);
 		if (ingot.getDustItem() != null) partModel(ingot.getDustItem(), "item/material/dust", items);
 		if (ingot.getPlateItem() != null) partModel(ingot.getPlateItem(), "item/material/plate", items);
-		if (ingot.getPileItem() != null) partModel(ingot.getPileItem(), "item/material/pile", items);
-		if (ingot.getRodItem() != null) partModel(ingot.getRodItem(), "item/material/rod", items);
-		if (ingot.getBoltItem() != null) partModel(ingot.getBoltItem(), "item/material/bolt", items);
-		if (ingot.getScrewItem() != null) partModel(ingot.getScrewItem(), "item/material/screw", items);
 		if (ingot.getGearItem() != null) partModel(ingot.getGearItem(), "item/material/gear", items);
 	}
 
@@ -98,23 +63,6 @@ public final class ItemModelProvider extends ModelProviders {
 		if (createdElementModels.add(model)) {
 			ModelTemplates.FLAT_ITEM.create(model, TextureMapping.layer0(new Material(model)), items.modelOutput);
 		}
-		items.itemModelOutput.accept(item, ItemModelUtils.tintedModel(model, MaterialTintSource.INSTANCE));
-	}
-
-	private void plasticItem (ItemDefinition<?> item, String parent, ItemModelGenerators generator) {
-		var model = Resource.get("item/plastic/" + parent.toLowerCase().replace(' ', '_'));
-		if (createdPlasticModels.add(model)) {
-			ModelTemplates.FLAT_ITEM.create(model, TextureMapping.layer0(new Material(model)), generator.modelOutput);
-		}
-		generator.itemModelOutput.accept(item.get(), ItemModelUtils.tintedModel(model, PlasticTintSource.INSTANCE));
-	}
-
-	private void rubberItem (ItemDefinition<?> item, ItemModelGenerators generator) {
-		var model = Resource.get("item/rubber");
-		if (createdRubberModels.add(model)) {
-			ModelTemplates.FLAT_ITEM.create(model, TextureMapping.layer0(new Material(model)), generator.modelOutput);
-		}
-		generator.itemModelOutput.accept(item.get(), ItemModelUtils.tintedModel(model, RubberTintSource.INSTANCE));
 	}
 
 	@Override

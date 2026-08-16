@@ -2,14 +2,10 @@ package general.mechanics.datagen.model;
 
 import com.mojang.math.Quadrant;
 import general.api.block.DecorativeBlock;
-import general.api.block.IceBlock;
-import general.api.block.plastic.ColoredPlasticBlock;
-import general.api.block.plastic.PlasticTypeBlock;
 import general.api.definitions.BlockDefinition;
 import general.api.mod.GenAPI;
 import general.api.resources.Resource;
 import general.mechanics.common.block.RubberLogBlock;
-import general.mechanics.client.color.PlasticTintSource;
 import general.mechanics.registries.GenBlocks;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
@@ -76,12 +72,6 @@ public final class BlockModelProvider extends ModelProviders {
 		for (var block : GenBlocks.INSTANCE.getBlocks()) {
 			if (block.get() instanceof DecorativeBlock) {
 				blockWithItem(block);
-			} else if (block.get() instanceof IceBlock) {
-				iceBlockWithItem(block);
-			} else if (block.get() instanceof PlasticTypeBlock) {
-				plasticBlockWithItem(block);
-			} else if (block.get() instanceof ColoredPlasticBlock) {
-				plasticBlockWithItem(block);
 			} /*else if (block.get() instanceof MachineFrameBlock) {
 				machineFrame(block);
 			} else if (block.get() instanceof OreBlock) {
@@ -155,44 +145,6 @@ public final class BlockModelProvider extends ModelProviders {
 		if (rotX != 0) variant = variant.with(VariantMutator.X_ROT.withValue(quadrant(rotX)));
 		if (rotY != 0) variant = variant.with(VariantMutator.Y_ROT.withValue(quadrant(rotY)));
 		return variant;
-	}
-
-	/**
-	 * Translucent ice cube. Render type is carried on the texture material via {@code forceAllTranslucent()}.
-	 */
-	private void iceBlockWithItem (BlockDefinition<?> block) {
-		var model = TexturedModel.CUBE.updateTexture(TextureMapping::forceAllTranslucent).create(block.get(), generators.modelOutput);
-		generators.blockStateOutput.accept(createSimpleBlock(block.get(), plainVariant(model)));
-		generators.registerSimpleItemModel(block.get(), model);
-	}
-
-	/**
-	 * Greyscale plastic cube; every face is tinted (tintindex 0) and recolored at runtime by a block color handler.
-	 */
-	private void plasticBlockWithItem (BlockDefinition<?> block) {
-		var plastic = mat(Resource.get("block/plastic_block"));
-		var mapping = new TextureMapping().put(TextureSlot.ALL, plastic);
-
-		var model = ModelTemplates.CUBE_ALL.extend().element(element -> element.from(0, 0, 0).to(16, 16, 16).allFaces((direction, face) -> face.texture(TextureSlot.ALL).tintindex(0).cullface(direction))).build().create(block.get(), mapping, generators.modelOutput);
-
-		generators.blockStateOutput.accept(createSimpleBlock(block.get(), plainVariant(model)));
-		generators.itemModelOutput.accept(block.asItem(), ItemModelUtils.tintedModel(model, PlasticTintSource.INSTANCE));
-	}
-
-	// ------------------------------------------------------------------------------------------------
-	// Ore blocks (base texture + tinted overlay element)
-	// ------------------------------------------------------------------------------------------------
-
-	private void oreBlock (BlockDefinition<?> def) {
-		var base = mat(Resource.get("block/ore/ore_block_base"));
-		var overlay = mat(Resource.get("block/ore/ore_block_overlay"));
-		var mapping = new TextureMapping().put(BASE, base).put(OVERLAY, overlay).put(TextureSlot.PARTICLE, base);
-
-		float eps = 0.001f;
-		var model = ExtendedModelTemplateBuilder.builder().parent(Resource.getMinecraftResource("block/block")).guiLight(UnbakedModel.GuiLight.SIDE).requiredTextureSlot(BASE).requiredTextureSlot(OVERLAY).requiredTextureSlot(TextureSlot.PARTICLE).element(element -> element.from(eps, eps, eps).to(16f - eps, 16f - eps, 16f - eps).allFaces((direction, face) -> face.texture(BASE).uvs(0, 0, 16, 16))).element(element -> element.from(0, 0, 0).to(16, 16, 16).allFaces((direction, face) -> face.texture(OVERLAY).uvs(0, 0, 16, 16).tintindex(1))).build().create(def.get(), mapping, generators.modelOutput);
-
-		generators.blockStateOutput.accept(createSimpleBlock(def.get(), plainVariant(model)));
-		// Item model is auto-generated from the block model located at block/<name>.
 	}
 
 	// ------------------------------------------------------------------------------------------------

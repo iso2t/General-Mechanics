@@ -22,14 +22,8 @@ public class GenTools extends ItemRegistry {
 
 	// Tools
 	public static final ItemDefinition<WrenchItem>              WRENCH               = registerItem("Wrench", WrenchItem::new);
-	public static final ItemDefinition<FlatheadScrewdriverItem> FLATHEAD_SCREWDRIVER = registerItem("Flathead Screwdriver", FlatheadScrewdriverItem::new);
-	public static final ItemDefinition<PhillipsScrewdriverItem> PHILLIPS_SCREWDRIVER = registerItem("Phillips Screwdriver", PhillipsScrewdriverItem::new);
-	public static final ItemDefinition<HammerItem>              HAMMER               = registerItem("Hammer", HammerItem::new);
-	public static final ItemDefinition<SocketDriverItem>        SOCKET_DRIVER        = registerItem("Socket Driver", SocketDriverItem::new);
 	public static final ItemDefinition<WireCuttersItem>         WIRE_CUTTERS         = registerItem("Wire Cutters", WireCuttersItem::new);
 	public static final ItemDefinition<SawItem>                 SAW                  = registerItem("Saw", SawItem::new);
-	public static final ItemDefinition<FileItem>                FILE                 = registerItem("File", FileItem::new);
-	public static final ItemDefinition<TorqueWrenchItem>        TORQUE_WRENCH        = registerItem("Torque Wrench", TorqueWrenchItem::new);
 
 	public static <T extends Item> ItemDefinition<T> registerItem (final String localizedName, Function<Item.Properties, T> factory) {
 		return ItemRegistry.registerItem(INSTANCE, localizedName, Resource.get(new RegistryString(localizedName).getRegistryName()), factory);
