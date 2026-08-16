@@ -3,7 +3,7 @@ package general.mechanics.item.tools;
 import general.api.crafting.IRecipeProvider;
 import general.api.item.ToolItem;
 import general.api.tag.CoreTags;
-import general.mechanics.block.RubberLogBlock;
+import general.mechanics.common.block.RubberLogBlock;
 import general.mechanics.registries.GenItems;
 import general.mechanics.registries.GenParts;
 import net.minecraft.advancements.CriteriaTriggers;

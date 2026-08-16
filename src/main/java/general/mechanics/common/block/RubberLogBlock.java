@@ -1,4 +1,4 @@
-package general.mechanics.block;
+package general.mechanics.common.block;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

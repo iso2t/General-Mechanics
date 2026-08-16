@@ -8,7 +8,7 @@ import general.api.block.plastic.PlasticTypeBlock;
 import general.api.definitions.BlockDefinition;
 import general.api.mod.GenAPI;
 import general.api.resources.Resource;
-import general.mechanics.block.RubberLogBlock;
+import general.mechanics.common.block.RubberLogBlock;
 import general.mechanics.client.color.PlasticTintSource;
 import general.mechanics.registries.GenBlocks;
 import net.minecraft.client.data.models.BlockModelGenerators;
