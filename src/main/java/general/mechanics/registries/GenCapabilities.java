@@ -7,6 +7,7 @@ public class GenCapabilities {
 
 	public static void register (RegisterCapabilitiesEvent event) {
 		event.registerBlockEntity(Capabilities.NETWORK_HANDLER_BLOCK, GenBlockEntities.CABLE.get(), (cable, side) -> cable);
+		event.registerBlockEntity(Capabilities.NETWORK_HANDLER_BLOCK, GenBlockEntities.NETWORK_CONNECTOR.get(), (connector, side) -> connector);
 	}
 
 }

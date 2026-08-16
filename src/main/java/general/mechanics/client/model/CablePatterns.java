@@ -1,6 +1,6 @@
 package general.mechanics.client.model;
 
-import general.api.block.cable.ConnectorType;
+import general.mechanics.common.block.cable.ConnectorType;
 
 import java.util.HashMap;
 import java.util.Map;

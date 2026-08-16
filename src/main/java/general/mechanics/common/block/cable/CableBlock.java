@@ -1,9 +1,9 @@
-package general.api.block.cable;
+package general.mechanics.common.block.cable;
 
 import general.api.block.BaseBlock;
 import general.api.block.BlockEntityTypeOwner;
-import general.api.block.entity.CableBlockEntity;
 import general.api.capabilities.Capabilities;
+import general.mechanics.common.block.entity.CableBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
@@ -15,7 +15,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -46,7 +45,7 @@ public class CableBlock extends BaseBlock implements SimpleWaterloggedBlock, Ent
 
 	public static final ModelProperty<BlockState> FACADEID = new ModelProperty<>();
 
-	private static VoxelShape[] shapeCache = null;
+	private static VoxelShape[]                                              shapeCache = null;
 	private BlockEntityType<CableBlockEntity> blockEntityType;
 
 	private static final VoxelShape SHAPE_CABLE_NORTH = Shapes.box(.4, .4, 0, .6, .6, .4);
@@ -62,6 +61,12 @@ public class CableBlock extends BaseBlock implements SimpleWaterloggedBlock, Ent
 	private static final VoxelShape SHAPE_BLOCK_EAST  = Shapes.box(.9, .2, .2, 1, .8, .8);
 	private static final VoxelShape SHAPE_BLOCK_UP    = Shapes.box(.2, .9, .2, .8, 1, .8);
 	private static final VoxelShape SHAPE_BLOCK_DOWN  = Shapes.box(.2, 0, .2, .8, .1, .8);
+
+	public CableBlock (Properties properties) {
+		super(properties);
+		makeShapes();
+		registerDefaultState(defaultBlockState().setValue(WATERLOGGED, false));
+	}
 
 	private int calculateShapeIndex (ConnectorType north, ConnectorType south, ConnectorType west, ConnectorType east, ConnectorType up, ConnectorType down) {
 		int l = ConnectorType.values().length;
@@ -132,12 +137,6 @@ public class CableBlock extends BaseBlock implements SimpleWaterloggedBlock, Ent
 			ticks.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
 		}
 		return calculateState((LevelAccessor) level, pos, state);
-	}
-
-	public CableBlock (Properties properties) {
-		super(properties);
-		makeShapes();
-		registerDefaultState(defaultBlockState().setValue(WATERLOGGED, false));
 	}
 
 	@Override

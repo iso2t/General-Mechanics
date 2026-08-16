@@ -1,4 +1,4 @@
-package general.api.block.cable;
+package general.mechanics.common.block.cable;
 
 import net.minecraft.util.StringRepresentable;
 import org.jspecify.annotations.NonNull;

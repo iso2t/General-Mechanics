@@ -4,6 +4,7 @@ import com.mojang.math.Quadrant;
 import general.api.block.DecorativeBlock;
 import general.api.definitions.BlockDefinition;
 import general.api.mod.GenAPI;
+import general.api.model.IBasicModel;
 import general.api.resources.Resource;
 import general.mechanics.client.model.CableModelLoader;
 import general.mechanics.common.block.RubberLogBlock;
@@ -73,7 +74,7 @@ public final class BlockModelProvider extends ModelProviders {
 		this.generators = blockModels;
 
 		for (var block : GenBlocks.INSTANCE.getBlocks()) {
-			if (block.get() instanceof DecorativeBlock) {
+			if (block.get() instanceof DecorativeBlock || block.get() instanceof IBasicModel) {
 				blockWithItem(block);
 			} /*else if (block.get() instanceof MachineFrameBlock) {
 				machineFrame(block);

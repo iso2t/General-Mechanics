@@ -1,6 +1,6 @@
 package general.mechanics.client.model;
 
-import general.api.block.cable.ConnectorType;
+import general.mechanics.common.block.cable.ConnectorType;
 import general.api.resources.Resource;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static general.api.block.cable.ConnectorType.BLOCK;
-import static general.api.block.cable.ConnectorType.CABLE;
+import static general.mechanics.common.block.cable.ConnectorType.BLOCK;
+import static general.mechanics.common.block.cable.ConnectorType.CABLE;
 import static general.mechanics.client.model.BakedModelHelper.quad;
 import static general.mechanics.client.model.BakedModelHelper.v;
 

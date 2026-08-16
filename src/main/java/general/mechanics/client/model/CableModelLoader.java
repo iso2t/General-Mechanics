@@ -1,8 +1,8 @@
 package general.mechanics.client.model;
 
 import com.mojang.serialization.MapCodec;
-import general.api.block.cable.CableBlock;
-import general.api.block.cable.ConnectorType;
+import general.mechanics.common.block.cable.CableBlock;
+import general.mechanics.common.block.cable.ConnectorType;
 import general.api.resources.Resource;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.resources.model.ModelBaker;
