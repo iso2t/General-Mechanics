@@ -44,8 +44,12 @@ public abstract class Base implements GenMech {
 		GenItems.INSTANCE.getRegistry().register(getBus());
 		GenTools.INSTANCE.getRegistry().register(getBus());
 		GenBlocks.INSTANCE.getRegistry().register(getBus());
+
+		GenBlockEntities.REGISTRY.register(getBus());
 		GenSounds.REGISTRY.register(getBus());
 		GenFoliagePlacers.REGISTRY.register(getBus());
+
+		getBus().addListener(GenCapabilities::register);
 	}
 
 	private void registerModListeners () {

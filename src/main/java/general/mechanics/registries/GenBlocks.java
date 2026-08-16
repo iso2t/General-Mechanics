@@ -1,6 +1,7 @@
 package general.mechanics.registries;
 
 import general.api.block.DecorativeBlock;
+import general.api.block.cable.CableBlock;
 import general.api.definitions.BlockDefinition;
 import general.api.mod.GenAPI;
 import general.api.registry.RegistryString;
@@ -30,6 +31,8 @@ public class GenBlocks extends BlockRegistry {
 	public static final DeferredRegister.Blocks  REGISTRY = DeferredRegister.createBlocks(GenAPI.getModId());
 	public static final List<BlockDefinition<?>> BLOCKS   = new ArrayList<>();
 
+	public static final BlockDefinition<CableBlock>                CABLE                 = registerBlock("Cable", CableBlock::new);
+	//public static final BlockDefinition<FacadeBlock> FACADE = registerBlock("Facade", FacadeBlock::new);
 	public static final BlockDefinition<RubberLogBlock>            RUBBER_LOG            = registerBlock("Rubber Log", RubberLogBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_LOG));
 	public static final BlockDefinition<RubberLogBlock>            RUBBER_WOOD           = registerBlock("Rubber Wood", RubberLogBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_WOOD));
 	public static final BlockDefinition<LogBlock>                  STRIPPED_RUBBER_LOG   = registerBlock("Stripped Rubber Log", LogBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.STRIPPED_OAK_LOG));

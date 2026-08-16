@@ -21,6 +21,10 @@ public final class Resource {
 		return Identifier.fromNamespaceAndPath(GenAPI.getModId(owner), path);
 	}
 
+	public static Identifier getMainMod (String path) {
+		return Identifier.fromNamespaceAndPath("generalmechanics", path);
+	}
+
 	public static Identifier getMinecraftResource (String path) {
 		return Identifier.withDefaultNamespace(path);
 	}

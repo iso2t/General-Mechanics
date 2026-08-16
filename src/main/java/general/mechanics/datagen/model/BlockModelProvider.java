@@ -5,16 +5,19 @@ import general.api.block.DecorativeBlock;
 import general.api.definitions.BlockDefinition;
 import general.api.mod.GenAPI;
 import general.api.resources.Resource;
+import general.mechanics.client.model.CableModelLoader;
 import general.mechanics.common.block.RubberLogBlock;
 import general.mechanics.registries.GenBlocks;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.MultiVariant;
 import net.minecraft.client.data.models.blockstates.ConditionBuilder;
+import net.minecraft.client.data.models.blockstates.BlockModelDefinitionGenerator;
 import net.minecraft.client.data.models.blockstates.MultiPartGenerator;
 import net.minecraft.client.data.models.blockstates.PropertyDispatch;
 import net.minecraft.client.data.models.model.*;
 import net.minecraft.client.renderer.block.dispatch.VariantMutator;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModelDispatcher;
 import net.minecraft.client.resources.model.UnbakedModel;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.Direction;
@@ -83,12 +86,28 @@ public final class BlockModelProvider extends ModelProviders {
 			}*/
 		}
 
+		registerCable();
+
 		// Rubber tree set
 		blockModels.createTintedLeaves(GenBlocks.RUBBER_LEAVES.get(), TexturedModel.LEAVES, -12012264);
 		blockModels.createPlantWithDefaultItem(GenBlocks.RUBBER_SAPLING.get(), GenBlocks.POTTED_RUBBER_SAPLING.get(), BlockModelGenerators.PlantType.NOT_TINTED);
 		rubberLogWithResin(GenBlocks.RUBBER_LOG.get(), "rubber_log", Resource.get("block/rubber_log_top"));
 		rubberLogWithResin(GenBlocks.RUBBER_WOOD.get(), "rubber_wood", Resource.get("block/rubber_log"));
 		blockModels.woodProvider(GenBlocks.STRIPPED_RUBBER_LOG.get()).logWithHorizontal(GenBlocks.STRIPPED_RUBBER_LOG.get()).wood(GenBlocks.STRIPPED_RUBBER_WOOD.get());
+	}
+
+	private void registerCable () {
+		generators.blockStateOutput.accept(new BlockModelDefinitionGenerator() {
+			@Override
+			public Block block () {
+				return GenBlocks.CABLE.get();
+			}
+
+			@Override
+			public BlockStateModelDispatcher create () {
+				return new BlockStateModelDispatcher(CableModelLoader.INSTANCE);
+			}
+		});
 	}
 
 	private void blockWithItem (BlockDefinition<?> block) {

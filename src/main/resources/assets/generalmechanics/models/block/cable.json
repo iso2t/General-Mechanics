@@ -1,0 +1,19 @@
+{
+  "textures": {
+    "cap": "generalmechanics:block/cable/none"
+  },
+  "elements": [
+    {
+      "from": [6.4, 6.4, 6.4],
+      "to": [9.6, 9.6, 9.6],
+      "faces": {
+        "down": { "texture": "#cap" },
+        "up": { "texture": "#cap" },
+        "north": { "texture": "#cap" },
+        "south": { "texture": "#cap" },
+        "west": { "texture": "#cap" },
+        "east": { "texture": "#cap" }
+      }
+    }
+  ]
+}
