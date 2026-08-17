@@ -5,6 +5,7 @@ import general.api.mod.GenAPI;
 import general.api.resources.Resource;
 import general.api.tab.TabBuilder;
 import general.mechanics.registries.*;
+import guideme.Guide;
 import lombok.Getter;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.MinecraftServer;
@@ -38,6 +39,8 @@ public abstract class Base implements GenMech {
 		registerModListeners();
 		registerModRegistries();
 		registerTooltipProviders();
+
+		Guide.builder(Resource.get("guide")).build();
 	}
 
 	private void registerModRegistries () {

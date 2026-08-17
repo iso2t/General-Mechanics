@@ -154,6 +154,10 @@ public class CableBlock extends BaseBlock implements SimpleWaterloggedBlock, Ent
 		super.neighborChanged(state, level, pos, block, orientation, movedByPiston);
 		if (!level.isClientSide() && level.getBlockEntity(pos) instanceof CableBlockEntity cable) {
 			cable.markDirty();
+			BlockState updatedState = calculateState(level, pos, state);
+			if (!updatedState.equals(state)) {
+				level.setBlock(pos, updatedState, Block.UPDATE_CLIENTS);
+			}
 		}
 	}
 
@@ -197,12 +201,8 @@ public class CableBlock extends BaseBlock implements SimpleWaterloggedBlock, Ent
 		if (state.isAir()) {
 			return false;
 		}
-		BlockEntity te = world.getBlockEntity(pos);
-		if (te == null) {
-			return false;
-		}
 		var networkInterface = level.getCapability(Capabilities.NETWORK_HANDLER_BLOCK, pos, facing.getOpposite());
-		return networkInterface != null && networkInterface.isNetworkEnabled();
+		return networkInterface != null;
 	}
 
 	@Override

@@ -30,7 +30,9 @@ public class NetworkConnectorBlockEntity extends BlockEntity implements INetwork
 	@Override
 	public void onLoad () {
 		super.onLoad();
-		refreshServices();
+		if (refreshServices()) {
+			level.updateNeighborsAt(worldPosition, getBlockState().getBlock());
+		}
 	}
 
 	@Override
@@ -40,15 +42,21 @@ public class NetworkConnectorBlockEntity extends BlockEntity implements INetwork
 	}
 
 	/** Re-discovers the target block's capabilities without retaining stale capability instances. */
-	public void refreshServices () {
-		if (level == null || level.isClientSide()) return;
+	public boolean refreshServices () {
+		if (level == null || level.isClientSide()) return false;
+		boolean wasEnabled = serviceDirection != null;
 		serviceDirection = null;
-		for (Direction direction : Direction.values()) {
+		/*for (Direction direction : Direction.values()) {
 			if (NetworkConnectorServices.refresh(networkNode, level, worldPosition.relative(direction), direction.getOpposite())) {
 				serviceDirection = direction;
-				return;
+				return !wasEnabled;
 			}
+		}*/
+		if (NetworkConnectorServices.refresh(networkNode, level, worldPosition.relative(Direction.UP), Direction.UP.getOpposite())) {
+			serviceDirection = Direction.UP;
+			return !wasEnabled;
 		}
+		return wasEnabled;
 	}
 
 	@Override

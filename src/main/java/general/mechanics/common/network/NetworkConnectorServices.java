@@ -11,6 +11,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.Container;
 import net.neoforged.neoforge.capabilities.BlockCapability;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -18,6 +19,7 @@ import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 import java.util.ArrayList;
@@ -55,6 +57,11 @@ public final class NetworkConnectorServices {
 		node.getServices().clear();
 		for (NetworkConnectorServiceBridge bridge : BRIDGES) {
 			bridge.register(node, level, targetPos, targetSide);
+		}
+		// Vanilla containers are expected to expose the item capability, but retain
+		// this direct fallback for containers without a registered capability.
+		if (!node.hasService(NetworkServices.ITEM) && level.getBlockEntity(targetPos) instanceof Container container) {
+			node.getServices().register(NetworkServices.ITEM, new ItemService(() -> VanillaContainerWrapper.of(container)));
 		}
 		return !node.getServices().getAll().isEmpty();
 	}

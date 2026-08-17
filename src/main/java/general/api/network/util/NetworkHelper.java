@@ -18,13 +18,13 @@ public final class NetworkHelper {
 	public static boolean canConnect (Level level, BlockPos pos, Direction direction) {
 		INetworkInterface first = getInterface(level, pos, direction);
 
-		if (first == null || !first.isNetworkEnabled()) {
+		if (first == null) {
 			return false;
 		}
 
 		INetworkInterface second = getInterface(level, pos.relative(direction), direction.getOpposite());
 
-		return second != null && second.isNetworkEnabled();
+		return second != null;
 	}
 
 }

@@ -5,6 +5,7 @@ import general.api.block.DecorativeBlock;
 import general.api.definitions.BlockDefinition;
 import general.api.mod.GenAPI;
 import general.api.model.IBasicModel;
+import general.api.model.IMachineModel;
 import general.api.resources.Resource;
 import general.mechanics.client.model.CableModelLoader;
 import general.mechanics.common.block.RubberLogBlock;
@@ -12,14 +13,10 @@ import general.mechanics.registries.GenBlocks;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.MultiVariant;
-import net.minecraft.client.data.models.blockstates.ConditionBuilder;
-import net.minecraft.client.data.models.blockstates.BlockModelDefinitionGenerator;
-import net.minecraft.client.data.models.blockstates.MultiPartGenerator;
-import net.minecraft.client.data.models.blockstates.PropertyDispatch;
+import net.minecraft.client.data.models.blockstates.*;
 import net.minecraft.client.data.models.model.*;
 import net.minecraft.client.renderer.block.dispatch.VariantMutator;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelDispatcher;
-import net.minecraft.client.resources.model.UnbakedModel;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -38,8 +35,7 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.stream.Stream;
 
-import static net.minecraft.client.data.models.BlockModelGenerators.createSimpleBlock;
-import static net.minecraft.client.data.models.BlockModelGenerators.plainVariant;
+import static net.minecraft.client.data.models.BlockModelGenerators.*;
 
 public final class BlockModelProvider extends ModelProviders {
 
@@ -76,7 +72,9 @@ public final class BlockModelProvider extends ModelProviders {
 		for (var block : GenBlocks.INSTANCE.getBlocks()) {
 			if (block.get() instanceof DecorativeBlock || block.get() instanceof IBasicModel) {
 				blockWithItem(block);
-			} /*else if (block.get() instanceof MachineFrameBlock) {
+			} else if (block.get() instanceof IMachineModel machine) {
+				registerMachine(block, machine);
+			}/*else if (block.get() instanceof MachineFrameBlock) {
 				machineFrame(block);
 			} else if (block.get() instanceof OreBlock) {
 				oreBlock(block);
@@ -100,15 +98,27 @@ public final class BlockModelProvider extends ModelProviders {
 	private void registerCable () {
 		generators.blockStateOutput.accept(new BlockModelDefinitionGenerator() {
 			@Override
-			public Block block () {
+			public @NonNull Block block () {
 				return GenBlocks.CABLE.get();
 			}
 
 			@Override
-			public BlockStateModelDispatcher create () {
+			public @NonNull BlockStateModelDispatcher create () {
 				return new BlockStateModelDispatcher(CableModelLoader.INSTANCE);
 			}
 		});
+	}
+
+	private void registerMachine (BlockDefinition<?> block, IMachineModel machine) {
+		var path = block.getId().getPath();
+
+		var model = ModelTemplates.CUBE.create(
+				Resource.get("block/machine/" + path),
+				machineMapping(machine), generators.modelOutput);
+
+		generators.blockStateOutput.accept(createSimpleBlock(block.get(), plainVariant(model)));
+
+		generators.registerSimpleItemModel(block.get(), model);
 	}
 
 	private void blockWithItem (BlockDefinition<?> block) {
@@ -212,11 +222,20 @@ public final class BlockModelProvider extends ModelProviders {
 	}*/
 
 	/**
-	 * Machine cube faces: bottom/top from the shared machine textures, {@code front} on the NORTH face, sides shared.
+	 * Maps the shared {@link IMachineModel} contract to the slots required by Minecraft's cube template.
+	 * The model is north-facing: a directional machine can rotate this model through its blockstate,
+	 * while a non-directional machine simply renders its front on the north face.
 	 */
-	private TextureMapping machineMapping (Identifier front) {
-		var side = mat(MACHINE_SIDE);
-		return new TextureMapping().put(TextureSlot.DOWN, mat(MACHINE_BOTTOM)).put(TextureSlot.UP, mat(MACHINE_TOP)).put(TextureSlot.NORTH, mat(front)).put(TextureSlot.SOUTH, side).put(TextureSlot.EAST, side).put(TextureSlot.WEST, side).put(TextureSlot.PARTICLE, side);
+	private TextureMapping machineMapping (IMachineModel machine) {
+		var side = mat(machine.getSideTexture());
+		return new TextureMapping()
+				.put(TextureSlot.DOWN, mat(machine.getBottomTexture()))
+				.put(TextureSlot.UP, mat(machine.getTopTexture()))
+				.put(TextureSlot.NORTH, mat(machine.getFrontTexture()))
+				.put(TextureSlot.SOUTH, side)
+				.put(TextureSlot.EAST, side)
+				.put(TextureSlot.WEST, side)
+				.put(TextureSlot.PARTICLE, side);
 	}
 
 	/**

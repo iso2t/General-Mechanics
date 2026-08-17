@@ -4,12 +4,17 @@ import general.api.capabilities.Capabilities;
 import general.api.network.INetworkInterface;
 import general.api.network.NetworkEndpoint;
 import general.api.network.util.NetworkHelper;
+import general.api.resources.Resource;
 import general.mechanics.common.block.entity.CableBlockEntity;
+import guideme.GuidesCommon;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
@@ -22,8 +27,16 @@ import java.util.Set;
 
 public class NetworkDebuggerItem extends Item {
 
+	private static final Identifier GUIDE_ID = Resource.getMainMod("guide");
+
 	public NetworkDebuggerItem (Properties properties) {
 		super(properties);
+	}
+
+	@Override
+	public @NonNull InteractionResult use (@NonNull Level level, @NonNull Player player, @NonNull InteractionHand hand) {
+		GuidesCommon.openGuide(player, GUIDE_ID);
+		return super.use(level, player, hand);
 	}
 
 	@Override
@@ -34,8 +47,8 @@ public class NetworkDebuggerItem extends Item {
 		if (context.getPlayer() == null) return InteractionResult.PASS;
 
 		var origin = context.getClickedPos();
-		if (!isNetworkBlock(level, origin)) {
-			context.getPlayer().sendSystemMessage(Component.literal("No network block found at " + origin));
+		if (!context.getPlayer().isCrouching() || !isNetworkBlock(level, origin)) {
+			//context.getPlayer().sendSystemMessage(Component.literal("No network block found at " + origin)); // TODO: Probably wont need this going further.
 			return InteractionResult.SUCCESS;
 		}
 
@@ -99,7 +112,7 @@ public class NetworkDebuggerItem extends Item {
 	private static INetworkInterface getInterface (Level level, BlockPos pos) {
 		for (Direction direction : Direction.values()) {
 			INetworkInterface networkInterface = level.getCapability(Capabilities.NETWORK_HANDLER_BLOCK, pos, direction);
-			if (networkInterface != null && networkInterface.isNetworkEnabled()) {
+			if (networkInterface != null) {
 				return networkInterface;
 			}
 		}

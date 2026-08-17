@@ -37,7 +37,7 @@ public class GenItems extends ItemRegistry {
 	public static final ItemDefinition<WireSpoolItem> REDSTONE_WIRE_SPOOL = registerItem("Redstone Wire Spool", (properties) -> new WireSpoolItem(properties, Items.REDSTONE));
 
 	// Tools or Something
-	public static final ItemDefinition<NetworkDebuggerItem> NETWORK_DEBUGGER = registerItem("Network Debugger", NetworkDebuggerItem::new);
+	public static final ItemDefinition<NetworkDebuggerItem> GUIDE = registerItem("Service Terminal", "guide", NetworkDebuggerItem::new);
 
 	// Misc
 	public static final ItemDefinition<Item>     TREE_SAP         = registerItem("Tree Sap", Item::new);
