@@ -2,32 +2,34 @@ package general.mechanics.client.model;
 
 import general.mechanics.common.block.cable.ConnectorType;
 import general.api.resources.Resource;
-import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.SimpleModelWrapper;
 import net.minecraft.client.resources.model.geometry.QuadCollection;
 import net.minecraft.client.resources.model.sprite.Material;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.client.model.DynamicBlockStateModel;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static general.mechanics.common.block.cable.ConnectorType.BLOCK;
 import static general.mechanics.common.block.cable.ConnectorType.CABLE;
 import static general.mechanics.client.model.BakedModelHelper.quad;
 import static general.mechanics.client.model.BakedModelHelper.v;
 
-/** Bakes and caches the state-dependent cable geometry used by the 26.1 renderer. */
-public final class CableBakedModel implements DynamicBlockStateModel {
+/**
+ * A model for one cable blockstate.
+ *
+ * <p>Cable connections are persisted in the blockstate, so the geometry must be baked from that
+ * state rather than obtained from the render world's neighbours. This also lets non-world renderers
+ * such as GuideME display imported structure states exactly as saved.</p>
+ */
+public final class CableBakedModel implements BlockStateModel {
 
 	private static final double O = .4;
 	private static final double P = .1;
@@ -58,7 +60,7 @@ public final class CableBakedModel implements DynamicBlockStateModel {
 	private final Material.Baked normal;
 	private final Material.Baked side;
 	private final Map<CablePatterns.SpriteIdx, Material.Baked> caps;
-	private final Map<CableModelLoader.CableState, BlockStateModelPart> parts = new ConcurrentHashMap<>();
+	private final BlockStateModelPart part;
 
 	public CableBakedModel (ModelBaker baker, CableModelLoader.CableState bakedState) {
 		this.baker = baker;
@@ -73,6 +75,7 @@ public final class CableBakedModel implements DynamicBlockStateModel {
 		caps.put(CablePatterns.SpriteIdx.SPRITE_CORNER, material("block/cable/corner"));
 		caps.put(CablePatterns.SpriteIdx.SPRITE_THREE, material("block/cable/three"));
 		caps.put(CablePatterns.SpriteIdx.SPRITE_CROSS, material("block/cable/cross"));
+		this.part = bakePart(bakedState);
 	}
 
 	private Material.Baked material (String path) {
@@ -80,13 +83,8 @@ public final class CableBakedModel implements DynamicBlockStateModel {
 	}
 
 	@Override
-	public Object createGeometryKey (BlockAndTintGetter level, BlockPos pos, BlockState state, RandomSource random) {
-		return CableModelLoader.CableState.from(state);
-	}
-
-	@Override
-	public void collectParts (BlockAndTintGetter level, BlockPos pos, BlockState state, RandomSource random, List<BlockStateModelPart> output) {
-		output.add(parts.computeIfAbsent(CableModelLoader.CableState.from(state), this::bakePart));
+	public void collectParts (RandomSource random, List<BlockStateModelPart> output) {
+		output.add(part);
 	}
 
 	@Override
@@ -96,7 +94,7 @@ public final class CableBakedModel implements DynamicBlockStateModel {
 
 	@Override
 	public int materialFlags () {
-		return parts.computeIfAbsent(bakedState, this::bakePart).materialFlags();
+		return part.materialFlags();
 	}
 
 	private BlockStateModelPart bakePart (CableModelLoader.CableState state) {
