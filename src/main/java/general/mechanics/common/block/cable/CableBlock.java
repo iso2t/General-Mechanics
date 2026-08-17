@@ -43,10 +43,11 @@ public class CableBlock extends BaseBlock implements SimpleWaterloggedBlock, Ent
 	public static final EnumProperty<ConnectorType> UP    = EnumProperty.create("up", ConnectorType.class);
 	public static final EnumProperty<ConnectorType> DOWN  = EnumProperty.create("down", ConnectorType.class);
 
+	// TODO: We aren't doing facades. Is this really needed?
 	public static final ModelProperty<BlockState> FACADEID = new ModelProperty<>();
 
-	private static VoxelShape[]                                              shapeCache = null;
-	private BlockEntityType<CableBlockEntity> blockEntityType;
+	private static VoxelShape[]                      shapeCache = null;
+	private        BlockEntityType<CableBlockEntity> blockEntityType;
 
 	private static final VoxelShape SHAPE_CABLE_NORTH = Shapes.box(.4, .4, 0, .6, .6, .4);
 	private static final VoxelShape SHAPE_CABLE_SOUTH = Shapes.box(.4, .4, .6, .6, .6, 1);
@@ -132,11 +133,12 @@ public class CableBlock extends BaseBlock implements SimpleWaterloggedBlock, Ent
 
 	@Nonnull
 	@Override
-	public BlockState updateShape (BlockState state, LevelReader level, ScheduledTickAccess ticks, BlockPos pos, Direction directionToNeighbour, BlockPos neighbourPos, BlockState neighbourState, RandomSource random) {
+	public BlockState updateShape (BlockState state, @NonNull LevelReader level, @NonNull ScheduledTickAccess ticks, @NonNull BlockPos pos, @NonNull Direction directionToNeighbour, @NonNull BlockPos neighbourPos, @NonNull BlockState neighbourState, @NonNull RandomSource random) {
 		if (state.getValue(WATERLOGGED)) {
 			ticks.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
 		}
-		return calculateState((LevelAccessor) level, pos, state);
+
+		return level instanceof Level ? calculateState((LevelAccessor) level, pos, state) : state;
 	}
 
 	@Override
@@ -187,14 +189,10 @@ public class CableBlock extends BaseBlock implements SimpleWaterloggedBlock, Ent
 		}
 	}
 
-	// Return true if the block at the given position is connectable to a cable. This is the
-	// case if the block supports forge energy
 	public static boolean isConnectable (BlockGetter world, BlockPos connectorPos, Direction facing) {
 		BlockPos pos = connectorPos.relative(facing);
 		BlockState state = world.getBlockState(pos);
-		// Datagen and model/shape probes use lightweight BlockGetters (such as
-		// EmptyBlockGetter), which cannot expose capabilities. Treat those as
-		// non-connectable instead of assuming every BlockGetter is a live Level.
+
 		if (!(world instanceof Level level)) {
 			return false;
 		}
