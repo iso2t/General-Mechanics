@@ -1,4 +1,4 @@
-package general.mechanics.common.block;
+package general.mechanics.common.block.network;
 
 import general.api.block.BaseBlock;
 import general.api.block.BlockEntityTypeOwner;

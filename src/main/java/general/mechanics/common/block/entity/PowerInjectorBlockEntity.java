@@ -12,14 +12,14 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.List;
 
-public class NetworkConnectorBlockEntity extends BlockEntity implements INetworkInterface {
+public class PowerInjectorBlockEntity  extends BlockEntity implements INetworkInterface {
 
 	private final NetworkNode networkNode;
-	private Direction serviceDirection;
+	private       Direction   serviceDirection;
 
-	public NetworkConnectorBlockEntity (BlockEntityType<NetworkConnectorBlockEntity> type, BlockPos pos, BlockState state) {
+	public PowerInjectorBlockEntity (BlockEntityType<PowerInjectorBlockEntity> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
-		this.networkNode = new NetworkNode("NetworkConnector");
+		this.networkNode = new NetworkNode("PowerInjector");
 	}
 
 	@Override
@@ -45,7 +45,6 @@ public class NetworkConnectorBlockEntity extends BlockEntity implements INetwork
 		if (level == null || level.isClientSide()) return false;
 		boolean wasEnabled = serviceDirection != null;
 		serviceDirection = null;
-
 		if (NetworkConnectorServices.refresh(networkNode, level, worldPosition.relative(Direction.UP), Direction.UP.getOpposite())) {
 			serviceDirection = Direction.UP;
 			return !wasEnabled;

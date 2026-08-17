@@ -7,7 +7,7 @@ import general.mechanics.item.tools.SawItem;
 import general.mechanics.item.tools.WireCuttersItem;
 import general.mechanics.item.tools.WrenchItem;
 import general.mechanics.registries.GenBlocks;
-import general.mechanics.registries.GenTools;
+import general.mechanics.registries.GenItems;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.tags.ItemTags;
@@ -26,7 +26,7 @@ public class GenItemTagGenerator extends ItemTagsProvider {
 	@Override
 	protected void addTags (HolderLookup.@NonNull Provider provider) {
 
-		for (var tool : GenTools.INSTANCE.getItems()) {
+		for (var tool : GenItems.INSTANCE.getItems()) {
 			if (tool.get() instanceof ToolItem toolItem) {
 				if (toolItem instanceof SawItem) this.tag(CoreTags.Items.SAWS).add(toolItem);
 				if (toolItem instanceof WireCuttersItem) this.tag(CoreTags.Items.WIRE_CUTTERS).add(toolItem);

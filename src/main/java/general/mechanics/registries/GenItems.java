@@ -8,6 +8,9 @@ import general.api.registry.item.ItemRegistry;
 import general.api.resources.Resource;
 import general.mechanics.common.item.NetworkDebuggerItem;
 import general.mechanics.item.WireSpoolItem;
+import general.mechanics.item.tools.SawItem;
+import general.mechanics.item.tools.WireCuttersItem;
+import general.mechanics.item.tools.WrenchItem;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -36,8 +39,11 @@ public class GenItems extends ItemRegistry {
 	public static final ItemDefinition<WireSpoolItem> COPPER_WIRE_SPOOL   = registerItem("Copper Wire Spool", (properties) -> new WireSpoolItem(properties, Items.COPPER_INGOT));
 	public static final ItemDefinition<WireSpoolItem> REDSTONE_WIRE_SPOOL = registerItem("Redstone Wire Spool", (properties) -> new WireSpoolItem(properties, Items.REDSTONE));
 
-	// Tools or Something
-	public static final ItemDefinition<NetworkDebuggerItem> GUIDE = registerItem("Service Terminal", "guide", NetworkDebuggerItem::new);
+	// Tools
+	public static final ItemDefinition<WrenchItem>          WRENCH       = registerItem("Wrench", WrenchItem::new);
+	public static final ItemDefinition<WireCuttersItem>     WIRE_CUTTERS = registerItem("Wire Cutters", WireCuttersItem::new);
+	public static final ItemDefinition<SawItem>             SAW          = registerItem("Saw", SawItem::new);
+	public static final ItemDefinition<NetworkDebuggerItem> GUIDE        = registerItem("Service Terminal", "guide", NetworkDebuggerItem::new);
 
 	// Misc
 	public static final ItemDefinition<Item>     TREE_SAP         = registerItem("Tree Sap", Item::new);

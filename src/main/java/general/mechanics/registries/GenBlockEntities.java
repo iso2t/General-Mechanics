@@ -2,11 +2,12 @@ package general.mechanics.registries;
 
 import com.google.common.base.Preconditions;
 import general.api.block.BlockEntityTypeOwner;
-import general.mechanics.common.block.entity.CableBlockEntity;
 import general.api.definitions.BlockDefinition;
 import general.api.definitions.BlockEntityDefinition;
 import general.api.mod.GenAPI;
+import general.mechanics.common.block.entity.CableBlockEntity;
 import general.mechanics.common.block.entity.NetworkConnectorBlockEntity;
+import general.mechanics.common.block.entity.PowerInjectorBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.Block;
@@ -25,8 +26,9 @@ public class GenBlockEntities {
 
 	private static final List<BlockEntityDefinition<?>> BLOCK_ENTITIES = new ArrayList<>();
 
-	public static final BlockEntityDefinition<CableBlockEntity> CABLE = create("cable", CableBlockEntity.class, CableBlockEntity::new, GenBlocks.CABLE);
+	public static final BlockEntityDefinition<CableBlockEntity>            CABLE             = create("cable", CableBlockEntity.class, CableBlockEntity::new, GenBlocks.CABLE);
 	public static final BlockEntityDefinition<NetworkConnectorBlockEntity> NETWORK_CONNECTOR = create("network_connector", NetworkConnectorBlockEntity.class, NetworkConnectorBlockEntity::new, GenBlocks.NETWORK_CONNECTOR);
+	public static final BlockEntityDefinition<PowerInjectorBlockEntity>    POWER_INJECTOR    = create("power_injector", PowerInjectorBlockEntity.class, PowerInjectorBlockEntity::new, GenBlocks.POWER_INJECTOR);
 
 	@SafeVarargs
 	private static <T extends BlockEntity, B extends Block & BlockEntityTypeOwner<T>> BlockEntityDefinition<T> create (String id, Class<T> entityClass, BlockEntityFactory<T> factory, BlockDefinition<? extends B>... blockDefinitions) {

@@ -4,7 +4,6 @@ import general.api.crafting.IRecipeProvider;
 import general.mechanics.GenMech;
 import general.mechanics.registries.GenBlocks;
 import general.mechanics.registries.GenItems;
-import general.mechanics.registries.GenTools;
 import lombok.NonNull;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
@@ -43,12 +42,6 @@ public class GenRecipeProvider extends RecipeProvider {
 	protected void buildRecipes () {
 		for (var item : GenItems.INSTANCE.getItems()) {
 			if (item.get() instanceof IRecipeProvider provider) {
-				provider.registerCraftingRecipes(this.items, consumer, has(provider.getCriterionItem()));
-			}
-		}
-
-		for (var tool : GenTools.INSTANCE.getItems()) {
-			if (tool.get() instanceof IRecipeProvider provider) {
 				provider.registerCraftingRecipes(this.items, consumer, has(provider.getCriterionItem()));
 			}
 		}

@@ -45,7 +45,6 @@ public abstract class Base implements GenMech {
 
 	private void registerModRegistries () {
 		GenItems.INSTANCE.getRegistry().register(getBus());
-		GenTools.INSTANCE.getRegistry().register(getBus());
 		GenBlocks.INSTANCE.getRegistry().register(getBus());
 
 		GenBlockEntities.REGISTRY.register(getBus());
@@ -61,10 +60,6 @@ public abstract class Base implements GenMech {
 			multitab.addTab(new TabBuilder.Builder().setTranslationKey(String.format("itemGroup.%s.items", GenAPI.getModId())).setDisplayItem(GenItems.REDSTONE_WIRE_SPOOL).setResourceKey(Resource.get("items")).setCreateModeTab(GenItems.INSTANCE).build())
 					.addTab(new TabBuilder.Builder().setTranslationKey(String.format("itemGroup.%s.blocks", GenAPI.getModId())).setResourceKey(Resource.get("blocks")).setCreateModeTab(GenBlocks.INSTANCE).build());
 			multitab.build(helper);
-
-			new TabBuilder.MultiTabBuilder()
-			       .addTab(new TabBuilder.Builder().setTranslationKey(String.format("itemGroup.%s.tools", GenAPI.getModId())).setDisplayItem(GenTools.WRENCH).setResourceKey(Resource.get("tools")).setCreateModeTab(GenTools.INSTANCE).build())
-			       .build(helper);
 		}));
 	}
 

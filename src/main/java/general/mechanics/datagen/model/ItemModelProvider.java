@@ -5,7 +5,6 @@ import general.api.item.materials.IngotItem;
 import general.api.mod.GenAPI;
 import general.api.resources.Resource;
 import general.mechanics.registries.GenItems;
-import general.mechanics.registries.GenTools;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.model.ModelTemplates;
@@ -38,13 +37,9 @@ public final class ItemModelProvider extends ModelProviders {
 	@Override
 	protected void registerModels (@NonNull BlockModelGenerators blockModels, @NonNull ItemModelGenerators itemModels) {
 		for (var item : GenItems.INSTANCE.getItems()) {
-			itemModels.generateFlatItem(item.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
-		}
-
-		for (var tool : GenTools.INSTANCE.getItems()) {
-			if (tool.get() instanceof ToolItem) {
-				itemModels.generateFlatItem(tool.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
-			}
+			if (item.get() instanceof ToolItem) {
+				itemModels.generateFlatItem(item.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
+			} else itemModels.generateFlatItem(item.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
 		}
 	}
 
