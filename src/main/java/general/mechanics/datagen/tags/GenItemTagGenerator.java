@@ -30,7 +30,7 @@ public class GenItemTagGenerator extends ItemTagsProvider {
 			if (tool.get() instanceof ToolItem toolItem) {
 				if (toolItem instanceof SawItem) this.tag(CoreTags.Items.SAWS).add(toolItem);
 				if (toolItem instanceof WireCuttersItem) this.tag(CoreTags.Items.WIRE_CUTTERS).add(toolItem);
-				if (toolItem instanceof WrenchItem) this.tag(CoreTags.Items.WRENCHES).add(toolItem);
+				if (toolItem instanceof WrenchItem) this.tag(Tags.Items.TOOLS_WRENCH).add(toolItem);
 				this.tag(Tags.Items.TOOLS).add(toolItem);
 			}
 
@@ -38,6 +38,11 @@ public class GenItemTagGenerator extends ItemTagsProvider {
 
 		this.tag(ItemTags.PLANKS)
 				.add(GenBlocks.RUBBER_PLANKS.asItem());
+
+		this.tag(Tags.Items.TOOLS)
+				.add(GenItems.SAW.asItem())
+				.add(GenItems.WRENCH.asItem())
+				.add(GenItems.WIRE_CUTTERS.asItem());
 
 	}
 

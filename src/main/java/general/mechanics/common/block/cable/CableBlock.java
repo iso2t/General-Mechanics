@@ -2,6 +2,7 @@ package general.mechanics.common.block.cable;
 
 import general.api.block.BaseBlock;
 import general.api.block.BlockEntityTypeOwner;
+import general.api.block.IWrenchable;
 import general.api.capabilities.Capabilities;
 import general.mechanics.common.block.entity.CableBlockEntity;
 import net.minecraft.core.BlockPos;
@@ -34,7 +35,7 @@ import javax.annotation.Nonnull;
 
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.WATERLOGGED;
 
-public class CableBlock extends BaseBlock implements SimpleWaterloggedBlock, EntityBlock, BlockEntityTypeOwner<CableBlockEntity> {
+public class CableBlock extends BaseBlock implements SimpleWaterloggedBlock, EntityBlock, BlockEntityTypeOwner<CableBlockEntity>, IWrenchable {
 
 	public static final EnumProperty<ConnectorType> NORTH = EnumProperty.create("north", ConnectorType.class);
 	public static final EnumProperty<ConnectorType> SOUTH = EnumProperty.create("south", ConnectorType.class);

@@ -7,6 +7,9 @@ import general.api.mod.GenAPI;
 import general.api.model.IBasicModel;
 import general.api.model.IMachineModel;
 import general.api.resources.Resource;
+import general.api.rotation.BlockRotationStrategies;
+import general.api.rotation.BlockRotationStrategy;
+import general.api.rotation.IRotatableBlock;
 import general.mechanics.client.model.CableModelLoader;
 import general.mechanics.common.block.RubberLogBlock;
 import general.mechanics.registries.GenBlocks;
@@ -14,9 +17,12 @@ import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.MultiVariant;
 import net.minecraft.client.data.models.blockstates.*;
-import net.minecraft.client.data.models.model.*;
-import net.minecraft.client.renderer.block.dispatch.VariantMutator;
+import net.minecraft.client.data.models.model.ModelTemplates;
+import net.minecraft.client.data.models.model.TextureMapping;
+import net.minecraft.client.data.models.model.TextureSlot;
+import net.minecraft.client.data.models.model.TexturedModel;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelDispatcher;
+import net.minecraft.client.renderer.block.dispatch.VariantMutator;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -112,19 +118,42 @@ public final class BlockModelProvider extends ModelProviders {
 	private void registerMachine (BlockDefinition<?> block, IMachineModel machine) {
 		var path = block.getId().getPath();
 
-		var model = ModelTemplates.CUBE.create(
-				Resource.get("block/machine/" + path),
-				machineMapping(machine), generators.modelOutput);
+		var model = ModelTemplates.CUBE.create(Resource.get("block/machine/" + path), machineMapping(machine), generators.modelOutput);
 
-		generators.blockStateOutput.accept(createSimpleBlock(block.get(), plainVariant(model)));
+		registerBlockState(block, model);
 
 		generators.registerSimpleItemModel(block.get(), model);
 	}
 
 	private void blockWithItem (BlockDefinition<?> block) {
 		var model = TexturedModel.CUBE.create(block.get(), generators.modelOutput);
-		generators.blockStateOutput.accept(createSimpleBlock(block.get(), plainVariant(model)));
+		registerBlockState(block, model);
 		generators.registerSimpleItemModel(block.get(), model);
+	}
+
+	/**
+	 * Emits every orientation variant required by a block that opted into a rotation strategy.
+	 */
+	private void registerBlockState (BlockDefinition<?> block, Identifier model) {
+		var variant = plainVariant(model);
+		if (block.get() instanceof IRotatableBlock rotatable) {
+			generators.blockStateOutput.accept(MultiVariantGenerator.dispatch(block.get()).with(rotationDispatch(rotatable.getRotationStrategy(), variant)));
+		} else {
+			generators.blockStateOutput.accept(createSimpleBlock(block.get(), variant));
+		}
+	}
+
+	private static PropertyDispatch<MultiVariant> rotationDispatch (BlockRotationStrategy strategy, MultiVariant variant) {
+		if (strategy == BlockRotationStrategies.HORIZONTAL_FACING) {
+			return PropertyDispatch.initial(BlockStateProperties.HORIZONTAL_FACING).select(Direction.NORTH, variant).select(Direction.SOUTH, variant.with(Y_ROT_180)).select(Direction.WEST, variant.with(Y_ROT_270)).select(Direction.EAST, variant.with(Y_ROT_90));
+		}
+		if (strategy == BlockRotationStrategies.FACING) {
+			return PropertyDispatch.initial(BlockStateProperties.FACING).select(Direction.DOWN, variant.with(X_ROT_90)).select(Direction.UP, variant.with(X_ROT_270)).select(Direction.NORTH, variant).select(Direction.SOUTH, variant.with(Y_ROT_180)).select(Direction.WEST, variant.with(Y_ROT_270)).select(Direction.EAST, variant.with(Y_ROT_90));
+		}
+		if (strategy == BlockRotationStrategies.AXIS) {
+			return PropertyDispatch.initial(BlockStateProperties.AXIS).select(Direction.Axis.X, variant).select(Direction.Axis.Y, variant).select(Direction.Axis.Z, variant);
+		}
+		throw new IllegalArgumentException("No generated blockstate dispatch for rotation strategy " + strategy);
 	}
 
 	/**
@@ -134,42 +163,24 @@ public final class BlockModelProvider extends ModelProviders {
 	 * variants are mutually exclusive, so the resin model fully replaces the face (no overlay z-fighting).
 	 */
 	private void rubberLogWithResin (Block block, String name, Identifier endTex) {
-		var sideTex  = Resource.get("block/rubber_log");
+		var sideTex = Resource.get("block/rubber_log");
 		var resinTex = Resource.get("block/rubber_log_resin");
 
 		// Plain pillar model (also the inventory icon).
 		var plain = ModelTemplates.CUBE_COLUMN.create(Resource.get("block/" + name), TextureMapping.column(mat(sideTex), mat(endTex)), generators.modelOutput);
 
 		// Resin variant: identical cube, but the north face uses the resin texture.
-		var resin = ExtendedModelTemplateBuilder.builder()
-				.parent(Resource.getMinecraftResource("block/block"))
-				.requiredTextureSlot(TextureSlot.SIDE).requiredTextureSlot(TextureSlot.END).requiredTextureSlot(RESIN).requiredTextureSlot(TextureSlot.PARTICLE)
-				.element(element -> element.from(0, 0, 0).to(16, 16, 16)
-						.face(Direction.DOWN, face -> face.texture(TextureSlot.END).uvs(0, 0, 16, 16).cullface(Direction.DOWN))
-						.face(Direction.UP, face -> face.texture(TextureSlot.END).uvs(0, 0, 16, 16).cullface(Direction.UP))
-						.face(Direction.NORTH, face -> face.texture(RESIN).uvs(0, 0, 16, 16).cullface(Direction.NORTH))
-						.face(Direction.SOUTH, face -> face.texture(TextureSlot.SIDE).uvs(0, 0, 16, 16).cullface(Direction.SOUTH))
-						.face(Direction.WEST, face -> face.texture(TextureSlot.SIDE).uvs(0, 0, 16, 16).cullface(Direction.WEST))
-						.face(Direction.EAST, face -> face.texture(TextureSlot.SIDE).uvs(0, 0, 16, 16).cullface(Direction.EAST)))
-				.build()
-				.create(Resource.get("block/" + name + "_resin"),
-						new TextureMapping().put(TextureSlot.SIDE, mat(sideTex)).put(TextureSlot.END, mat(endTex)).put(RESIN, mat(resinTex)).put(TextureSlot.PARTICLE, mat(sideTex)),
-						generators.modelOutput);
+		var resin = ExtendedModelTemplateBuilder.builder().parent(Resource.getMinecraftResource("block/block")).requiredTextureSlot(TextureSlot.SIDE).requiredTextureSlot(TextureSlot.END).requiredTextureSlot(RESIN).requiredTextureSlot(TextureSlot.PARTICLE).element(element -> element.from(0, 0, 0).to(16, 16, 16).face(Direction.DOWN, face -> face.texture(TextureSlot.END).uvs(0, 0, 16, 16).cullface(Direction.DOWN)).face(Direction.UP, face -> face.texture(TextureSlot.END).uvs(0, 0, 16, 16).cullface(Direction.UP)).face(Direction.NORTH, face -> face.texture(RESIN).uvs(0, 0, 16, 16).cullface(Direction.NORTH)).face(Direction.SOUTH, face -> face.texture(TextureSlot.SIDE).uvs(0, 0, 16, 16).cullface(Direction.SOUTH)).face(Direction.WEST, face -> face.texture(TextureSlot.SIDE).uvs(0, 0, 16, 16).cullface(Direction.WEST)).face(Direction.EAST, face -> face.texture(TextureSlot.SIDE).uvs(0, 0, 16, 16).cullface(Direction.EAST))).build().create(Resource.get("block/" + name + "_resin"), new TextureMapping().put(TextureSlot.SIDE, mat(sideTex)).put(TextureSlot.END, mat(endTex)).put(RESIN, mat(resinTex)).put(TextureSlot.PARTICLE, mat(sideTex)), generators.modelOutput);
 
 		var axis = RotatedPillarBlock.AXIS;
-		generators.blockStateOutput.accept(MultiPartGenerator.multiPart(block)
-				.with(new ConditionBuilder().term(axis, Direction.Axis.X), rotated(plain, 90, 90))
-				.with(new ConditionBuilder().term(axis, Direction.Axis.Z), rotated(plain, 90, 0))
-				.with(new ConditionBuilder().term(axis, Direction.Axis.Y).term(RubberLogBlock.SAP, 0, 1, 2), plainVariant(plain))
-				.with(new ConditionBuilder().term(axis, Direction.Axis.Y).term(RubberLogBlock.SAP, RubberLogBlock.MAX_SAP).term(RubberLogBlock.RESIN_FACING, Direction.NORTH), plainVariant(resin))
-				.with(new ConditionBuilder().term(axis, Direction.Axis.Y).term(RubberLogBlock.SAP, RubberLogBlock.MAX_SAP).term(RubberLogBlock.RESIN_FACING, Direction.EAST), rotated(resin, 0, 90))
-				.with(new ConditionBuilder().term(axis, Direction.Axis.Y).term(RubberLogBlock.SAP, RubberLogBlock.MAX_SAP).term(RubberLogBlock.RESIN_FACING, Direction.SOUTH), rotated(resin, 0, 180))
-				.with(new ConditionBuilder().term(axis, Direction.Axis.Y).term(RubberLogBlock.SAP, RubberLogBlock.MAX_SAP).term(RubberLogBlock.RESIN_FACING, Direction.WEST), rotated(resin, 0, 270)));
+		generators.blockStateOutput.accept(MultiPartGenerator.multiPart(block).with(new ConditionBuilder().term(axis, Direction.Axis.X), rotated(plain, 90, 90)).with(new ConditionBuilder().term(axis, Direction.Axis.Z), rotated(plain, 90, 0)).with(new ConditionBuilder().term(axis, Direction.Axis.Y).term(RubberLogBlock.SAP, 0, 1, 2), plainVariant(plain)).with(new ConditionBuilder().term(axis, Direction.Axis.Y).term(RubberLogBlock.SAP, RubberLogBlock.MAX_SAP).term(RubberLogBlock.RESIN_FACING, Direction.NORTH), plainVariant(resin)).with(new ConditionBuilder().term(axis, Direction.Axis.Y).term(RubberLogBlock.SAP, RubberLogBlock.MAX_SAP).term(RubberLogBlock.RESIN_FACING, Direction.EAST), rotated(resin, 0, 90)).with(new ConditionBuilder().term(axis, Direction.Axis.Y).term(RubberLogBlock.SAP, RubberLogBlock.MAX_SAP).term(RubberLogBlock.RESIN_FACING, Direction.SOUTH), rotated(resin, 0, 180)).with(new ConditionBuilder().term(axis, Direction.Axis.Y).term(RubberLogBlock.SAP, RubberLogBlock.MAX_SAP).term(RubberLogBlock.RESIN_FACING, Direction.WEST), rotated(resin, 0, 270)));
 
 		generators.registerSimpleItemModel(block, plain);
 	}
 
-	/** A model variant rotated by the given X/Y quadrant angles (no uv-lock — texture follows the face). */
+	/**
+	 * A model variant rotated by the given X/Y quadrant angles (no uv-lock — texture follows the face).
+	 */
 	private static MultiVariant rotated (Identifier model, int rotX, int rotY) {
 		var variant = plainVariant(model);
 		if (rotX != 0) variant = variant.with(VariantMutator.X_ROT.withValue(quadrant(rotX)));
@@ -228,14 +239,7 @@ public final class BlockModelProvider extends ModelProviders {
 	 */
 	private TextureMapping machineMapping (IMachineModel machine) {
 		var side = mat(machine.getSideTexture());
-		return new TextureMapping()
-				.put(TextureSlot.DOWN, mat(machine.getBottomTexture()))
-				.put(TextureSlot.UP, mat(machine.getTopTexture()))
-				.put(TextureSlot.NORTH, mat(machine.getFrontTexture()))
-				.put(TextureSlot.SOUTH, side)
-				.put(TextureSlot.EAST, side)
-				.put(TextureSlot.WEST, side)
-				.put(TextureSlot.PARTICLE, side);
+		return new TextureMapping().put(TextureSlot.DOWN, mat(machine.getBottomTexture())).put(TextureSlot.UP, mat(machine.getTopTexture())).put(TextureSlot.NORTH, mat(machine.getFrontTexture())).put(TextureSlot.SOUTH, side).put(TextureSlot.EAST, side).put(TextureSlot.WEST, side).put(TextureSlot.PARTICLE, side);
 	}
 
 	/**
@@ -452,10 +456,6 @@ public final class BlockModelProvider extends ModelProviders {
 	private void addFaceExact (MultiPartGenerator multipart, Identifier exact, int rotX, int rotY, BooleanProperty top, boolean topValue, BooleanProperty bottom, boolean bottomValue, BooleanProperty left, boolean leftValue, BooleanProperty right, boolean rightValue) {
 		multipart.with(cond(top, topValue).term(bottom, bottomValue).term(left, leftValue).term(right, rightValue), oriented(exact, rotX, rotY));
 	}
-
-	// ------------------------------------------------------------------------------------------------
-	// Small helpers
-	// ------------------------------------------------------------------------------------------------
 
 	private static ConditionBuilder cond (BooleanProperty property, boolean value) {
 		return new ConditionBuilder().term(property, value);

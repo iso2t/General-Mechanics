@@ -2,6 +2,7 @@ package general.mechanics.common.block.network;
 
 import general.api.block.BaseBlock;
 import general.api.block.BlockEntityTypeOwner;
+import general.api.block.IWrenchable;
 import general.api.model.IMachineModel;
 import general.api.resources.Resource;
 import general.mechanics.common.block.entity.NetworkConnectorBlockEntity;
@@ -20,7 +21,7 @@ import org.jspecify.annotations.Nullable;
 /**
  * Allows connecting non-networked blocks to the network with limited interactivity.
  */
-public class NetworkConnectorBlock extends BaseBlock implements EntityBlock, BlockEntityTypeOwner<NetworkConnectorBlockEntity>, IMachineModel {
+public class NetworkConnectorBlock extends BaseBlock implements EntityBlock, BlockEntityTypeOwner<NetworkConnectorBlockEntity>, IMachineModel, IWrenchable {
 
 	private BlockEntityType<NetworkConnectorBlockEntity> blockEntityType;
 
