@@ -1,0 +1,111 @@
+{
+    size: [3, 2, 1],
+    entities: [],
+    blocks: [
+        {
+            pos: [1, 1, 0],
+            state: 0
+        },
+        {
+            nbt: {
+                components: {},
+                id: "generalmechanics:network_connector"
+            },
+            pos: [0, 0, 0],
+            state: 1
+        },
+        {
+            nbt: {
+                components: {},
+                id: "generalmechanics:cable"
+            },
+            pos: [1, 0, 0],
+            state: 2
+        },
+        {
+            nbt: {
+                components: {},
+                id: "generalmechanics:network_connector"
+            },
+            pos: [2, 0, 0],
+            state: 1
+        },
+        {
+            nbt: {
+                lit_total_time: 1600,
+                components: {},
+                cooking_time_spent: 10,
+                cooking_total_time: 200,
+                Items: [
+                    {
+                        count: 62,
+                        Slot: 0b,
+                        id: "minecraft:iron_ore"
+                    },
+                    {
+                        count: 63,
+                        Slot: 1b,
+                        id: "minecraft:charcoal"
+                    },
+                    {
+                        count: 2,
+                        Slot: 2b,
+                        id: "minecraft:iron_ingot"
+                    }
+                ],
+                id: "minecraft:furnace",
+                lit_time_remaining: 1191,
+                RecipesUsed: {
+                    "minecraft:iron_ingot_from_smelting_iron_ore": 2
+                }
+            },
+            pos: [0, 1, 0],
+            state: 3
+        },
+        {
+            nbt: {
+                components: {},
+                Items: [],
+                id: "minecraft:chest"
+            },
+            pos: [2, 1, 0],
+            state: 4
+        }
+    ],
+    palette: [
+        {
+            Name: "minecraft:air"
+        },
+        {
+            Name: "generalmechanics:network_connector"
+        },
+        {
+            Properties: {
+                east: "block",
+                waterlogged: "false",
+                south: "none",
+                north: "none",
+                west: "block",
+                up: "none",
+                down: "none"
+            },
+            Name: "generalmechanics:cable"
+        },
+        {
+            Properties: {
+                lit: "true",
+                facing: "north"
+            },
+            Name: "minecraft:furnace"
+        },
+        {
+            Properties: {
+                waterlogged: "false",
+                facing: "north",
+                type: "single"
+            },
+            Name: "minecraft:chest"
+        }
+    ],
+    DataVersion: 4790
+}

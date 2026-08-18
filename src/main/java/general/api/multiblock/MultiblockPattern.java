@@ -1,0 +1,145 @@
+package general.api.multiblock;
+
+import lombok.Getter;
+import net.minecraft.core.BlockPos;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public final class MultiblockPattern {
+
+	@Getter
+	private final Map<Character, MultiblockElement> palette;
+
+	@Getter
+	private final List<List<String>> layers;
+
+	@Getter
+	private final int width;
+
+	@Getter
+	private final int height;
+
+	@Getter
+	private final int depth;
+
+	@Getter
+	private final BlockPos anchor;
+
+	public MultiblockPattern (Map<Character, MultiblockElement> palette, List<List<String>> layers, BlockPos anchor) {
+		this.palette = Map.copyOf(palette);
+		this.layers = List.copyOf(layers);
+		this.anchor = anchor;
+
+		this.height = layers.size();
+		this.depth = layers.getFirst().size();
+		this.width = layers.getFirst().getFirst().length();
+	}
+
+	public MultiblockElement getElementAt (int x, int y, int z) {
+		var symbol = getLayers().get(y).get(z).charAt(x);
+
+		if (symbol == ' ') return null;
+		return getPalette().get(symbol);
+	}
+
+	public static Builder builder () {
+		return new Builder();
+	}
+
+	public static final class Builder {
+
+		private final Map<Character, MultiblockElement> palette = new HashMap<>();
+
+		private final List<List<String>> layers = new ArrayList<>();
+
+		private Character anchorSymbol;
+
+		public Builder where (char symbol, MultiblockElement element) {
+			if (symbol == ' ') {
+				throw new IllegalArgumentException("Space is reserved for ignored positions.");
+			}
+
+			palette.put(symbol, element);
+
+			return this;
+		}
+
+		public Builder anchor (char symbol) {
+			this.anchorSymbol = symbol;
+			return this;
+		}
+
+		public Builder layer (String... rows) {
+			if (rows.length == 0) {
+				throw new IllegalArgumentException("A multiblock layer cannot be empty.");
+			}
+
+			layers.add(List.of(rows));
+
+			return this;
+		}
+
+		public MultiblockPattern build () {
+
+			if (layers.isEmpty()) {
+				throw new IllegalStateException("Multiblock must contain at least one layer.");
+			}
+
+			int expectedDepth = layers.getFirst().size();
+			int expectedWidth = layers.getFirst().getFirst().length();
+
+			BlockPos anchor = null;
+
+			for (int y = 0; y < layers.size(); y++) {
+				List<String> layer = layers.get(y);
+
+				if (layer.size() != expectedDepth) {
+					throw new IllegalStateException("Every multiblock layer must have the same depth.");
+				}
+
+				for (int z = 0; z < layer.size(); z++) {
+					String row = layer.get(z);
+
+					if (row.length() != expectedWidth) {
+						throw new IllegalStateException("Every multiblock row must have the same width.");
+					}
+
+					for (int x = 0; x < row.length(); x++) {
+						char symbol = row.charAt(x);
+
+						if (symbol == ' ') {
+							continue;
+						}
+
+						if (!palette.containsKey(symbol)) {
+							throw new IllegalStateException("Undefined multiblock symbol: '" + symbol + "'");
+						}
+
+						if (anchorSymbol != null && symbol == anchorSymbol) {
+
+							if (anchor != null) {
+								throw new IllegalStateException("Multiblock anchor occurs more than once.");
+							}
+
+							anchor = new BlockPos(x, y, z);
+						}
+					}
+				}
+			}
+
+			if (anchorSymbol == null) {
+				throw new IllegalStateException("Multiblock has no anchor symbol.");
+			}
+
+			if (anchor == null) {
+				throw new IllegalStateException("Multiblock anchor symbol '" + anchorSymbol + "' was not found.");
+			}
+
+			return new MultiblockPattern(palette, layers, anchor);
+		}
+	}
+
+}

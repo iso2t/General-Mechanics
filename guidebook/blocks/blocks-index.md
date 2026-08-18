@@ -4,9 +4,9 @@ navigation:
     position: 50
 ---
 
-# Items, Blocks, and Machines
+# Blocks
 
-A list of stuff in the mod for other pages to link to, and a description of their function.
+A list of all blocks added to the game.
 
 ## Misc. Ingredients and Blocks
 

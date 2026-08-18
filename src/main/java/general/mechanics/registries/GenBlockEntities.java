@@ -6,6 +6,7 @@ import general.api.definitions.BlockDefinition;
 import general.api.definitions.BlockEntityDefinition;
 import general.api.mod.GenAPI;
 import general.mechanics.common.block.entity.CableBlockEntity;
+import general.mechanics.common.block.entity.CokeOvenControllerBlockEntity;
 import general.mechanics.common.block.entity.NetworkConnectorBlockEntity;
 import general.mechanics.common.block.entity.PowerInjectorBlockEntity;
 import net.minecraft.core.BlockPos;
@@ -29,6 +30,7 @@ public class GenBlockEntities {
 	public static final BlockEntityDefinition<CableBlockEntity>            CABLE             = create("cable", CableBlockEntity.class, CableBlockEntity::new, GenBlocks.CABLE);
 	public static final BlockEntityDefinition<NetworkConnectorBlockEntity> NETWORK_CONNECTOR = create("network_connector", NetworkConnectorBlockEntity.class, NetworkConnectorBlockEntity::new, GenBlocks.NETWORK_CONNECTOR);
 	public static final BlockEntityDefinition<PowerInjectorBlockEntity>    POWER_INJECTOR    = create("power_injector", PowerInjectorBlockEntity.class, PowerInjectorBlockEntity::new, GenBlocks.POWER_INJECTOR);
+	public static final BlockEntityDefinition<CokeOvenControllerBlockEntity> COKE_OVEN_CONTROLLER = create("coke_oven_controller", CokeOvenControllerBlockEntity.class, CokeOvenControllerBlockEntity::new, GenBlocks.COKE_OVEN_CONTROLLER);
 
 	@SafeVarargs
 	private static <T extends BlockEntity, B extends Block & BlockEntityTypeOwner<T>> BlockEntityDefinition<T> create (String id, Class<T> entityClass, BlockEntityFactory<T> factory, BlockDefinition<? extends B>... blockDefinitions) {

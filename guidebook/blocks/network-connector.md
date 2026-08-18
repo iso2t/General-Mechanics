@@ -23,5 +23,5 @@ block, excluding the top.
 
 <GameScene zoom="4" interactive={true}>
   <ImportStructure src="../assets/assemblies/network_connector.nbt" />
-  <IsometricCamera yaw="195" pitch="30" />  
+  <IsometricCamera yaw="195" pitch="5" />  
 </GameScene>

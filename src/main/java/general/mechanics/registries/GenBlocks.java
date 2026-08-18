@@ -6,6 +6,7 @@ import general.api.mod.GenAPI;
 import general.api.registry.RegistryString;
 import general.api.registry.block.BlockRegistry;
 import general.api.resources.Resource;
+import general.mechanics.common.block.CokeOvenController;
 import general.mechanics.common.block.LogBlock;
 import general.mechanics.common.block.RubberLogBlock;
 import general.mechanics.common.block.cable.CableBlock;
@@ -59,6 +60,9 @@ public class GenBlocks extends BlockRegistry {
 	public static final BlockDefinition<TintedParticleLeavesBlock> RUBBER_LEAVES         = registerBlock("Rubber Leaves", props -> new TintedParticleLeavesBlock(0.01F, props), () -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_LEAVES));
 	public static final BlockDefinition<SaplingBlock>              RUBBER_SAPLING        = registerBlock("Rubber Sapling", props -> new SaplingBlock(GenFeatures.RUBBER, props), () -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_SAPLING));
 	public static final BlockDefinition<FlowerPotBlock>            POTTED_RUBBER_SAPLING = registerBlock("Potted Rubber Sapling", props -> new FlowerPotBlock(RUBBER_SAPLING.get(), props), () -> BlockBehaviour.Properties.ofFullCopy(Blocks.POTTED_OAK_SAPLING));
+
+	public static final BlockDefinition<DecorativeBlock> COKE_OVEN_BRICKS = registerBlock("Coke Oven Bricks", DecorativeBlock::new);
+	public static final BlockDefinition<CokeOvenController> COKE_OVEN_CONTROLLER = registerBlock("Coke Oven Controller", CokeOvenController::new);
 
 	private static String formatColorName (String colorName) {
 		String[] words = colorName.split("_");
