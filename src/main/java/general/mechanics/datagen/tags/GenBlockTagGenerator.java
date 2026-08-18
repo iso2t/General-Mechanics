@@ -1,6 +1,9 @@
 package general.mechanics.datagen.tags;
 
 import general.api.block.IBlockTagsProvider;
+import general.api.block.util.IAxe;
+import general.api.block.util.IPickaxe;
+import general.api.block.util.IShovel;
 import general.api.mod.GenAPI;
 import general.mechanics.registries.GenBlocks;
 import net.minecraft.core.HolderLookup;
@@ -25,6 +28,21 @@ public class GenBlockTagGenerator extends BlockTagsProvider {
 				for (var tag : tagsProvider.getBlockTags()) {
 					this.tag(tag).add(block.get());
 				}
+			}
+
+			if (block.get() instanceof IPickaxe pickaxe) {
+				this.tag(pickaxe.getRequiredTool()).add(block.get());
+				this.tag(pickaxe.getMiningTier()).add(block.get());
+			}
+
+			if (block.get() instanceof IAxe axe) {
+				this.tag(axe.getRequiredTool()).add(block.get());
+				this.tag(axe.getMiningTier()).add(block.get());
+			}
+
+			if (block.get() instanceof IShovel shovel) {
+				this.tag(shovel.getRequiredTool()).add(block.get());
+				this.tag(shovel.getMiningTier()).add(block.get());
 			}
 
 			if (block.get() instanceof LeavesBlock) {

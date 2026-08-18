@@ -3,6 +3,7 @@ package general.mechanics.common.block.network;
 import general.api.block.BaseBlock;
 import general.api.block.BlockEntityTypeOwner;
 import general.api.block.IWrenchable;
+import general.api.block.util.IPickaxe;
 import general.api.model.IMachineModel;
 import general.api.resources.Resource;
 import general.api.rotation.BlockRotationStrategies;
@@ -18,7 +19,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-public class PowerInjectorBlock extends BaseBlock implements EntityBlock, BlockEntityTypeOwner<PowerInjectorBlockEntity>, IMachineModel, IRotatableBlock, IWrenchable {
+public class PowerInjectorBlock extends BaseBlock implements EntityBlock, BlockEntityTypeOwner<PowerInjectorBlockEntity>, IMachineModel, IRotatableBlock, IWrenchable, IPickaxe {
 
 	private BlockEntityType<PowerInjectorBlockEntity> blockEntityType;
 

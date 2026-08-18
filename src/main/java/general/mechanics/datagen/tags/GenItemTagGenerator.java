@@ -39,11 +39,6 @@ public class GenItemTagGenerator extends ItemTagsProvider {
 		this.tag(ItemTags.PLANKS)
 				.add(GenBlocks.RUBBER_PLANKS.asItem());
 
-		this.tag(Tags.Items.TOOLS)
-				.add(GenItems.SAW.asItem())
-				.add(GenItems.WRENCH.asItem())
-				.add(GenItems.WIRE_CUTTERS.asItem());
-
 	}
 
 }

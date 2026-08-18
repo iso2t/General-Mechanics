@@ -1,6 +1,7 @@
 package general.mechanics.common.block;
 
 import general.api.block.IBlockTagsProvider;
+import general.api.block.util.IAxe;
 import general.mechanics.registries.GenBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -18,7 +19,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-public class LogBlock extends RotatedPillarBlock implements IBlockTagsProvider {
+public class LogBlock extends RotatedPillarBlock implements IBlockTagsProvider, IAxe {
 
 	public LogBlock (Properties properties) {
 		super(properties);
@@ -50,6 +51,6 @@ public class LogBlock extends RotatedPillarBlock implements IBlockTagsProvider {
 
 	@Override
 	public List<TagKey<Block>> getBlockTags () {
-		return List.of(BlockTags.MINEABLE_WITH_AXE, BlockTags.NEEDS_STONE_TOOL, BlockTags.LOGS_THAT_BURN);
+		return List.of(BlockTags.LOGS_THAT_BURN);
 	}
 }
