@@ -1,7 +1,7 @@
 ---
 navigation:
     title: Index/Table of Contents
-    position: 0
+    position: 10
 ---
 
 ![Logo](assets/logo.png)

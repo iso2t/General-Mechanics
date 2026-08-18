@@ -4,10 +4,10 @@ navigation:
     title: Network Connector
     icon: network_connector
     position: 210
-    categories:
-        - network
-    item_ids:
-        - generalmechanics:network_connector
+categories:
+- network
+item_ids:
+- generalmechanics:network_connector
 ---
 
 <GameScene zoom="4">
