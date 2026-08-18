@@ -140,11 +140,6 @@ idea {
     }
 }
 
-tasks.named('jar', Jar) {
-    from(sourceSets.client.output)
-    exclude '/.cache'
-}
-
 tasks.named('processResources', ProcessResources).configure {
     from('guidebook') {
         into 'guides/generalmechanics/guide'
