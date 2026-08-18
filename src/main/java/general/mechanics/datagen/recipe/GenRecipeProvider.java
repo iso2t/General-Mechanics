@@ -1,7 +1,7 @@
 package general.mechanics.datagen.recipe;
 
 import general.api.crafting.IRecipeProvider;
-import general.mechanics.GenMech;
+import general.mechanics.Mechanics;
 import general.mechanics.registries.GenBlocks;
 import general.mechanics.registries.GenItems;
 import lombok.NonNull;
@@ -34,7 +34,7 @@ public class GenRecipeProvider extends RecipeProvider {
 
 		@Override
 		public @NonNull String getName () {
-			return GenMech.NAME + " Recipes";
+			return Mechanics.NAME + " Recipes";
 		}
 	}
 

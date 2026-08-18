@@ -20,9 +20,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.Collections;
 
-public abstract class Base implements GenMech {
+public abstract class MechanicsBase implements Mechanics {
 
-	static GenMech INSTANCE;
+	static Mechanics INSTANCE;
 
 	@Getter
 	private final IEventBus bus;
@@ -30,7 +30,7 @@ public abstract class Base implements GenMech {
 	@Getter
 	private final ModContainer container;
 
-	public Base (ModContainer container, IEventBus bus) {
+	public MechanicsBase (ModContainer container, IEventBus bus) {
 		if (INSTANCE != null) throw new IllegalStateException(String.format("%s is already initialized", NAME));
 		INSTANCE = this;
 		this.container = container;

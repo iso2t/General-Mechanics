@@ -10,15 +10,15 @@ import org.slf4j.LoggerFactory;
 import java.nio.file.Path;
 import java.util.Collection;
 
-public interface GenMech {
+public interface Mechanics {
 
 	String NAME   = "General Mechanics";
 	String MOD_ID = "generalmechanics";
 
 	Logger LOGGER = LoggerFactory.getLogger(NAME);
 
-	static GenMech getInstance () {
-		return Base.INSTANCE;
+	static Mechanics getInstance () {
+		return MechanicsBase.INSTANCE;
 	}
 
 	static Path getGameDirectory () {

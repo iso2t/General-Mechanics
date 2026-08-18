@@ -3,7 +3,6 @@ package general.api.tab;
 import general.api.definitions.ItemDefinition;
 import general.api.mod.GenAPI;
 import general.api.resources.Resource;
-import general.mechanics.GenMech;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;

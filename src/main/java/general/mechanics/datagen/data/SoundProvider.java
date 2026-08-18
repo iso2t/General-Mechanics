@@ -23,5 +23,10 @@ public class SoundProvider extends SoundDefinitionsProvider {
 				.with(sound(GenAPI.getModId() + ":plastic_block_break", SoundDefinition.SoundType.SOUND)
 						.volume(1.f).pitch(1.f).weight(1).stream(true))
 				.subtitle("subtitles.gm.plastic_block_break"));
+
+		add(GenSounds.WRENCH.get(), SoundDefinition.definition()
+				.with(sound(GenAPI.getModId() + ":wrench_use", SoundDefinition.SoundType.SOUND)
+						.volume(1.f).pitch(1.f).weight(1).stream(true))
+				.subtitle("subtitles.gm.wrench_use"));
 	}
 }

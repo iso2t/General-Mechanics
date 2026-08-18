@@ -2,8 +2,10 @@ package general.mechanics.common.event;
 
 import general.api.block.IWrenchable;
 import general.api.rotation.IRotatableBlock;
-import general.mechanics.GenMech;
+import general.mechanics.Mechanics;
+import general.mechanics.registries.GenSounds;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -16,7 +18,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 
 /** Applies the shared wrench contract to every item in NeoForge's wrench tag. */
-@EventBusSubscriber(modid = GenMech.MOD_ID)
+@EventBusSubscriber(modid = Mechanics.MOD_ID)
 public final class WrenchInteractionHandler {
 
 	private WrenchInteractionHandler () {
@@ -34,6 +36,7 @@ public final class WrenchInteractionHandler {
 
 		if (level.isClientSide()) {
 			if (player.isCrouching() || state.getBlock() instanceof IRotatableBlock) {
+				level.playSound(player, event.getPos(), GenSounds.WRENCH.get(), SoundSource.BLOCKS, 1.0F, 1.0F);
 				handle(event);
 			}
 			return;
@@ -41,6 +44,7 @@ public final class WrenchInteractionHandler {
 
 		if (player.isCrouching()) {
 			if (player instanceof ServerPlayer serverPlayer && serverPlayer.gameMode.destroyBlock(event.getPos())) {
+				level.playSound(null, event.getPos(), GenSounds.WRENCH.get(), SoundSource.BLOCKS, 1.0F, 1.0F);
 				handle(event);
 			}
 			return;
@@ -50,7 +54,7 @@ public final class WrenchInteractionHandler {
 			BlockState rotated = rotatableBlock.rotateBlock(state, false);
 			if (!rotated.equals(state)) {
 				level.setBlock(event.getPos(), rotated, Block.UPDATE_ALL);
-				wrench.hurtAndBreak(1, player, event.getHand().asEquipmentSlot());
+				if (!level.isClientSide()) wrench.hurtAndBreak(1, player, event.getHand().asEquipmentSlot());
 				handle(event);
 			}
 		}

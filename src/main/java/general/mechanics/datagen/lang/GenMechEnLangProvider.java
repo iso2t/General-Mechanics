@@ -36,6 +36,7 @@ public class GenMechEnLangProvider extends LanguageProvider {
 	protected void addSubtitles() {
 		add("subtitles.generalmechanics.plastic_block_place", "Block Placed");
 		add("subtitles.generalmechanics.plastic_block_break", "Block Break");
+		add("subtitles.generalmechanics.wrench_use", "Wrench");
 	}
 
 	protected void addTooltips() {

@@ -1,6 +1,6 @@
 package general.mechanics.datagen;
 
-import general.mechanics.GenMech;
+import general.mechanics.Mechanics;
 import general.mechanics.datagen.data.SoundProvider;
 import general.mechanics.datagen.lang.GenMechEnLangProvider;
 import general.mechanics.datagen.loot.GenLootTableProvider;
@@ -21,7 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
 
-@EventBusSubscriber(modid = GenMech.MOD_ID)
+@EventBusSubscriber(modid = Mechanics.MOD_ID)
 public class DataGenerators {
 
 	@SubscribeEvent
