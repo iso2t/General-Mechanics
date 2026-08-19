@@ -1,6 +1,5 @@
 package general.mechanics.registries;
 
-import general.api.block.DecorativeBlock;
 import general.api.block.RecipeProviderBlock;
 import general.api.crafting.IRecipeProvider;
 import general.api.definitions.BlockDefinition;
@@ -9,32 +8,23 @@ import general.api.registry.RegistryString;
 import general.api.registry.block.BlockRegistry;
 import general.api.resources.Resource;
 import general.mechanics.common.block.CokeOvenController;
-import general.mechanics.common.block.LogBlock;
-import general.mechanics.common.block.RubberLogBlock;
+import general.mechanics.common.block.RubberWood;
 import general.mechanics.common.block.cable.CableBlock;
 import general.mechanics.common.block.network.NetworkConnectorBlock;
 import general.mechanics.common.block.network.PowerInjectorBlock;
 import general.mechanics.worldgen.GenFeatures;
 import net.minecraft.advancements.Criterion;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.registries.DeferredRegister;
-import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,48 +40,19 @@ public class GenBlocks extends BlockRegistry {
 	public static final BlockDefinition<CableBlock>                CABLE                 = registerBlock("Cable", CableBlock::new);
 	public static final BlockDefinition<NetworkConnectorBlock>     NETWORK_CONNECTOR     = registerBlock("Network Connector", NetworkConnectorBlock::new);
 	public static final BlockDefinition<PowerInjectorBlock>        POWER_INJECTOR        = registerBlock("Power Injector", PowerInjectorBlock::new);
-	public static final BlockDefinition<RubberLogBlock>            RUBBER_LOG            = registerBlock("Rubber Log", RubberLogBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_LOG));
-	public static final BlockDefinition<RubberLogBlock>            RUBBER_WOOD           = registerBlock("Rubber Wood", RubberLogBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_WOOD));
-	public static final BlockDefinition<LogBlock>                  STRIPPED_RUBBER_LOG   = registerBlock("Stripped Rubber Log", LogBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.STRIPPED_OAK_LOG));
-	public static final BlockDefinition<LogBlock>                  STRIPPED_RUBBER_WOOD  = registerBlock("Stripped Rubber Wood", LogBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.STRIPPED_OAK_WOOD));
-	public static final BlockDefinition<DecorativeBlock>           RUBBER_PLANKS         = registerBlock("Rubber Planks", props -> new DecorativeBlock(props) {
-		@Override
-		public boolean isFlammable (@NonNull BlockState state, @NonNull BlockGetter level, @NonNull BlockPos pos, @NonNull Direction direction) {
-			return true;
-		}
-
-		@Override
-		public int getFlammability (@NonNull BlockState state, @NonNull BlockGetter level, @NonNull BlockPos pos, @NonNull Direction direction) {
-			return 20;
-		}
-
-		@Override
-		public int getFireSpreadSpeed (@NonNull BlockState state, @NonNull BlockGetter level, @NonNull BlockPos pos, @NonNull Direction direction) {
-			return 5;
-		}
-
-		@Override
-		public List<TagKey<Block>> getBlockTags () {
-			return List.of(BlockTags.PLANKS, BlockTags.MINEABLE_WITH_AXE);
-		}
-	}, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS));
+	public static final BlockDefinition<RubberWood.RubberLogBlock> RUBBER_LOG            = registerBlock("Rubber Log", RubberWood.RubberLogBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_LOG));
+	public static final BlockDefinition<RubberWood.RubberLogBlock> RUBBER_WOOD           = registerBlock("Rubber Wood", RubberWood.RubberLogBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_WOOD));
+	public static final BlockDefinition<RubberWood.LogBlock>       STRIPPED_RUBBER_LOG   = registerBlock("Stripped Rubber Log", RubberWood.LogBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.STRIPPED_OAK_LOG));
+	public static final BlockDefinition<RubberWood.LogBlock>       STRIPPED_RUBBER_WOOD  = registerBlock("Stripped Rubber Wood", RubberWood.LogBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.STRIPPED_OAK_WOOD));
+	public static final BlockDefinition<RubberWood.Planks>         RUBBER_PLANKS         = registerBlock("Rubber Planks", RubberWood.Planks::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS));
 	public static final BlockDefinition<TintedParticleLeavesBlock> RUBBER_LEAVES         = registerBlock("Rubber Leaves", props -> new TintedParticleLeavesBlock(0.01F, props), () -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_LEAVES));
 	public static final BlockDefinition<SaplingBlock>              RUBBER_SAPLING        = registerBlock("Rubber Sapling", props -> new SaplingBlock(GenFeatures.RUBBER, props), () -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_SAPLING));
 	public static final BlockDefinition<FlowerPotBlock>            POTTED_RUBBER_SAPLING = registerBlock("Potted Rubber Sapling", props -> new FlowerPotBlock(RUBBER_SAPLING.get(), props), () -> BlockBehaviour.Properties.ofFullCopy(Blocks.POTTED_OAK_SAPLING));
 
-	public static final BlockDefinition<RecipeProviderBlock> COKE_OVEN_BRICKS = registerBlock("Coke Oven Bricks", props -> new RecipeProviderBlock(props) {
+	public static final BlockDefinition<RecipeProviderBlock> COKE_OVEN_BRICKS     = registerBlock("Coke Oven Bricks", props -> new RecipeProviderBlock(props) {
 		@Override
 		public void registerCraftingRecipes (HolderGetter<Item> holder, RecipeOutput consumer, Criterion<?> criterion) {
-			ShapedRecipeBuilder.shaped(holder, RecipeCategory.MISC, this, 4)
-					.pattern("CSC")
-					.pattern("GWG")
-					.pattern("CSC")
-					.define('C', Blocks.CLAY)
-					.define('S', Tags.Items.SANDS)
-					.define('G', Tags.Items.GRAVELS)
-					.define('W', Tags.Items.BUCKETS_WATER)
-					.unlockedBy("has_any", criterion)
-					.save(consumer, IRecipeProvider.createKey("coke_oven_bricks"));
+			ShapedRecipeBuilder.shaped(holder, RecipeCategory.MISC, this, 4).pattern("CSC").pattern("GWG").pattern("CSC").define('C', Blocks.CLAY).define('S', Tags.Items.SANDS).define('G', Tags.Items.GRAVELS).define('W', Tags.Items.BUCKETS_WATER).unlockedBy("has_any", criterion).save(consumer, IRecipeProvider.createKey("coke_oven_bricks"));
 		}
 
 		@Override
@@ -99,7 +60,7 @@ public class GenBlocks extends BlockRegistry {
 			return Blocks.SAND;
 		}
 	}, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.BRICKS));
-	public static final BlockDefinition<CokeOvenController> COKE_OVEN_CONTROLLER = registerBlock("Coke Oven Controller", CokeOvenController::new);
+	public static final BlockDefinition<CokeOvenController>  COKE_OVEN_CONTROLLER = registerBlock("Coke Oven Controller", CokeOvenController::new);
 
 	private static String formatColorName (String colorName) {
 		String[] words = colorName.split("_");

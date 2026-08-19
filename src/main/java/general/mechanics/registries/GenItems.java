@@ -2,6 +2,7 @@ package general.mechanics.registries;
 
 import general.api.definitions.ItemDefinition;
 import general.api.item.PartItem;
+import general.api.item.RecipeProviderItem;
 import general.api.mod.GenAPI;
 import general.api.registry.RegistryString;
 import general.api.registry.item.ItemRegistry;
@@ -16,12 +17,19 @@ import net.minecraft.core.HolderGetter;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.entity.FuelValues;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,11 +54,29 @@ public class GenItems extends ItemRegistry {
 	public static final ItemDefinition<NetworkDebuggerItem> GUIDE        = registerItem("Service Terminal", "guide", NetworkDebuggerItem::new);
 
 	// Misc
-	public static final ItemDefinition<Item>     TREE_SAP         = registerItem("Tree Sap", Item::new);
-	public static final ItemDefinition<Item>     UNTREATED_RUBBER = registerItem("Untreated Rubber", Item::new);
-	public static final ItemDefinition<Item>     RUBBER           = registerItem("Rubber", Item::new);
-	public static final ItemDefinition<Item>     SAWDUST          = registerItem("Sawdust", Item::new);
-	public static final ItemDefinition<PartItem> WET_PAPER        = registerItem("Wet Paper", properties -> new PartItem(properties) {
+	public static final ItemDefinition<Item>               TREE_SAP         = registerItem("Tree Sap", Item::new);
+	public static final ItemDefinition<Item>               UNTREATED_RUBBER = registerItem("Untreated Rubber", Item::new);
+	public static final ItemDefinition<Item>               RUBBER           = registerItem("Rubber", Item::new);
+	public static final ItemDefinition<Item>               SAWDUST          = registerItem("Sawdust", Item::new);
+	public static final ItemDefinition<RecipeProviderItem> COAL_COKE        = registerItem("Coal Coke", properties -> new RecipeProviderItem(properties) {
+		@Override
+		public void registerCraftingRecipes (HolderGetter<Item> holder, RecipeOutput consumer, Criterion<?> criterion) {
+			// TODO: Add recipe when provider for Coke Oven exists.
+		}
+
+		@Override
+		public ItemLike getCriterionItem () {
+			return Items.COAL;
+		}
+
+		@Override
+		public int getBurnTime (@NonNull ItemStack itemStack, @Nullable RecipeType<?> recipeType, @NonNull FuelValues fuelValues) {
+			return 3_200;
+		}
+
+
+	});
+	public static final ItemDefinition<PartItem>           WET_PAPER        = registerItem("Wet Paper", properties -> new PartItem(properties) {
 		@Override
 		public void registerCraftingRecipes (HolderGetter<Item> holder, RecipeOutput consumer, Criterion<?> criterion) {
 			ShapedRecipeBuilder.shaped(holder, RecipeCategory.MISC, this, 1).pattern("WS").pattern("SS").define('W', Tags.Items.BUCKETS_WATER).define('S', SAWDUST.get()).unlockedBy("has_any", criterion).save(consumer);
@@ -61,7 +87,7 @@ public class GenItems extends ItemRegistry {
 			return SAWDUST.get();
 		}
 	});
-	public static final ItemDefinition<PartItem> CARDBOARD        = registerItem("Cardboard", properties -> new PartItem(properties) {
+	public static final ItemDefinition<PartItem>           CARDBOARD        = registerItem("Cardboard", properties -> new PartItem(properties) {
 		@Override
 		public void registerCraftingRecipes (HolderGetter<Item> holder, RecipeOutput consumer, Criterion<?> criterion) {
 			ShapedRecipeBuilder.shaped(holder, RecipeCategory.MISC, this, 1).pattern("WW").pattern("WW").define('W', WET_PAPER.get()).unlockedBy("has_any", criterion).save(consumer);

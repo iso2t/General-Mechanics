@@ -3,6 +3,7 @@ package general.mechanics.common.block;
 import general.api.block.BaseBlock;
 import general.api.block.BlockEntityTypeOwner;
 import general.api.block.IWrenchable;
+import general.api.block.util.ILitProvider;
 import general.api.crafting.IRecipeProvider;
 import general.api.model.IMachineModel;
 import general.api.resources.Resource;
@@ -13,11 +14,18 @@ import general.mechanics.common.block.entity.CokeOvenControllerBlockEntity;
 import general.mechanics.registries.GenBlocks;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderGetter;
+import net.minecraft.core.particles.ItemParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.resources.Identifier;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
@@ -32,12 +40,13 @@ import net.minecraft.world.phys.BlockHitResult;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-public class CokeOvenController extends BaseBlock implements EntityBlock, BlockEntityTypeOwner<CokeOvenControllerBlockEntity>, IWrenchable, IMachineModel, IRotatableBlock, IRecipeProvider {
+public class CokeOvenController extends BaseBlock implements EntityBlock, BlockEntityTypeOwner<CokeOvenControllerBlockEntity>, IWrenchable, IMachineModel, IRotatableBlock, IRecipeProvider, ILitProvider {
 
 	private BlockEntityType<CokeOvenControllerBlockEntity> blockEntityType;
 
 	public CokeOvenController (Properties properties) {
 		super(properties);
+		registerDefaultState(getStateDefinition().any().setValue(LIT, false));
 	}
 
 	@Override
@@ -99,5 +108,35 @@ public class CokeOvenController extends BaseBlock implements EntityBlock, BlockE
 	@Override
 	public ItemLike getCriterionItem () {
 		return GenBlocks.COKE_OVEN_BRICKS;
+	}
+
+	@Override
+	public Identifier getLitTexture () {
+		return Resource.getMainMod("block/machine/coke_oven_controller_lit");
+	}
+
+	@Override
+	public void animateTick (@NonNull BlockState state, Level level, @NonNull BlockPos pos, @NonNull RandomSource random) {
+		if (!(level.getBlockEntity(pos) instanceof CokeOvenControllerBlockEntity controller) || !state.getValue(LIT)) return;
+
+		double xPos = pos.getX() + 0.5D;
+		double yPos = pos.getY();
+		double zPos = pos.getZ() + 0.5D;
+
+		if (random.nextDouble() < 0.1D) level.playLocalSound(pos, SoundEvents.FURNACE_FIRE_CRACKLE, SoundSource.BLOCKS, 1f, 1f, true);
+
+		var direction = getFacing(state);
+		if (direction.isEmpty()) return;
+		var axis = direction.get().getAxis();
+
+		double defaultOffset = random.nextDouble() * 0.6 - 0.3;
+		double xOffsets = axis == Direction.Axis.X ? (double) direction.get().getStepX() * 0.52 : defaultOffset;
+		double yOffsets = random.nextDouble() * 6.0 / 8.0;
+		double zOffsets = axis == Direction.Axis.Z ? (double) direction.get().getStepZ() * 0.52 : defaultOffset;
+
+		if (level.getBlockEntity(pos) instanceof CokeOvenControllerBlockEntity entity && !entity.getInventory().getStackInSlot(0).isEmpty()) {
+			var stack = entity.getInventory().getStackInSlot(0);
+			level.addParticle(new ItemParticleOption(ParticleTypes.ITEM, stack), xPos + xOffsets, yPos + yOffsets, zPos + zOffsets, 0d, 0d, 0d);
+		}
 	}
 }

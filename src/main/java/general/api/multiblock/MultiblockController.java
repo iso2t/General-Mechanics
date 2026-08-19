@@ -19,6 +19,8 @@ import net.minecraft.world.phys.BlockHitResult;
  */
 public interface MultiblockController {
 
+	String FORMED_TAG = "formed";
+
 	MultiblockDefinition getMultiblockDefinition ();
 
 	/**

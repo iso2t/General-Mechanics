@@ -11,7 +11,7 @@ import general.api.rotation.BlockRotationStrategies;
 import general.api.rotation.BlockRotationStrategy;
 import general.api.rotation.IRotatableBlock;
 import general.mechanics.client.model.CableModelLoader;
-import general.mechanics.common.block.RubberLogBlock;
+import general.mechanics.common.block.RubberWood;
 import general.mechanics.registries.GenBlocks;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
@@ -158,8 +158,8 @@ public final class BlockModelProvider extends ModelProviders {
 
 	/**
 	 * Rubber log/wood with sap states. Renders the plain pillar by {@code AXIS}; an upright log at
-	 * {@link RubberLogBlock#MAX_SAP} swaps to a model whose north face shows {@code rubber_log_resin},
-	 * rotated to {@link RubberLogBlock#RESIN_FACING}. The plain {@code SAP 0/1/2} variants and the resin
+	 * {@link RubberWood.RubberLogBlock#MAX_SAP} swaps to a model whose north face shows {@code rubber_log_resin},
+	 * rotated to {@link RubberWood.RubberLogBlock#RESIN_FACING}. The plain {@code SAP 0/1/2} variants and the resin
 	 * variants are mutually exclusive, so the resin model fully replaces the face (no overlay z-fighting).
 	 */
 	private void rubberLogWithResin (Block block, String name, Identifier endTex) {
@@ -173,7 +173,7 @@ public final class BlockModelProvider extends ModelProviders {
 		var resin = ExtendedModelTemplateBuilder.builder().parent(Resource.getMinecraftResource("block/block")).requiredTextureSlot(TextureSlot.SIDE).requiredTextureSlot(TextureSlot.END).requiredTextureSlot(RESIN).requiredTextureSlot(TextureSlot.PARTICLE).element(element -> element.from(0, 0, 0).to(16, 16, 16).face(Direction.DOWN, face -> face.texture(TextureSlot.END).uvs(0, 0, 16, 16).cullface(Direction.DOWN)).face(Direction.UP, face -> face.texture(TextureSlot.END).uvs(0, 0, 16, 16).cullface(Direction.UP)).face(Direction.NORTH, face -> face.texture(RESIN).uvs(0, 0, 16, 16).cullface(Direction.NORTH)).face(Direction.SOUTH, face -> face.texture(TextureSlot.SIDE).uvs(0, 0, 16, 16).cullface(Direction.SOUTH)).face(Direction.WEST, face -> face.texture(TextureSlot.SIDE).uvs(0, 0, 16, 16).cullface(Direction.WEST)).face(Direction.EAST, face -> face.texture(TextureSlot.SIDE).uvs(0, 0, 16, 16).cullface(Direction.EAST))).build().create(Resource.get("block/" + name + "_resin"), new TextureMapping().put(TextureSlot.SIDE, mat(sideTex)).put(TextureSlot.END, mat(endTex)).put(RESIN, mat(resinTex)).put(TextureSlot.PARTICLE, mat(sideTex)), generators.modelOutput);
 
 		var axis = RotatedPillarBlock.AXIS;
-		generators.blockStateOutput.accept(MultiPartGenerator.multiPart(block).with(new ConditionBuilder().term(axis, Direction.Axis.X), rotated(plain, 90, 90)).with(new ConditionBuilder().term(axis, Direction.Axis.Z), rotated(plain, 90, 0)).with(new ConditionBuilder().term(axis, Direction.Axis.Y).term(RubberLogBlock.SAP, 0, 1, 2), plainVariant(plain)).with(new ConditionBuilder().term(axis, Direction.Axis.Y).term(RubberLogBlock.SAP, RubberLogBlock.MAX_SAP).term(RubberLogBlock.RESIN_FACING, Direction.NORTH), plainVariant(resin)).with(new ConditionBuilder().term(axis, Direction.Axis.Y).term(RubberLogBlock.SAP, RubberLogBlock.MAX_SAP).term(RubberLogBlock.RESIN_FACING, Direction.EAST), rotated(resin, 0, 90)).with(new ConditionBuilder().term(axis, Direction.Axis.Y).term(RubberLogBlock.SAP, RubberLogBlock.MAX_SAP).term(RubberLogBlock.RESIN_FACING, Direction.SOUTH), rotated(resin, 0, 180)).with(new ConditionBuilder().term(axis, Direction.Axis.Y).term(RubberLogBlock.SAP, RubberLogBlock.MAX_SAP).term(RubberLogBlock.RESIN_FACING, Direction.WEST), rotated(resin, 0, 270)));
+		generators.blockStateOutput.accept(MultiPartGenerator.multiPart(block).with(new ConditionBuilder().term(axis, Direction.Axis.X), rotated(plain, 90, 90)).with(new ConditionBuilder().term(axis, Direction.Axis.Z), rotated(plain, 90, 0)).with(new ConditionBuilder().term(axis, Direction.Axis.Y).term(RubberWood.RubberLogBlock.SAP, 0, 1, 2), plainVariant(plain)).with(new ConditionBuilder().term(axis, Direction.Axis.Y).term(RubberWood.RubberLogBlock.SAP, RubberWood.RubberLogBlock.MAX_SAP).term(RubberWood.RubberLogBlock.RESIN_FACING, Direction.NORTH), plainVariant(resin)).with(new ConditionBuilder().term(axis, Direction.Axis.Y).term(RubberWood.RubberLogBlock.SAP, RubberWood.RubberLogBlock.MAX_SAP).term(RubberWood.RubberLogBlock.RESIN_FACING, Direction.EAST), rotated(resin, 0, 90)).with(new ConditionBuilder().term(axis, Direction.Axis.Y).term(RubberWood.RubberLogBlock.SAP, RubberWood.RubberLogBlock.MAX_SAP).term(RubberWood.RubberLogBlock.RESIN_FACING, Direction.SOUTH), rotated(resin, 0, 180)).with(new ConditionBuilder().term(axis, Direction.Axis.Y).term(RubberWood.RubberLogBlock.SAP, RubberWood.RubberLogBlock.MAX_SAP).term(RubberWood.RubberLogBlock.RESIN_FACING, Direction.WEST), rotated(resin, 0, 270)));
 
 		generators.registerSimpleItemModel(block, plain);
 	}

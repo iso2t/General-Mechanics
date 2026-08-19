@@ -1,17 +1,13 @@
 package general.mechanics.item.tools;
 
-import general.api.crafting.IRecipeProvider;
 import general.api.item.ToolItem;
-import general.api.tag.CoreTags;
-import general.mechanics.common.block.RubberLogBlock;
+import general.mechanics.common.block.RubberWood;
 import general.mechanics.registries.GenItems;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderGetter;
-import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
-import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -21,7 +17,10 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemInstance;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -34,11 +33,7 @@ import net.neoforged.neoforge.common.ItemAbility;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 public class SawItem extends ToolItem {
 
@@ -55,7 +50,7 @@ public class SawItem extends ToolItem {
 			dropSawdust(level, pos, 0.15f);
 		} else if (state.is(BlockTags.LOGS_THAT_BURN)) {
 			dropSawdust(level, pos, 0.15f);
-			if (RubberLogBlock.isSappy(state)) dropRubberResin(level, pos);
+			if (RubberWood.RubberLogBlock.isSappy(state)) dropRubberResin(level, pos);
 			if (!player.isCrouching()) fellTreeUpward(stack, level, pos, state.getBlock(), player);
 		}
 
@@ -82,7 +77,7 @@ public class SawItem extends ToolItem {
 						BlockState ns = level.getBlockState(n);
 						if (!ns.is(logBlock)) continue;
 
-						if (RubberLogBlock.isSappy(ns)) dropRubberResin(level, n);
+						if (RubberWood.RubberLogBlock.isSappy(ns)) dropRubberResin(level, n);
 						level.destroyBlock(n, true, player);
 						dropSawdust(level, n, 0.15f);
 						stack.hurtAndBreak(1, player, EquipmentSlot.MAINHAND);

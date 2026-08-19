@@ -23,8 +23,6 @@ import org.jspecify.annotations.NonNull;
 /** Authoritative multiblock controller state for a coke oven. */
 public class CokeOvenControllerBlockEntity extends BlockEntity implements MultiblockController {
 
-	private static final String FORMED_TAG = "formed";
-
 	private boolean formed;
 
 	public CokeOvenControllerBlockEntity (BlockEntityType<CokeOvenControllerBlockEntity> type, BlockPos pos, BlockState state) {
@@ -65,7 +63,7 @@ public class CokeOvenControllerBlockEntity extends BlockEntity implements Multib
 
 	@Override
 	public InteractionResult onFormedMultiblockUse (Player player, BlockHitResult hitResult, MultiblockInstance instance) {
-		player.sendSystemMessage(Component.literal("I'm a little teapot!"));
+		player.sendSystemMessage(Component.literal("I'm a little teapot!")); // TODO: You're not a teapot. I just had no idea  what to put for testing purposes.
 		return MultiblockController.super.onFormedMultiblockUse(player, hitResult, instance);
 	}
 
@@ -80,4 +78,5 @@ public class CokeOvenControllerBlockEntity extends BlockEntity implements Multib
 		super.loadAdditional(input);
 		formed = input.getBooleanOr(FORMED_TAG, false);
 	}
+
 }
