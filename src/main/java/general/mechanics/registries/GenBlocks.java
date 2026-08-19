@@ -1,6 +1,8 @@
 package general.mechanics.registries;
 
 import general.api.block.DecorativeBlock;
+import general.api.block.RecipeProviderBlock;
+import general.api.crafting.IRecipeProvider;
 import general.api.definitions.BlockDefinition;
 import general.api.mod.GenAPI;
 import general.api.registry.RegistryString;
@@ -13,13 +15,24 @@ import general.mechanics.common.block.cable.CableBlock;
 import general.mechanics.common.block.network.NetworkConnectorBlock;
 import general.mechanics.common.block.network.PowerInjectorBlock;
 import general.mechanics.worldgen.GenFeatures;
+import net.minecraft.advancements.Criterion;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.data.recipes.RecipeCategory;
+import net.minecraft.data.recipes.RecipeOutput;
+import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.jspecify.annotations.NonNull;
 
@@ -56,12 +69,36 @@ public class GenBlocks extends BlockRegistry {
 		public int getFireSpreadSpeed (@NonNull BlockState state, @NonNull BlockGetter level, @NonNull BlockPos pos, @NonNull Direction direction) {
 			return 5;
 		}
+
+		@Override
+		public List<TagKey<Block>> getBlockTags () {
+			return List.of(BlockTags.PLANKS, BlockTags.MINEABLE_WITH_AXE);
+		}
 	}, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS));
 	public static final BlockDefinition<TintedParticleLeavesBlock> RUBBER_LEAVES         = registerBlock("Rubber Leaves", props -> new TintedParticleLeavesBlock(0.01F, props), () -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_LEAVES));
 	public static final BlockDefinition<SaplingBlock>              RUBBER_SAPLING        = registerBlock("Rubber Sapling", props -> new SaplingBlock(GenFeatures.RUBBER, props), () -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_SAPLING));
 	public static final BlockDefinition<FlowerPotBlock>            POTTED_RUBBER_SAPLING = registerBlock("Potted Rubber Sapling", props -> new FlowerPotBlock(RUBBER_SAPLING.get(), props), () -> BlockBehaviour.Properties.ofFullCopy(Blocks.POTTED_OAK_SAPLING));
 
-	public static final BlockDefinition<DecorativeBlock> COKE_OVEN_BRICKS = registerBlock("Coke Oven Bricks", DecorativeBlock::new);
+	public static final BlockDefinition<RecipeProviderBlock> COKE_OVEN_BRICKS = registerBlock("Coke Oven Bricks", props -> new RecipeProviderBlock(props) {
+		@Override
+		public void registerCraftingRecipes (HolderGetter<Item> holder, RecipeOutput consumer, Criterion<?> criterion) {
+			ShapedRecipeBuilder.shaped(holder, RecipeCategory.MISC, this, 4)
+					.pattern("CSC")
+					.pattern("GWG")
+					.pattern("CSC")
+					.define('C', Blocks.CLAY)
+					.define('S', Tags.Items.SANDS)
+					.define('G', Tags.Items.GRAVELS)
+					.define('W', Tags.Items.BUCKETS_WATER)
+					.unlockedBy("has_any", criterion)
+					.save(consumer, IRecipeProvider.createKey("coke_oven_bricks"));
+		}
+
+		@Override
+		public ItemLike getCriterionItem () {
+			return Blocks.SAND;
+		}
+	}, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.BRICKS));
 	public static final BlockDefinition<CokeOvenController> COKE_OVEN_CONTROLLER = registerBlock("Coke Oven Controller", CokeOvenController::new);
 
 	private static String formatColorName (String colorName) {

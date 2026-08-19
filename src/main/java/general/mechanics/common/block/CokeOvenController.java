@@ -3,14 +3,24 @@ package general.mechanics.common.block;
 import general.api.block.BaseBlock;
 import general.api.block.BlockEntityTypeOwner;
 import general.api.block.IWrenchable;
+import general.api.crafting.IRecipeProvider;
 import general.api.model.IMachineModel;
 import general.api.resources.Resource;
 import general.api.rotation.BlockRotationStrategies;
 import general.api.rotation.BlockRotationStrategy;
 import general.api.rotation.IRotatableBlock;
 import general.mechanics.common.block.entity.CokeOvenControllerBlockEntity;
+import general.mechanics.registries.GenBlocks;
+import net.minecraft.advancements.Criterion;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.data.recipes.RecipeCategory;
+import net.minecraft.data.recipes.RecipeOutput;
+import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -22,7 +32,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-public class CokeOvenController extends BaseBlock implements EntityBlock, BlockEntityTypeOwner<CokeOvenControllerBlockEntity>, IWrenchable, IMachineModel, IRotatableBlock {
+public class CokeOvenController extends BaseBlock implements EntityBlock, BlockEntityTypeOwner<CokeOvenControllerBlockEntity>, IWrenchable, IMachineModel, IRotatableBlock, IRecipeProvider {
 
 	private BlockEntityType<CokeOvenControllerBlockEntity> blockEntityType;
 
@@ -71,5 +81,23 @@ public class CokeOvenController extends BaseBlock implements EntityBlock, BlockE
 	@Override
 	public BlockRotationStrategy getRotationStrategy () {
 		return BlockRotationStrategies.HORIZONTAL_FACING;
+	}
+
+	@Override
+	public void registerCraftingRecipes (HolderGetter<Item> holder, RecipeOutput consumer, Criterion<?> criterion) {
+		var path = Resource.getFromBlock(this).getPath();
+		ShapedRecipeBuilder.shaped(holder, RecipeCategory.MISC, this, 1)
+				.pattern("BBB")
+				.pattern("BSB")
+				.pattern("BBB")
+				.define('B', GenBlocks.COKE_OVEN_BRICKS)
+				.define('S', Blocks.BLAST_FURNACE)
+				.unlockedBy("has_any", criterion)
+				.save(consumer, IRecipeProvider.createKey(path + "_from_bricks"));
+	}
+
+	@Override
+	public ItemLike getCriterionItem () {
+		return GenBlocks.COKE_OVEN_BRICKS;
 	}
 }
