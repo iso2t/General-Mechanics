@@ -4,6 +4,8 @@ import lombok.Getter;
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
+
 public final class NetworkServiceType<T extends NetworkService> {
 
 	@Getter
@@ -11,8 +13,8 @@ public final class NetworkServiceType<T extends NetworkService> {
 	private final Class<T>   type;
 
 	public NetworkServiceType (@NotNull Identifier id, @NotNull Class<T> type) {
-		this.id = id;
-		this.type = type;
+		this.id = Objects.requireNonNull(id, "id");
+		this.type = Objects.requireNonNull(type, "type");
 	}
 
 	public Class<T> getServiceClass () {

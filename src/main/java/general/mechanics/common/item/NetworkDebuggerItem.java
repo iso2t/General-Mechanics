@@ -1,6 +1,6 @@
 package general.mechanics.common.item;
 
-import general.api.capabilities.Capabilities;
+import general.api.capabilities.GeneralCapabilities;
 import general.api.network.INetworkInterface;
 import general.api.network.NetworkEndpoint;
 import general.api.network.util.NetworkHelper;
@@ -111,7 +111,7 @@ public class NetworkDebuggerItem extends Item {
 
 	private static INetworkInterface getInterface (Level level, BlockPos pos) {
 		for (Direction direction : Direction.values()) {
-			INetworkInterface networkInterface = level.getCapability(Capabilities.NETWORK_HANDLER_BLOCK, pos, direction);
+			INetworkInterface networkInterface = level.getCapability(GeneralCapabilities.NETWORK_HANDLER_BLOCK, pos, direction);
 			if (networkInterface != null) {
 				return networkInterface;
 			}

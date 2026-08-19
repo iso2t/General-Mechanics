@@ -1,6 +1,6 @@
 package general.api.network.util;
 
-import general.api.capabilities.Capabilities;
+import general.api.capabilities.GeneralCapabilities;
 import general.api.network.INetworkInterface;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -12,7 +12,7 @@ public final class NetworkHelper {
 	}
 
 	public static INetworkInterface getInterface (Level level, BlockPos pos, Direction direction) {
-		return level.getCapability(Capabilities.NETWORK_HANDLER_BLOCK, pos, direction);
+		return level.getCapability(GeneralCapabilities.NETWORK_HANDLER_BLOCK, pos, direction);
 	}
 
 	public static boolean canConnect (Level level, BlockPos pos, Direction direction) {

@@ -6,18 +6,18 @@ import java.util.Set;
 
 public interface ControlNetworkService extends NetworkService {
 
-	MachineState getState();
+	MachineState getState ();
 
-	boolean isEnabled();
+	boolean isEnabled ();
 
-	void setEnabled(boolean enabled);
+	void setEnabled (boolean enabled);
 
-	Set<NetworkAction> getSupportedActions();
+	Set<NetworkAction> getSupportedActions ();
 
-	NetworkActionResult execute(NetworkAction action);
+	NetworkActionResult execute (NetworkAction action);
 
 	@Override
-	default NetworkServiceType<ControlNetworkService> getType() {
+	default NetworkServiceType<ControlNetworkService> getType () {
 		return NetworkServices.CONTROL;
 	}
 }

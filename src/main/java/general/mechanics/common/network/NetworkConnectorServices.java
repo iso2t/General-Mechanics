@@ -11,7 +11,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.Container;
 import net.neoforged.neoforge.capabilities.BlockCapability;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -19,11 +18,12 @@ import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.item.ItemResource;
-import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
+import net.neoforged.neoforge.transfer.resource.Resource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -40,8 +40,8 @@ public final class NetworkConnectorServices {
 	private static final List<NetworkConnectorServiceBridge> BRIDGES = new CopyOnWriteArrayList<>();
 
 	static {
-		register(capability(Capabilities.Item.BLOCK, NetworkServices.ITEM, ItemService::new));
-		register(capability(Capabilities.Fluid.BLOCK, NetworkServices.FLUID, FluidService::new));
+		register(capability(Capabilities.Item.BLOCK, NetworkServices.ITEM, handler -> handler.size() > 0, ItemService::new));
+		register(capability(Capabilities.Fluid.BLOCK, NetworkServices.FLUID, handler -> handler.size() > 0, FluidService::new));
 		register(capability(Capabilities.Energy.BLOCK, NetworkServices.ENERGY, EnergyService::new));
 	}
 
@@ -49,7 +49,7 @@ public final class NetworkConnectorServices {
 	}
 
 	public static void register (NetworkConnectorServiceBridge bridge) {
-		BRIDGES.add(bridge);
+		BRIDGES.add(Objects.requireNonNull(bridge, "bridge"));
 	}
 
 	/** @return whether the target exposed at least one registered network service. */
@@ -58,20 +58,23 @@ public final class NetworkConnectorServices {
 		for (NetworkConnectorServiceBridge bridge : BRIDGES) {
 			bridge.register(node, level, targetPos, targetSide);
 		}
-		// Vanilla containers are expected to expose the item capability, but retain
-		// this direct fallback for containers without a registered capability.
-		if (!node.hasService(NetworkServices.ITEM) && level.getBlockEntity(targetPos) instanceof Container container) {
-			node.getServices().register(NetworkServices.ITEM, new ItemService(() -> VanillaContainerWrapper.of(container)));
-		}
 		return !node.getServices().getAll().isEmpty();
 	}
 
 	public static <C, S extends NetworkService> NetworkConnectorServiceBridge capability (BlockCapability<C, Direction> capability, NetworkServiceType<S> type, Function<Supplier<C>, S> factory) {
+		return capability(capability, type, value -> true, factory);
+	}
+
+	public static <C, S extends NetworkService> NetworkConnectorServiceBridge capability (BlockCapability<C, Direction> capability, NetworkServiceType<S> type, Predicate<? super C> isUsable, Function<Supplier<C>, S> factory) {
+		Objects.requireNonNull(capability, "capability");
+		Objects.requireNonNull(type, "type");
+		Objects.requireNonNull(isUsable, "isUsable");
+		Objects.requireNonNull(factory, "factory");
 		return (node, level, pos, side) -> {
-			if (level.getCapability(capability, pos, side) == null) {
-				return;
-			}
-			node.getServices().register(type, factory.apply(() -> level.getCapability(capability, pos, side)));
+			C exposed = level.getCapability(capability, pos, side);
+			if (exposed == null || !isUsable.test(exposed)) return;
+			S service = Objects.requireNonNull(factory.apply(() -> level.getCapability(capability, pos, side)), "Capability service factory returned null");
+			node.getServices().register(type, service);
 		};
 	}
 
@@ -80,94 +83,148 @@ public final class NetworkConnectorServices {
 		void register (NetworkNode node, Level level, BlockPos targetPos, Direction targetSide);
 	}
 
-	private record ItemService(Supplier<ResourceHandler<ItemResource>> handlerSupplier) implements ItemNetworkService {
+	private static final class ItemService implements ItemNetworkService {
+
+		private static final StackAdapter<ItemStack, ItemResource> STACKS = new StackAdapter<>() {
+			@Override public ItemStack create (ItemResource resource, int amount) { return resource.toStack(amount); }
+			@Override public ItemStack empty () { return ItemStack.EMPTY; }
+			@Override public int maximumResultAmount (ItemResource resource) { return resource.getMaxStackSize(); }
+		};
+
+		private final HandlerTransfers<ItemStack, ItemResource> transfers;
+
+		private ItemService (Supplier<ResourceHandler<ItemResource>> handlerSupplier) {
+			this.transfers = new HandlerTransfers<>(handlerSupplier, STACKS);
+		}
+
 		@Override
 		public ItemStack insert (ItemStack stack, boolean simulate) {
+			Objects.requireNonNull(stack, "stack");
 			if (stack.isEmpty()) return ItemStack.EMPTY;
-			var handler = handlerSupplier.get();
-			if (handler == null) return stack.copy();
-
-			try (var transaction = Transaction.openRoot()) {
-				int inserted = handler.insert(ItemResource.of(stack), stack.getCount(), transaction);
-				if (!simulate) transaction.commit();
-				return stack.copyWithCount(stack.getCount() - inserted);
-			}
+			int inserted = transfers.insert(ItemResource.of(stack), stack.getCount(), simulate);
+			return stack.copyWithCount(stack.getCount() - inserted);
 		}
 
 		@Override
 		public ItemStack extract (Predicate<ItemStack> filter, int amount, boolean simulate) {
-			var handler = handlerSupplier.get();
-			if (handler == null || amount <= 0) return ItemStack.EMPTY;
-
-			try (var transaction = Transaction.openRoot()) {
-				for (int slot = 0; slot < handler.size(); slot++) {
-					var resource = handler.getResource(slot);
-					int available = handler.getAmountAsInt(slot);
-					if (resource.isEmpty() || available <= 0 || !filter.test(resource.toStack(Math.min(amount, available)))) continue;
-					int extracted = handler.extract(slot, resource, Math.min(amount, available), transaction);
-					if (extracted > 0 && !simulate) transaction.commit();
-					return extracted > 0 ? resource.toStack(extracted) : ItemStack.EMPTY;
-				}
-			}
-			return ItemStack.EMPTY;
+			return transfers.extract(filter, amount, simulate);
 		}
 
 		@Override
 		public List<ItemStack> getAvailableItems () {
-			var handler = handlerSupplier.get();
+			return transfers.getAvailable();
+		}
+	}
+
+	private static final class FluidService implements FluidNetworkService {
+
+		private static final StackAdapter<FluidStack, FluidResource> STACKS = new StackAdapter<>() {
+			@Override public FluidStack create (FluidResource resource, int amount) { return resource.toStack(amount); }
+			@Override public FluidStack empty () { return FluidStack.EMPTY; }
+			@Override public int maximumResultAmount (FluidResource resource) { return Integer.MAX_VALUE; }
+		};
+
+		private final HandlerTransfers<FluidStack, FluidResource> transfers;
+
+		private FluidService (Supplier<ResourceHandler<FluidResource>> handlerSupplier) {
+			this.transfers = new HandlerTransfers<>(handlerSupplier, STACKS);
+		}
+
+		@Override
+		public int insert (FluidStack stack, boolean simulate) {
+			Objects.requireNonNull(stack, "stack");
+			if (stack.isEmpty()) return 0;
+			return transfers.insert(FluidResource.of(stack), stack.getAmount(), simulate);
+		}
+
+		@Override
+		public FluidStack extract (Predicate<FluidStack> filter, int amount, boolean simulate) {
+			return transfers.extract(filter, amount, simulate);
+		}
+
+		@Override
+		public List<FluidStack> getAvailableFluids () {
+			return transfers.getAvailable();
+		}
+	}
+
+	/** Shared item/fluid transfer implementation over the generic NeoForge contract. */
+	private static final class HandlerTransfers<S, R extends Resource> {
+
+		private final Supplier<ResourceHandler<R>> handlerSupplier;
+		private final StackAdapter<S, R> stacks;
+
+		private HandlerTransfers (Supplier<ResourceHandler<R>> handlerSupplier, StackAdapter<S, R> stacks) {
+			this.handlerSupplier = Objects.requireNonNull(handlerSupplier, "handlerSupplier");
+			this.stacks = Objects.requireNonNull(stacks, "stacks");
+		}
+
+		private int insert (R resource, int amount, boolean simulate) {
+			ResourceHandler<R> handler = handlerSupplier.get();
+			if (handler == null || amount <= 0) return 0;
+			try (var transaction = Transaction.openRoot()) {
+				int inserted = handler.insert(resource, amount, transaction);
+				if (!simulate && inserted > 0) transaction.commit();
+				return inserted;
+			}
+		}
+
+		private S extract (Predicate<S> filter, int amount, boolean simulate) {
+			Objects.requireNonNull(filter, "filter");
+			ResourceHandler<R> handler = handlerSupplier.get();
+			if (handler == null || amount <= 0) return stacks.empty();
+
+			try (var transaction = Transaction.openRoot()) {
+				R selected = null;
+				int target = amount;
+				int extracted = 0;
+
+				for (int index = 0; index < handler.size() && extracted < target; index++) {
+					R resource = handler.getResource(index);
+					int available = handler.getAmountAsInt(index);
+					if (resource.isEmpty() || available <= 0 || (selected != null && !selected.equals(resource))) continue;
+
+					int candidateTarget = selected == null ? Math.min(amount, stacks.maximumResultAmount(resource)) : target;
+					int requested = Math.min(candidateTarget - extracted, available);
+					if (requested <= 0 || (selected == null && !filter.test(stacks.create(resource, requested)))) continue;
+
+					int fromIndex = handler.extract(index, resource, requested, transaction);
+					if (fromIndex <= 0) continue;
+					if (selected == null) {
+						selected = resource;
+						target = candidateTarget;
+					}
+					extracted += fromIndex;
+				}
+
+				if (selected == null || extracted == 0) return stacks.empty();
+				if (!simulate) transaction.commit();
+				return stacks.create(selected, extracted);
+			}
+		}
+
+		private List<S> getAvailable () {
+			ResourceHandler<R> handler = handlerSupplier.get();
 			if (handler == null) return List.of();
-			var result = new ArrayList<ItemStack>();
-			for (int slot = 0; slot < handler.size(); slot++) {
-				var resource = handler.getResource(slot);
-				int amount = handler.getAmountAsInt(slot);
-				if (!resource.isEmpty() && amount > 0) result.add(resource.toStack(amount));
+
+			var result = new ArrayList<S>();
+			try (var transaction = Transaction.openRoot()) {
+				for (int index = 0; index < handler.size(); index++) {
+					R resource = handler.getResource(index);
+					int stored = handler.getAmountAsInt(index);
+					if (resource.isEmpty() || stored <= 0) continue;
+					int extractable = handler.extract(index, resource, stored, transaction);
+					if (extractable > 0) result.add(stacks.create(resource, extractable));
+				}
 			}
 			return List.copyOf(result);
 		}
 	}
 
-	private record FluidService(Supplier<ResourceHandler<FluidResource>> handlerSupplier) implements FluidNetworkService {
-		@Override
-		public int insert (FluidStack stack, boolean simulate) {
-			if (stack.isEmpty()) return 0;
-			var handler = handlerSupplier.get();
-			if (handler == null) return 0;
-			try (var transaction = Transaction.openRoot()) {
-				int inserted = handler.insert(FluidResource.of(stack), stack.getAmount(), transaction);
-				if (!simulate) transaction.commit();
-				return inserted;
-			}
-		}
-
-		@Override
-		public FluidStack extract (Predicate<FluidStack> filter, int amount, boolean simulate) {
-			var handler = handlerSupplier.get();
-			if (handler == null || amount <= 0) return FluidStack.EMPTY;
-			try (var transaction = Transaction.openRoot()) {
-				for (int tank = 0; tank < handler.size(); tank++) {
-					var resource = handler.getResource(tank);
-					int available = handler.getAmountAsInt(tank);
-					if (resource.isEmpty() || available <= 0 || !filter.test(resource.toStack(Math.min(amount, available)))) continue;
-					int extracted = handler.extract(tank, resource, Math.min(amount, available), transaction);
-					if (extracted > 0 && !simulate) transaction.commit();
-					return extracted > 0 ? resource.toStack(extracted) : FluidStack.EMPTY;
-				}
-			}
-			return FluidStack.EMPTY;
-		}
-
-		@Override
-		public List<FluidStack> getAvailableFluids () {
-			var handler = handlerSupplier.get();
-			if (handler == null) return List.of();
-			var result = new ArrayList<FluidStack>();
-			for (int tank = 0; tank < handler.size(); tank++) {
-				var resource = handler.getResource(tank);
-				int amount = handler.getAmountAsInt(tank);
-				if (!resource.isEmpty() && amount > 0) result.add(resource.toStack(amount));
-			}
-			return List.copyOf(result);
-		}
+	private interface StackAdapter<S, R extends Resource> {
+		S create (R resource, int amount);
+		S empty ();
+		int maximumResultAmount (R resource);
 	}
 
 	private record EnergyService(Supplier<EnergyHandler> handlerSupplier) implements EnergyNetworkService {
@@ -177,7 +234,7 @@ public final class NetworkConnectorServices {
 			if (handler == null || amount <= 0) return 0;
 			try (var transaction = Transaction.openRoot()) {
 				int inserted = handler.insert((int) Math.min(amount, Integer.MAX_VALUE), transaction);
-				if (!simulate) transaction.commit();
+				if (!simulate && inserted > 0) transaction.commit();
 				return inserted;
 			}
 		}
@@ -188,7 +245,7 @@ public final class NetworkConnectorServices {
 			if (handler == null || amount <= 0) return 0;
 			try (var transaction = Transaction.openRoot()) {
 				int extracted = handler.extract((int) Math.min(amount, Integer.MAX_VALUE), transaction);
-				if (!simulate) transaction.commit();
+				if (!simulate && extracted > 0) transaction.commit();
 				return extracted;
 			}
 		}

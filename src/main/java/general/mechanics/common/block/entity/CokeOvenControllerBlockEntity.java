@@ -4,6 +4,15 @@ import general.api.definitions.MultiblockDefinition;
 import general.api.multiblock.MultiblockController;
 import general.api.multiblock.MultiblockHandler;
 import general.api.multiblock.MultiblockInstance;
+import general.api.transfer.ResourceAccessPolicy;
+import general.api.transfer.SidedResourceHandlers;
+import general.api.transfer.fluid.FluidInventoryDefinition;
+import general.api.transfer.fluid.FluidResourceHandler;
+import general.api.transfer.fluid.FluidTanks;
+import general.api.transfer.fluid.SidedFluidResourceProvider;
+import general.api.transfer.item.ItemInventoryDefinition;
+import general.api.transfer.item.ItemResourceHandler;
+import general.api.transfer.item.SidedItemResourceProvider;
 import general.mechanics.registries.GenMultiblocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -11,6 +20,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -18,15 +28,51 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.BlockHitResult;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jspecify.annotations.NonNull;
 
-/** Authoritative multiblock controller state for a coke oven. */
-public class CokeOvenControllerBlockEntity extends BlockEntity implements MultiblockController {
+/**
+ * Authoritative multiblock controller state for a coke oven.
+ */
+public class CokeOvenControllerBlockEntity extends BlockEntity implements MultiblockController, SidedItemResourceProvider, SidedFluidResourceProvider {
 
-	private boolean formed;
+	public static void registerCapabilities (RegisterCapabilitiesEvent event, BlockEntityType<CokeOvenControllerBlockEntity> type) {
+		event.registerBlockEntity(Capabilities.Item.BLOCK, type, (block, side) -> block.isMultiblockFormed() ? block.getItemHandler(side) : null);
+		event.registerBlockEntity(Capabilities.Fluid.BLOCK, type, (block, side) -> block.isMultiblockFormed() ? block.getFluidHandler(side) : null);
+	}
+
+	public static final ItemInventoryDefinition ITEMS = ItemInventoryDefinition.builder().input("input").output("output").build();
+
+	public static final FluidInventoryDefinition FLUIDS = FluidInventoryDefinition.builder().tank("creosote", FluidTanks.buckets(32)).build();
+
+	public static final int INPUT_SLOT    = ITEMS.index("input");
+	public static final int OUTPUT_SLOT   = ITEMS.index("output");
+	public static final int CREOSOTE_TANK = FLUIDS.index("creosote");
+
+	private static final ResourceAccessPolicy<ItemResource> ITEM_AUTOMATION = ITEMS.access().insert("input").extract("output").build();
+
+	private static final ResourceAccessPolicy<FluidResource> FLUID_AUTOMATION = FLUIDS.access().extract("creosote").build();
+
+	private       boolean                              formed;
+	private final ItemResourceHandler                  items  = ITEMS.createHandler(this::setChanged);
+	private final FluidResourceHandler                 fluids = FLUIDS.createHandler(this::setChanged);
+	private final SidedResourceHandlers<ItemResource>  sidedItems;
+	private final SidedResourceHandlers<FluidResource> sidedFluids;
 
 	public CokeOvenControllerBlockEntity (BlockEntityType<CokeOvenControllerBlockEntity> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
+		var itemViews = SidedResourceHandlers.builder(items);
+		var fluidViews = SidedResourceHandlers.builder(fluids);
+		for (Direction side : Direction.values()) {
+			itemViews.side(side, ITEM_AUTOMATION);
+			fluidViews.side(side, FLUID_AUTOMATION);
+		}
+		this.sidedItems = itemViews.build();
+		this.sidedFluids = fluidViews.build();
 	}
 
 	@Override
@@ -51,7 +97,13 @@ public class CokeOvenControllerBlockEntity extends BlockEntity implements Multib
 
 	@Override
 	public void setMultiblockFormed (boolean formed) {
+		if (this.formed == formed) return;
 		this.formed = formed;
+		setChanged();
+		if (level != null) {
+			level.invalidateCapabilities(worldPosition);
+			level.updateNeighborsAt(worldPosition, getBlockState().getBlock());
+		}
 	}
 
 	@Override
@@ -63,7 +115,7 @@ public class CokeOvenControllerBlockEntity extends BlockEntity implements Multib
 
 	@Override
 	public InteractionResult onFormedMultiblockUse (Player player, BlockHitResult hitResult, MultiblockInstance instance) {
-		player.sendSystemMessage(Component.literal("I'm a little teapot!")); // TODO: You're not a teapot. I just had no idea  what to put for testing purposes.
+		player.sendSystemMessage(Component.literal("I'm a little teapot!")); // TODO: You're not a teapot. I just had no idea what to put for testing purposes.
 		return MultiblockController.super.onFormedMultiblockUse(player, hitResult, instance);
 	}
 
@@ -71,12 +123,53 @@ public class CokeOvenControllerBlockEntity extends BlockEntity implements Multib
 	protected void saveAdditional (@NonNull ValueOutput output) {
 		super.saveAdditional(output);
 		output.putBoolean(FORMED_TAG, formed);
+		items.serialize(output.child("items"));
+		fluids.serialize(output.child("fluids"));
 	}
 
 	@Override
 	protected void loadAdditional (@NonNull ValueInput input) {
 		super.loadAdditional(input);
 		formed = input.getBooleanOr(FORMED_TAG, false);
+		items.deserialize(input.childOrEmpty("items"));
+		fluids.deserialize(input.childOrEmpty("fluids"));
+	}
+
+	@Override
+	public ResourceHandler<FluidResource> getFluidHandler () {
+		return fluids;
+	}
+
+	@Override
+	public FluidInventoryDefinition getFluidDefinition () {
+		return FLUIDS;
+	}
+
+	@Override
+	public SidedResourceHandlers<FluidResource> getSidedFluidHandlers () {
+		return sidedFluids;
+	}
+
+	@Override
+	public ResourceHandler<ItemResource> getItemHandler () {
+		return items;
+	}
+
+	@Override
+	public ItemInventoryDefinition getItemDefinition () {
+		return ITEMS;
+	}
+
+	@Override
+	public SidedResourceHandlers<ItemResource> getSidedItemHandlers () {
+		return sidedItems;
+	}
+
+	/**
+	 * Copy of the current input for client-side particles and display code.
+	 */
+	public ItemStack getInputStack () {
+		return items.getResource(INPUT_SLOT).toStack(items.getAmountAsInt(INPUT_SLOT));
 	}
 
 }

@@ -1,15 +1,17 @@
 package general.api.network.service;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public final class NetworkServiceContainer {
 
 	private final Map<NetworkServiceType<?>, NetworkService> services = new HashMap<>();
 
 	public <T extends NetworkService> void register (NetworkServiceType<T> type, T service) {
+		Objects.requireNonNull(type, "type");
+		Objects.requireNonNull(service, "service");
+		if (!type.equals(service.getType())) {
+			throw new IllegalArgumentException("Cannot register service " + service.getClass().getName() + " as " + type + "; it declares type " + service.getType());
+		}
 		services.put(type, service);
 	}
 

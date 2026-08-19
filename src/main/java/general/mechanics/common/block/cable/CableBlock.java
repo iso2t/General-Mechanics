@@ -4,7 +4,7 @@ import general.api.block.BaseBlock;
 import general.api.block.BlockEntityTypeOwner;
 import general.api.block.IWrenchable;
 import general.api.block.util.IPickaxe;
-import general.api.capabilities.Capabilities;
+import general.api.capabilities.GeneralCapabilities;
 import general.mechanics.common.block.entity.CableBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -201,7 +201,7 @@ public class CableBlock extends BaseBlock implements SimpleWaterloggedBlock, Ent
 		if (state.isAir()) {
 			return false;
 		}
-		var networkInterface = level.getCapability(Capabilities.NETWORK_HANDLER_BLOCK, pos, facing.getOpposite());
+		var networkInterface = level.getCapability(GeneralCapabilities.NETWORK_HANDLER_BLOCK, pos, facing.getOpposite());
 		return networkInterface != null;
 	}
 

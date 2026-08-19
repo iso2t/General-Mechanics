@@ -1,5 +1,6 @@
 package general.api.block;
 
+import general.api.block.util.ILitProvider;
 import general.api.rotation.IRotatableBlock;
 import general.api.resources.Resource;
 import net.minecraft.resources.Identifier;
@@ -25,6 +26,9 @@ public abstract class BaseBlock extends Block implements IBlockTagsProvider {
 		super.createBlockStateDefinition(builder);
 		if (this instanceof IRotatableBlock rotatable) {
 			rotatable.getRotationStrategy().addProperties(builder);
+		}
+		if (this instanceof ILitProvider) {
+			builder.add(ILitProvider.LIT);
 		}
 	}
 

@@ -1,5 +1,6 @@
 package general.mechanics.common.block.entity;
 
+import general.api.capabilities.GeneralCapabilities;
 import general.api.network.INetworkInterface;
 import general.api.network.NetworkNode;
 import general.api.network.NetworkServices;
@@ -12,6 +13,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 import net.neoforged.neoforge.transfer.energy.LimitingEnergyHandler;
 import net.neoforged.neoforge.transfer.energy.SimpleEnergyHandler;
@@ -20,6 +23,11 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public class PowerInjectorBlockEntity  extends BlockEntity implements INetworkInterface {
+
+	public static void registerCapabilities (RegisterCapabilitiesEvent event, BlockEntityType<PowerInjectorBlockEntity> type) {
+		event.registerBlockEntity(GeneralCapabilities.NETWORK_HANDLER_BLOCK, type, (injector, side) -> injector.isNetworkSide(side) ? injector : null);
+		event.registerBlockEntity(Capabilities.Energy.BLOCK, type, PowerInjectorBlockEntity::getEnergyInput);
+	}
 
 	public static final int ENERGY_CAPACITY = 100_000;
 	public static final int MAX_TRANSFER    = 10_000;
