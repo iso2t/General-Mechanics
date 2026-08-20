@@ -3,6 +3,9 @@ package general.api.crafting;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.*;
+import net.minecraft.world.item.crafting.display.RecipeDisplay;
+import net.minecraft.world.item.crafting.display.ShapelessCraftingRecipeDisplay;
+import net.minecraft.world.item.crafting.display.SlotDisplay;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -10,7 +13,9 @@ import net.neoforged.neoforge.fluids.FluidStackTemplate;
 import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
 import org.jspecify.annotations.NonNull;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -148,6 +153,28 @@ public final class MachineRecipe implements Recipe<MachineRecipeInput> {
 	@Override
 	public @NonNull PlacementInfo placementInfo () {
 		return PlacementInfo.NOT_PLACEABLE;
+	}
+
+	/**
+	 * Item-only compatibility views used by vanilla result discovery and guide integrations. The
+	 * machine-specific viewers still render every declared item and fluid resource directly.
+	 */
+	@Override
+	public List<RecipeDisplay> display () {
+		var ingredients = new ArrayList<SlotDisplay>();
+		for (MachineRecipeSchema.Slot slot : definition.schema().itemInputs()) {
+			SizedIngredient input = itemInputs.get(slot.name());
+			if (input != null) ingredients.add(input.ingredient().display());
+		}
+
+		var craftingStations = definition.craftingStations();
+		SlotDisplay station = craftingStations.isEmpty() ? SlotDisplay.Empty.INSTANCE : new SlotDisplay.ItemSlotDisplay(craftingStations.getFirst().asItem());
+		var displays = new ArrayList<RecipeDisplay>();
+		for (MachineRecipeSchema.Slot slot : definition.schema().itemOutputs()) {
+			ItemStackTemplate output = itemOutputs.get(slot.name());
+			if (output != null) displays.add(new ShapelessCraftingRecipeDisplay(ingredients, new SlotDisplay.ItemStackSlotDisplay(output), station));
+		}
+		return List.copyOf(displays);
 	}
 
 	@Override

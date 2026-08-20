@@ -9,10 +9,14 @@ item_ids:
 - generalmechanics:coke_oven_bricks
 ---
 
-<GameScene zoom="4" interactive={true}>
-  <ImportStructure src="../assets/assemblies/coke_oven.nbt" />
-  <IsometricCamera yaw="105" pitch="5" />  
-</GameScene>
+
+
+<Column alignItems="center" fullWidth={true}>
+    <GameScene zoom="4" interactive={true}>
+        <ImportStructure src="../assets/assemblies/coke_oven.nbt" />
+        <IsometricCamera yaw="105" pitch="5" />
+    </GameScene>
+</Column>
 
 # Coke Oven
 The Coke Oven is one of the earliest multiblocks you will create. It turns normal coal/coal blocks into coal coke. As a 
@@ -23,5 +27,7 @@ It is made with 20 Coke Oven Bricks, 1 bucket of lava, and 1 Coke Oven Controlle
 ---
 
 ## Coke Oven Bricks
+<RecipeFor id="generalmechanics:coke_oven_bricks" />
 
 ## Coke Oven Controller
+<RecipeFor id="generalmechanics:coke_oven_controller" />

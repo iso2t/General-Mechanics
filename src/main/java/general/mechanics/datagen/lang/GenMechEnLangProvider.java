@@ -40,6 +40,7 @@ public class GenMechEnLangProvider extends LanguageProvider {
 	protected void addManualTranslations () {
 		add("itemGroup." + GenAPI.getModId() + ".items", "General Mechanics");
 		add("itemGroup." + GenAPI.getModId() + ".blocks", "General Mechanics - Blocks");
+		add("guide.generalmechanics.machine_recipe.duration", "Time: %s s");
 	}
 
 	protected void addSubtitles () {
