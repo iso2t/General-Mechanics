@@ -51,10 +51,7 @@ public class IngotItem extends Item implements IRecipeProvider {
 
 		// Ingot -> Nugget
 		if (getNuggetItem() != null) {
-			ShapelessRecipeBuilder.shapeless(holder, RecipeCategory.MISC, getNuggetItem(), 9)
-					.requires(this)
-					.unlockedBy("has_element", criterion)
-					.save(consumer, IRecipeProvider.createKey("materials/" + path + "_to_nugget"));
+			ShapelessRecipeBuilder.shapeless(holder, RecipeCategory.MISC, getNuggetItem(), 9).requires(this).unlockedBy("has_element", criterion).save(consumer, IRecipeProvider.createKey("materials/" + path + "_to_nugget"));
 		}
 
 		// Hammer + this -> Dust

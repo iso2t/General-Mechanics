@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface IBlockTagsProvider {
 
-	List<TagKey<Block>> getBlockTags();
+	List<TagKey<Block>> getBlockTags ();
 
 }

@@ -7,6 +7,6 @@ public interface IMiningTier {
 
 	TagKey<Block> getMiningTier ();
 
-	TagKey<Block> getRequiredTool();
+	TagKey<Block> getRequiredTool ();
 
 }

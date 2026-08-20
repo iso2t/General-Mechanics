@@ -2,12 +2,7 @@ package general.api.crafting;
 
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
-import net.minecraft.world.item.crafting.PlacementInfo;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeBookCategories;
-import net.minecraft.world.item.crafting.RecipeBookCategory;
-import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -30,13 +25,13 @@ import java.util.Objects;
  */
 public final class MachineRecipe implements Recipe<MachineRecipeInput> {
 
-	private final MachineRecipeDefinition<?>             definition;
-	private final Map<String, SizedIngredient>           itemInputs;
-	private final Map<String, ItemStackTemplate>         itemOutputs;
-	private final Map<String, SizedFluidIngredient>      fluidInputs;
-	private final Map<String, FluidStackTemplate>        fluidOutputs;
-	private final int                                    duration;
-	private final Object                                 data;
+	private final MachineRecipeDefinition<?>        definition;
+	private final Map<String, SizedIngredient>      itemInputs;
+	private final Map<String, ItemStackTemplate>    itemOutputs;
+	private final Map<String, SizedFluidIngredient> fluidInputs;
+	private final Map<String, FluidStackTemplate>   fluidOutputs;
+	private final int                               duration;
+	private final Object                            data;
 
 	MachineRecipe (MachineRecipeDefinition<?> definition, Map<String, SizedIngredient> itemInputs, Map<String, ItemStackTemplate> itemOutputs, Map<String, SizedFluidIngredient> fluidInputs, Map<String, FluidStackTemplate> fluidOutputs, int duration, Object data) {
 		this.definition = Objects.requireNonNull(definition, "definition");

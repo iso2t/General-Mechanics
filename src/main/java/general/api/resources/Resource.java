@@ -11,7 +11,8 @@ import net.minecraft.world.level.block.Block;
 
 public final class Resource {
 
-	private Resource() {}
+	private Resource () {
+	}
 
 	public static Identifier get (String path) {
 		return Identifier.fromNamespaceAndPath(GenAPI.getModId(), path);

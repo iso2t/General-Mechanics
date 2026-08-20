@@ -1,11 +1,6 @@
 package general.api.crafting;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Immutable declaration of the logical resource slots used by a machine recipe type.
@@ -118,9 +113,9 @@ public final class MachineRecipeSchema {
 	 */
 	public static final class Builder {
 
-		private final List<Slot> itemInputs  = new ArrayList<>();
-		private final List<Slot> itemOutputs = new ArrayList<>();
-		private final List<Slot> fluidInputs = new ArrayList<>();
+		private final List<Slot> itemInputs   = new ArrayList<>();
+		private final List<Slot> itemOutputs  = new ArrayList<>();
+		private final List<Slot> fluidInputs  = new ArrayList<>();
 		private final List<Slot> fluidOutputs = new ArrayList<>();
 
 		public Builder itemInput (String name) {

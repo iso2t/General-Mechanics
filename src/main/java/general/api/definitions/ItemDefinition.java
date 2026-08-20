@@ -1,12 +1,10 @@
 package general.api.definitions;
 
 import general.api.item.IStackBuilder;
-import general.api.mod.GenAPI;
 import general.api.registry.IRegistryNameProvider;
 import general.api.registry.RegistryString;
 import general.api.resources.Resource;
 import net.minecraft.core.Holder;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;

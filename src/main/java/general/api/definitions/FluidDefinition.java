@@ -13,7 +13,8 @@ import java.util.function.Supplier;
 /**
  * Aggregates all parts of a fluid registration in one place.
  */
-public record FluidDefinition(String englishName, Supplier<FluidType> type, Supplier<FlowingFluid> source, Supplier<FlowingFluid> flowing, DeferredBlock<LiquidBlock> block, ItemDefinition<BucketItem> bucket) implements Supplier<FlowingFluid> {
+public record FluidDefinition(String englishName, Supplier<FluidType> type, Supplier<FlowingFluid> source, Supplier<FlowingFluid> flowing, DeferredBlock<LiquidBlock> block,
+                              ItemDefinition<BucketItem> bucket) implements Supplier<FlowingFluid> {
 
 	public FluidDefinition (String englishName, Supplier<FluidType> type, Supplier<FlowingFluid> source, Supplier<FlowingFluid> flowing, DeferredBlock<LiquidBlock> block, ItemDefinition<BucketItem> bucket) {
 		this.englishName = Objects.requireNonNull(englishName, "englishName");

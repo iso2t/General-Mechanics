@@ -76,7 +76,9 @@ public class GuiFluidRenderer extends AbstractBarRenderer {
 		}
 	}
 
-	/** Renders at the configured position relative to a screen origin. */
+	/**
+	 * Renders at the configured position relative to a screen origin.
+	 */
 	public void render (GuiGraphicsExtractor graphics, int screenX, int screenY, int mouseX, int mouseY) {
 		FluidStack stack = getFluid();
 		int x = screenX + getXPos();
@@ -157,8 +159,8 @@ public class GuiFluidRenderer extends AbstractBarRenderer {
 	/**
 	 * Tests this renderer's bounds relative to a screen origin.
 	 *
-	 * @param mouseX mouse x-coordinate in screen space
-	 * @param mouseY mouse y-coordinate in screen space
+	 * @param mouseX  mouse x-coordinate in screen space
+	 * @param mouseY  mouse y-coordinate in screen space
 	 * @param screenX x-coordinate of the screen's top-left corner
 	 * @param screenY y-coordinate of the screen's top-left corner
 	 */

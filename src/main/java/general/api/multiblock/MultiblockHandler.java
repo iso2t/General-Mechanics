@@ -3,21 +3,16 @@ package general.api.multiblock;
 import general.api.definitions.MultiblockDefinition;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.particles.PowerParticleOption;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.ChunkPos;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.IdentityHashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public final class MultiblockHandler {
 
@@ -86,21 +81,27 @@ public final class MultiblockHandler {
 		return validate(level, anchor, facing, definition).valid();
 	}
 
-	/** Queues a localized controller search after a world block change. */
+	/**
+	 * Queues a localized controller search after a world block change.
+	 */
 	public static void onBlockChanged (Level level, BlockPos pos) {
 		if (level instanceof ServerLevel serverLevel) {
 			runtime(serverLevel).changedPositions.add(pos.immutable());
 		}
 	}
 
-	/** Queues validation when a controller is created or otherwise becomes available. */
+	/**
+	 * Queues validation when a controller is created or otherwise becomes available.
+	 */
 	public static void onControllerLoaded (ServerLevel level, MultiblockController controller) {
 		RuntimeState runtime = runtime(level);
 		rememberControllerBounds(runtime, controller);
 		runtime.pendingControllers.add(controllerPosition(controller));
 	}
 
-	/** Restores controller indexing and retries validations that were waiting on this chunk. */
+	/**
+	 * Restores controller indexing and retries validations that were waiting on this chunk.
+	 */
 	public static void onChunkLoaded (ServerLevel level, LevelChunk chunk) {
 		RuntimeState runtime = runtime(level);
 		Set<BlockPos> waiting = runtime.waitingForChunk.remove(chunk.getPos());
@@ -113,12 +114,16 @@ public final class MultiblockHandler {
 		}
 	}
 
-	/** Clears runtime-only indexes when a server level unloads. */
+	/**
+	 * Clears runtime-only indexes when a server level unloads.
+	 */
 	public static void onLevelUnloaded (ServerLevel level) {
 		RUNTIMES.remove(level);
 	}
 
-	/** Processes the queued, server-side work once at the end of a level tick. */
+	/**
+	 * Processes the queued, server-side work once at the end of a level tick.
+	 */
 	public static void tick (ServerLevel level) {
 		RuntimeState runtime = RUNTIMES.get(level);
 		if (runtime == null) return;
@@ -152,7 +157,9 @@ public final class MultiblockHandler {
 		return revalidate(level, runtime(level), controller);
 	}
 
-	/** Emits a one-time formation burst across the outside faces of a formed structure. */
+	/**
+	 * Emits a one-time formation burst across the outside faces of a formed structure.
+	 */
 	public static void spawnFormationParticles (ServerLevel level, MultiblockInstance instance) {
 		if (instance.blocks().isEmpty()) return;
 
@@ -278,11 +285,7 @@ public final class MultiblockHandler {
 	}
 
 	private static void spawnFormationParticle (ServerLevel level, BlockPos pos, Direction outward) {
-		level.sendParticles(PowerParticleOption.create(ParticleTypes.DRAGON_BREATH, 1.0F),
-				pos.getX() + 0.5D + outward.getStepX() * 0.52D,
-				pos.getY() + 0.5D + outward.getStepY() * 0.52D,
-				pos.getZ() + 0.5D + outward.getStepZ() * 0.52D,
-				1, 0.015D, 0.015D, 0.015D, 0.0D);
+		level.sendParticles(PowerParticleOption.create(ParticleTypes.DRAGON_BREATH, 1.0F), pos.getX() + 0.5D + outward.getStepX() * 0.52D, pos.getY() + 0.5D + outward.getStepY() * 0.52D, pos.getZ() + 0.5D + outward.getStepZ() * 0.52D, 1, 0.015D, 0.015D, 0.015D, 0.0D);
 	}
 
 	private static boolean isLoaded (LevelReader level, BlockPos pos) {
@@ -317,11 +320,11 @@ public final class MultiblockHandler {
 	}
 
 	private static final class RuntimeState {
-		private final Map<BlockPos, Set<BlockPos>> controllersByPosition = new HashMap<>();
-		private final Map<BlockPos, MultiblockInstance> instances = new HashMap<>();
-		private final Set<BlockPos> changedPositions = new HashSet<>();
-		private final Set<BlockPos> pendingControllers = new HashSet<>();
-		private final Map<ChunkPos, Set<BlockPos>> waitingForChunk = new HashMap<>();
-		private SearchRange searchRange = SearchRange.ZERO;
+		private final Map<BlockPos, Set<BlockPos>>      controllersByPosition = new HashMap<>();
+		private final Map<BlockPos, MultiblockInstance> instances             = new HashMap<>();
+		private final Set<BlockPos>                     changedPositions      = new HashSet<>();
+		private final Set<BlockPos>                     pendingControllers    = new HashSet<>();
+		private final Map<ChunkPos, Set<BlockPos>>      waitingForChunk       = new HashMap<>();
+		private       SearchRange                       searchRange           = SearchRange.ZERO;
 	}
 }

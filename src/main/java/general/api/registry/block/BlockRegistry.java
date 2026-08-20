@@ -34,9 +34,7 @@ public abstract class BlockRegistry implements ICreativeModeTab {
 	}
 
 	public static <T extends Block> BlockDefinition<T> registerBlock (BlockRegistry registry, ItemRegistry itemRegistry, final String localizedName, Identifier identifier, final Function<BlockBehaviour.Properties, T> factory, @Nullable Supplier<BlockBehaviour.Properties> baseProperties, @Nullable BiFunction<Block, Item.Properties, BlockItem> itemFactory) {
-		var block = baseProperties != null
-				? registry.getRegistry().registerBlock(identifier.getPath(), factory, baseProperties)
-				: registry.getRegistry().registerBlock(identifier.getPath(), factory);
+		var block = baseProperties != null ? registry.getRegistry().registerBlock(identifier.getPath(), factory, baseProperties) : registry.getRegistry().registerBlock(identifier.getPath(), factory);
 		var item = itemRegistry.getRegistry().register(identifier.getPath(), () -> {
 			var m_block = block.get();
 			var itemProperties = new Item.Properties().setId(ResourceKey.create(Registries.ITEM, identifier)).useBlockDescriptionPrefix();

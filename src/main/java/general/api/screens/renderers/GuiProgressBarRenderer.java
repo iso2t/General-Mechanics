@@ -1,5 +1,6 @@
 package general.api.screens.renderers;
 
+import general.api.resources.Resource;
 import lombok.Getter;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -9,13 +10,11 @@ import net.minecraft.resources.Identifier;
 import java.util.List;
 import java.util.function.IntSupplier;
 
-import general.api.resources.Resource;
-
 public class GuiProgressBarRenderer extends AbstractBarRenderer {
 	private static final Identifier TEXTURE = Resource.getMainMod("textures/gui/elements/progress_bar.png");
 
 	@Getter
-	private int progress = 0;
+	private       int         progress = 0;
 	private final IntSupplier progressSupplier;
 	private final IntSupplier maxProgressSupplier;
 

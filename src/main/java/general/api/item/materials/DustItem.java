@@ -1,7 +1,6 @@
 package general.api.item.materials;
 
 import lombok.Getter;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
 
 public class DustItem extends Item {

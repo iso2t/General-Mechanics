@@ -20,9 +20,9 @@ import java.util.Objects;
 public final class MachineRecipeInput implements RecipeInput {
 
 	private final MachineRecipeDefinition<?> definition;
-	private final List<String>                itemOrder;
-	private final Map<String, ItemStack>      items;
-	private final Map<String, FluidStack>     fluids;
+	private final List<String>               itemOrder;
+	private final Map<String, ItemStack>     items;
+	private final Map<String, FluidStack>    fluids;
 
 	MachineRecipeInput (MachineRecipeDefinition<?> definition, Map<String, ItemStack> items, Map<String, FluidStack> fluids) {
 		this.definition = Objects.requireNonNull(definition, "definition");

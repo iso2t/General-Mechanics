@@ -1,8 +1,8 @@
 package general.api.block;
 
 import general.api.block.util.ILitProvider;
-import general.api.rotation.IRotatableBlock;
 import general.api.resources.Resource;
+import general.api.rotation.IRotatableBlock;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;

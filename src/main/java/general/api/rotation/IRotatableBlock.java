@@ -24,7 +24,9 @@ public interface IRotatableBlock {
 		return getRotationStrategy().rotate(state, reverse);
 	}
 
-	/** Returns this block's logical front, when its strategy defines one. */
+	/**
+	 * Returns this block's logical front, when its strategy defines one.
+	 */
 	default Optional<Direction> getFacing (BlockState state) {
 		return getRotationStrategy().getFacing(state);
 	}

@@ -30,11 +30,11 @@ import java.util.Objects;
  */
 public final class MachineRecipeBinding {
 
-	private final MachineRecipeDefinition<?>        definition;
+	private final           MachineRecipeDefinition<?>     definition;
 	private final @Nullable ResourceHandler<ItemResource>  items;
 	private final @Nullable ResourceHandler<FluidResource> fluids;
-	private final Map<String, Integer>               itemSlots;
-	private final Map<String, Integer>               fluidSlots;
+	private final           Map<String, Integer>           itemSlots;
+	private final           Map<String, Integer>           fluidSlots;
 
 	private MachineRecipeBinding (Builder builder) {
 		this.definition = builder.definition;
@@ -187,12 +187,12 @@ public final class MachineRecipeBinding {
 	 */
 	public static final class Builder {
 
-		private final MachineRecipeDefinition<?> definition;
-		private final Map<String, String>         itemMappings = new LinkedHashMap<>();
-		private final Map<String, String>         fluidMappings = new LinkedHashMap<>();
-		private @Nullable ResourceHandler<ItemResource>  items;
-		private @Nullable ResourceInventoryDefinition<ItemResource> itemDefinition;
-		private @Nullable ResourceHandler<FluidResource> fluids;
+		private final     MachineRecipeDefinition<?>                 definition;
+		private final     Map<String, String>                        itemMappings  = new LinkedHashMap<>();
+		private final     Map<String, String>                        fluidMappings = new LinkedHashMap<>();
+		private @Nullable ResourceHandler<ItemResource>              items;
+		private @Nullable ResourceInventoryDefinition<ItemResource>  itemDefinition;
+		private @Nullable ResourceHandler<FluidResource>             fluids;
 		private @Nullable ResourceInventoryDefinition<FluidResource> fluidDefinition;
 
 		Builder (MachineRecipeDefinition<?> definition) {

@@ -27,12 +27,12 @@ public final class MachineRecipeProcessor {
 	private static final String PROGRESS_TAG      = "progress";
 	private static final String MAX_PROGRESS_TAG  = "max_progress";
 
-	private final MachineRecipeBinding binding;
-	private final Runnable             changeCallback;
+	private final     MachineRecipeBinding   binding;
+	private final     Runnable               changeCallback;
 	private @Nullable ResourceKey<Recipe<?>> activeRecipe;
-	private int                                  progress;
-	private int                                  maxProgress;
-	private Status                               status = Status.IDLE;
+	private           int                    progress;
+	private           int                    maxProgress;
+	private           Status                 status = Status.IDLE;
 
 	MachineRecipeProcessor (MachineRecipeBinding binding, Runnable changeCallback) {
 		this.binding = Objects.requireNonNull(binding, "binding");
@@ -132,11 +132,7 @@ public final class MachineRecipeProcessor {
 		Objects.requireNonNull(input, "input");
 		int loadedMax = Math.max(0, input.getIntOr(MAX_PROGRESS_TAG, 0));
 		int loadedProgress = Math.clamp(input.getIntOr(PROGRESS_TAG, 0), 0, loadedMax);
-		ResourceKey<Recipe<?>> loadedRecipe = input.getString(ACTIVE_RECIPE_TAG)
-				.map(Identifier::tryParse)
-				.filter(Objects::nonNull)
-				.map(id -> ResourceKey.<Recipe<?>>create(Registries.RECIPE, id))
-				.orElse(null);
+		ResourceKey<Recipe<?>> loadedRecipe = input.getString(ACTIVE_RECIPE_TAG).map(Identifier::tryParse).filter(Objects::nonNull).map(id -> ResourceKey.<Recipe<?>>create(Registries.RECIPE, id)).orElse(null);
 		this.activeRecipe = loadedRecipe;
 		this.progress = loadedRecipe == null ? 0 : loadedProgress;
 		this.maxProgress = loadedRecipe == null ? 0 : loadedMax;

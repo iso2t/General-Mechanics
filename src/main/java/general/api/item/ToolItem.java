@@ -36,7 +36,7 @@ public abstract class ToolItem extends Item implements IRecipeProvider {
 	}
 
 	@Override
-	public boolean isBarVisible(@NotNull ItemStack stack) {
+	public boolean isBarVisible (@NotNull ItemStack stack) {
 		return stack.isDamaged();
 	}
 
@@ -45,7 +45,7 @@ public abstract class ToolItem extends Item implements IRecipeProvider {
 		return Items.STICK;
 	}
 
-	public int getRemainingUses(ItemStack stack) {
+	public int getRemainingUses (ItemStack stack) {
 		return durability - stack.getDamageValue();
 	}
 

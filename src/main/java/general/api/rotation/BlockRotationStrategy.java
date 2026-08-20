@@ -16,13 +16,19 @@ import java.util.Optional;
  */
 public interface BlockRotationStrategy {
 
-	/** Adds this strategy's orientation property to the subscribing block's state definition. */
+	/**
+	 * Adds this strategy's orientation property to the subscribing block's state definition.
+	 */
 	void addProperties (StateDefinition.Builder<Block, BlockState> builder);
 
-	/** Returns the state to use when a block is placed. */
+	/**
+	 * Returns the state to use when a block is placed.
+	 */
 	BlockState getStateForPlacement (BlockState state, BlockPlaceContext context);
 
-	/** Returns the next orientation for a future wrench interaction. */
+	/**
+	 * Returns the next orientation for a future wrench interaction.
+	 */
 	BlockState rotate (BlockState state, boolean reverse);
 
 	/**

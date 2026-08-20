@@ -21,7 +21,7 @@ public class TabBuilder {
 	private final String                       translationKey;
 	private final ResourceKey<CreativeModeTab> tabKey;
 	private final Supplier<ItemStack>          displayItem;
-	private final ICreativeModeTab               createModeTab;
+	private final ICreativeModeTab             createModeTab;
 
 	public TabBuilder (String translationKey, Identifier resourceKey, ItemDefinition<?> displayItem, ICreativeModeTab createModeTab) {
 		this(translationKey, resourceKey, displayItem::getStack, createModeTab);
@@ -55,7 +55,7 @@ public class TabBuilder {
 		private String            translationKey = String.format("itemGroup.%s.unknown", GenAPI.getModId());
 		private Identifier        resourceKey    = Resource.get("default");
 		private ItemDefinition<?> displayItem    = ItemDefinition.of(Items.APPLE);
-		private ICreativeModeTab    createModeTab  = (_, output) -> output.accept(ItemStack.EMPTY);
+		private ICreativeModeTab  createModeTab  = (_, output) -> output.accept(ItemStack.EMPTY);
 
 		public Builder setTranslationKey (String translationKey) {
 			this.translationKey = translationKey;

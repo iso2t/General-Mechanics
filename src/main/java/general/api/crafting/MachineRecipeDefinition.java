@@ -19,11 +19,7 @@ import net.neoforged.neoforge.fluids.FluidStackTemplate;
 import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
 import net.neoforged.neoforge.registries.DeferredHolder;
 
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Registered recipe type plus its immutable schema and generated serializers.
@@ -39,21 +35,21 @@ public final class MachineRecipeDefinition<D> {
 
 	private static final int MAX_RESOURCE_FIELDS = 256;
 
-	private static final Codec<Map<String, SizedIngredient>> ITEM_INPUTS_CODEC = Codec.unboundedMap(Codec.STRING, SizedIngredient.NESTED_CODEC);
-	private static final Codec<Map<String, ItemStackTemplate>> ITEM_OUTPUTS_CODEC = Codec.unboundedMap(Codec.STRING, ItemStackTemplate.CODEC);
-	private static final Codec<Map<String, SizedFluidIngredient>> FLUID_INPUTS_CODEC = Codec.unboundedMap(Codec.STRING, SizedFluidIngredient.CODEC);
-	private static final Codec<Map<String, FluidStackTemplate>> FLUID_OUTPUTS_CODEC = Codec.unboundedMap(Codec.STRING, FluidStackTemplate.CODEC);
+	private static final Codec<Map<String, SizedIngredient>>      ITEM_INPUTS_CODEC   = Codec.unboundedMap(Codec.STRING, SizedIngredient.NESTED_CODEC);
+	private static final Codec<Map<String, ItemStackTemplate>>    ITEM_OUTPUTS_CODEC  = Codec.unboundedMap(Codec.STRING, ItemStackTemplate.CODEC);
+	private static final Codec<Map<String, SizedFluidIngredient>> FLUID_INPUTS_CODEC  = Codec.unboundedMap(Codec.STRING, SizedFluidIngredient.CODEC);
+	private static final Codec<Map<String, FluidStackTemplate>>   FLUID_OUTPUTS_CODEC = Codec.unboundedMap(Codec.STRING, FluidStackTemplate.CODEC);
 
-	private final Identifier                                                     id;
-	private final MachineRecipeSchema                                             schema;
-	private final DeferredHolder<RecipeType<?>, RecipeType<MachineRecipe>>        type;
+	private final Identifier                                                           id;
+	private final MachineRecipeSchema                                                  schema;
+	private final DeferredHolder<RecipeType<?>, RecipeType<MachineRecipe>>             type;
 	private final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MachineRecipe>> serializer;
-	private final MapCodec<D>                                                     dataCodec;
-	private final StreamCodec<RegistryFriendlyByteBuf, D>                         dataStreamCodec;
-	private final D                                                               defaultData;
-	private final MachineRecipeMatcher<D>                                         additionalMatcher;
-	private final MapCodec<MachineRecipe>                                         recipeCodec;
-	private final StreamCodec<RegistryFriendlyByteBuf, MachineRecipe>             recipeStreamCodec;
+	private final MapCodec<D>                                                          dataCodec;
+	private final StreamCodec<RegistryFriendlyByteBuf, D>                              dataStreamCodec;
+	private final D                                                                    defaultData;
+	private final MachineRecipeMatcher<D>                                              additionalMatcher;
+	private final MapCodec<MachineRecipe>                                              recipeCodec;
+	private final StreamCodec<RegistryFriendlyByteBuf, MachineRecipe>                  recipeStreamCodec;
 
 	MachineRecipeDefinition (Identifier id, MachineRecipeSchema schema, DeferredHolder<RecipeType<?>, RecipeType<MachineRecipe>> type, DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MachineRecipe>> serializer, MapCodec<D> dataCodec, StreamCodec<RegistryFriendlyByteBuf, D> dataStreamCodec, D defaultData, MachineRecipeMatcher<D> additionalMatcher) {
 		this.id = Objects.requireNonNull(id, "id");
@@ -179,14 +175,7 @@ public final class MachineRecipeDefinition<D> {
 	}
 
 	private MapCodec<MachineRecipe> createRecipeCodec () {
-		MapCodec<Serialized<D>> serializedCodec = RecordCodecBuilder.mapCodec(instance -> instance.group(
-				ITEM_INPUTS_CODEC.optionalFieldOf("item_inputs", Map.of()).forGetter(Serialized<D>::itemInputs),
-				ITEM_OUTPUTS_CODEC.optionalFieldOf("item_outputs", Map.of()).forGetter(Serialized<D>::itemOutputs),
-				FLUID_INPUTS_CODEC.optionalFieldOf("fluid_inputs", Map.of()).forGetter(Serialized<D>::fluidInputs),
-				FLUID_OUTPUTS_CODEC.optionalFieldOf("fluid_outputs", Map.of()).forGetter(Serialized<D>::fluidOutputs),
-				ExtraCodecs.POSITIVE_INT.fieldOf("duration").forGetter(Serialized<D>::duration),
-				dataCodec.forGetter(Serialized<D>::data)
-		).apply(instance, Serialized::new));
+		MapCodec<Serialized<D>> serializedCodec = RecordCodecBuilder.mapCodec(instance -> instance.group(ITEM_INPUTS_CODEC.optionalFieldOf("item_inputs", Map.of()).forGetter(Serialized<D>::itemInputs), ITEM_OUTPUTS_CODEC.optionalFieldOf("item_outputs", Map.of()).forGetter(Serialized<D>::itemOutputs), FLUID_INPUTS_CODEC.optionalFieldOf("fluid_inputs", Map.of()).forGetter(Serialized<D>::fluidInputs), FLUID_OUTPUTS_CODEC.optionalFieldOf("fluid_outputs", Map.of()).forGetter(Serialized<D>::fluidOutputs), ExtraCodecs.POSITIVE_INT.fieldOf("duration").forGetter(Serialized<D>::duration), dataCodec.forGetter(Serialized<D>::data)).apply(instance, Serialized::new));
 
 		return serializedCodec.flatXmap(serialized -> {
 			try {
@@ -302,11 +291,6 @@ public final class MachineRecipeDefinition<D> {
 		}
 	}
 
-	private record Serialized<D>(Map<String, SizedIngredient> itemInputs,
-	                             Map<String, ItemStackTemplate> itemOutputs,
-	                             Map<String, SizedFluidIngredient> fluidInputs,
-	                             Map<String, FluidStackTemplate> fluidOutputs,
-	                             int duration,
-	                             D data) {
+	private record Serialized<D>(Map<String, SizedIngredient> itemInputs, Map<String, ItemStackTemplate> itemOutputs, Map<String, SizedFluidIngredient> fluidInputs, Map<String, FluidStackTemplate> fluidOutputs, int duration, D data) {
 	}
 }

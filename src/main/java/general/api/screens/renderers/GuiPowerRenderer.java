@@ -52,7 +52,9 @@ public class GuiPowerRenderer extends AbstractBarRenderer {
 		guiGraphics.fillGradient(x, y + (getHeight() - storedPx), x + getWidth(), y + getHeight(), Color.BRIGHT_RED.getArgb(), getRenderColor().getArgb());
 	}
 
-	/** Renders this bar at its configured position relative to a screen origin. */
+	/**
+	 * Renders this bar at its configured position relative to a screen origin.
+	 */
 	public void renderRelative (GuiGraphicsExtractor guiGraphics, int screenX, int screenY) {
 		render(guiGraphics, screenX + getXPos(), screenY + getYPos());
 	}

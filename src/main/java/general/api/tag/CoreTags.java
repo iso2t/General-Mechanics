@@ -11,8 +11,8 @@ public class CoreTags {
 
 	public static class Items {
 
-		public static final TagKey<Item> WRENCHES = createTag("wrenches");
-		public static final TagKey<Item> SAWS = createTag("saws");
+		public static final TagKey<Item> WRENCHES     = createTag("wrenches");
+		public static final TagKey<Item> SAWS         = createTag("saws");
 		public static final TagKey<Item> WIRE_CUTTERS = createTag("wire_cutters");
 
 		private static TagKey<Item> createTag (String key) {

@@ -1,5 +1,6 @@
 package general.api.screens.menu;
 
+import general.api.screens.screen.AbstractScreen;
 import lombok.Getter;
 import lombok.NonNull;
 import net.minecraft.world.entity.player.Inventory;
@@ -20,7 +21,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 
 public abstract class AbstractMenu<B extends EntityBlock, T extends BlockEntity> extends AbstractContainerMenu {
-	/** Reserved menu-button id used by {@link general.api.screens.screen.AbstractScreen}. */
+	/**
+	 * Reserved menu-button id used by {@link AbstractScreen}.
+	 */
 	public static final int FILL_FLUID_CONTAINER_BUTTON = 0x47464C44; // "GFLD"
 
 	@Getter
@@ -53,6 +56,7 @@ public abstract class AbstractMenu<B extends EntityBlock, T extends BlockEntity>
 
 	/**
 	 * Returns the number of slots in the inventory.
+	 *
 	 * @return the number of slots in the inventory.
 	 */
 	public abstract int getSlotCount ();
@@ -67,9 +71,7 @@ public abstract class AbstractMenu<B extends EntityBlock, T extends BlockEntity>
 
 		ItemStack sourceStack = sourceSlot.getItem();
 		ItemStack original = sourceStack.copy();
-		boolean moved = index < getContainerSlotStart()
-				? movePlayerStackToContainer(sourceStack)
-				: index < getContainerSlotEnd() && moveItemStackTo(sourceStack, 0, getContainerSlotStart(), true);
+		boolean moved = index < getContainerSlotStart() ? movePlayerStackToContainer(sourceStack) : index < getContainerSlotEnd() && moveItemStackTo(sourceStack, 0, getContainerSlotStart(), true);
 		if (!moved) return ItemStack.EMPTY;
 
 		if (sourceStack.isEmpty()) sourceSlot.set(ItemStack.EMPTY);
@@ -79,7 +81,9 @@ public abstract class AbstractMenu<B extends EntityBlock, T extends BlockEntity>
 		return original;
 	}
 
-	/** First machine slot; player inventory and hotbar occupy the preceding 36 slots. */
+	/**
+	 * First machine slot; player inventory and hotbar occupy the preceding 36 slots.
+	 */
 	protected final int getContainerSlotStart () {
 		return 36;
 	}
@@ -116,7 +120,9 @@ public abstract class AbstractMenu<B extends EntityBlock, T extends BlockEntity>
 		this.fluidContainerSource = new FluidContainerSource(handler, tank, transferLimit);
 	}
 
-	/** @return whether this menu has opted into fluid-renderer container filling. */
+	/**
+	 * @return whether this menu has opted into fluid-renderer container filling.
+	 */
 	public final boolean hasFluidContainerSource () {
 		return fluidContainerSource != null;
 	}
@@ -157,6 +163,7 @@ public abstract class AbstractMenu<B extends EntityBlock, T extends BlockEntity>
 
 	/**
 	 * Adds the player inventory.
+	 *
 	 * @param playerInventory the player inventory.
 	 */
 	public void addPlayerInventory (Inventory playerInventory) {
@@ -169,6 +176,7 @@ public abstract class AbstractMenu<B extends EntityBlock, T extends BlockEntity>
 
 	/**
 	 * Adds the player hotbar.
+	 *
 	 * @param playerInventory the player inventory.
 	 */
 	public void addPlayerHotbar (Inventory playerInventory) {
@@ -187,14 +195,14 @@ public abstract class AbstractMenu<B extends EntityBlock, T extends BlockEntity>
 	public static class QuickMoveStack {
 
 		// CREDIT GOES TO: diesieben07 | https://github.com/diesieben07/SevenCommons
-		private static final int HOTBAR_SLOT_COUNT = 9;
-		private static final int PLAYER_INVENTORY_ROW_COUNT = 3;
+		private static final int HOTBAR_SLOT_COUNT             = 9;
+		private static final int PLAYER_INVENTORY_ROW_COUNT    = 3;
 		private static final int PLAYER_INVENTORY_COLUMN_COUNT = 9;
-		private static final int PLAYER_INVENTORY_SLOT_COUNT = PLAYER_INVENTORY_COLUMN_COUNT * PLAYER_INVENTORY_ROW_COUNT;
-		private static final int VANILLA_SLOT_COUNT = HOTBAR_SLOT_COUNT + PLAYER_INVENTORY_SLOT_COUNT;
-		private static final int VANILLA_FIRST_SLOT_INDEX = 0;
+		private static final int PLAYER_INVENTORY_SLOT_COUNT   = PLAYER_INVENTORY_COLUMN_COUNT * PLAYER_INVENTORY_ROW_COUNT;
+		private static final int VANILLA_SLOT_COUNT            = HOTBAR_SLOT_COUNT + PLAYER_INVENTORY_SLOT_COUNT;
+		private static final int VANILLA_FIRST_SLOT_INDEX      = 0;
 		private static final int TE_INVENTORY_FIRST_SLOT_INDEX = VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT;
-		private final int slotCount;
+		private final        int slotCount;
 
 		private final AbstractContainerMenu menu;
 		private final Player                player;

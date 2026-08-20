@@ -11,9 +11,9 @@ import java.util.function.Function;
 
 public abstract class ItemRegistry implements ICreativeModeTab {
 
-	public abstract DeferredRegister.Items getRegistry();
+	public abstract DeferredRegister.Items getRegistry ();
 
-	public abstract List<ItemDefinition<?>> getItems();
+	public abstract List<ItemDefinition<?>> getItems ();
 
 	public static <T extends Item> ItemDefinition<T> registerItem (ItemRegistry registry, final String localizedName, Identifier identifier, Function<Item.Properties, T> factory) {
 		var definition = new ItemDefinition<>(localizedName, registry.getRegistry().registerItem(identifier.getPath(), factory));

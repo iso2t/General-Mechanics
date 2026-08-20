@@ -63,7 +63,7 @@ public abstract class AbstractScreen<T extends AbstractMenu<?, ?>> extends Abstr
 	public boolean mouseClicked (MouseButtonEvent event, boolean doubleClick) {
 		GuiFluidRenderer renderer = getFluidRenderer();
 		if (event.button() == 0 && renderer != null && menu.hasFluidContainerSource() && !menu.getCarried().isEmpty() && renderer.isMouseOver(event.x(), event.y(), leftPos, topPos)) {
-			if (minecraft != null && minecraft.gameMode != null) {
+			if (minecraft.gameMode != null) {
 				minecraft.gameMode.handleInventoryButtonClick(menu.containerId, AbstractMenu.FILL_FLUID_CONTAINER_BUTTON);
 			}
 			return true;
@@ -73,8 +73,9 @@ public abstract class AbstractScreen<T extends AbstractMenu<?, ?>> extends Abstr
 
 	/**
 	 * The texture to use for this screen.
+	 *
 	 * @return {@link Identifier} path to the texture.
 	 */
-	public abstract Identifier getTexture();
+	public abstract Identifier getTexture ();
 
 }

@@ -11,10 +11,10 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface GeneralMod {
 
-	String value();
+	String value ();
 
-	Dist[] dist() default { Dist.CLIENT, Dist.DEDICATED_SERVER };
+	Dist[] dist () default { Dist.CLIENT, Dist.DEDICATED_SERVER };
 
-	String[] depends() default {};
+	String[] depends () default {};
 
 }
