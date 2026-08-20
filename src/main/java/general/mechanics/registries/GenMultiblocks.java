@@ -7,6 +7,7 @@ import general.api.multiblock.MultiblockElement;
 import general.api.multiblock.MultiblockPattern;
 import general.api.registry.GenRegistries;
 import net.minecraft.core.Registry;
+import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 public class GenMultiblocks {
@@ -16,14 +17,15 @@ public class GenMultiblocks {
 	});
 
 	public static final MultiblockDefinition COKE_OVEN = register("coke_oven", MultiblockPattern.builder().where('F', MultiblockElement.block(GenBlocks.COKE_OVEN_BRICKS)).where('C', MultiblockElement.block(GenBlocks.COKE_OVEN_CONTROLLER)).where('.', MultiblockElement.air()).where('#', MultiblockElement.any())
+			.where('L', MultiblockElement.block(Blocks.LAVA))
 
 			.anchor('C')
 
 			.layer("FFF", "FFF", "FFF")
 
-			.layer("FFF", "F.F", "FCF")
+			.layer("FFF", "FLF", "FCF")
 
-			.layer("#F#", "F.F", "#F#")
+			.layer("#F#", "F#F", "#F#")
 
 			.build());
 

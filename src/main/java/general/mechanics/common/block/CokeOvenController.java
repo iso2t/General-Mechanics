@@ -4,9 +4,9 @@ import general.api.block.BaseBlock;
 import general.api.block.BlockEntityTypeOwner;
 import general.api.block.IWrenchable;
 import general.api.block.util.ILitProvider;
+import general.api.block.util.IPickaxe;
 import general.api.crafting.IRecipeProvider;
 import general.api.crafting.MachineRecipeDefinition;
-import general.api.crafting.MachineRecipeSchema;
 import general.api.crafting.NoRecipeData;
 import general.api.model.IMachineModel;
 import general.api.resources.Resource;
@@ -47,12 +47,11 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import net.neoforged.neoforge.common.Tags;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-public class CokeOvenController extends BaseBlock implements EntityBlock, BlockEntityTypeOwner<CokeOvenControllerBlockEntity>, IWrenchable, IMachineModel, IRotatableBlock, IRecipeProvider, ILitProvider {
-
-	private static final MachineRecipeDefinition<NoRecipeData> RECIPES = GenRecipes.REGISTRY.register("coke_oven", MachineRecipeSchema.builder().itemInput("input").itemOutput("output").fluidOutput("creosote").build());
+public class CokeOvenController extends BaseBlock implements EntityBlock, BlockEntityTypeOwner<CokeOvenControllerBlockEntity>, IWrenchable, IMachineModel, IRotatableBlock, IRecipeProvider, ILitProvider, IPickaxe {
 
 	private BlockEntityType<CokeOvenControllerBlockEntity> blockEntityType;
 
@@ -82,7 +81,7 @@ public class CokeOvenController extends BaseBlock implements EntityBlock, BlockE
 	}
 
 	public static MachineRecipeDefinition<NoRecipeData> recipeDefinition () {
-		return RECIPES;
+		return GenRecipes.COKE_OVEN;
 	}
 
 	@Override
@@ -136,7 +135,7 @@ public class CokeOvenController extends BaseBlock implements EntityBlock, BlockE
 
 	@Override
 	public void animateTick (@NonNull BlockState state, Level level, @NonNull BlockPos pos, @NonNull RandomSource random) {
-		if (!(level.getBlockEntity(pos) instanceof CokeOvenControllerBlockEntity entity) || !state.getValue(LIT) || !entity.isMultiblockFormed()) return;
+		if (!(level.getBlockEntity(pos) instanceof CokeOvenControllerBlockEntity entity) || !state.getValue(LIT)) return;
 
 		double xPos = pos.getX() + 0.5D;
 		double yPos = pos.getY();
@@ -162,9 +161,10 @@ public class CokeOvenController extends BaseBlock implements EntityBlock, BlockE
 	public static class Recipes {
 
 		public static void registerMachineRecipes (HolderGetter<Item> items, RecipeOutput consumer) {
-			recipeDefinition().recipeBuilder().itemInput("input", Items.COAL, 1).itemOutput("output", GenItems.COAL_COKE.get(), 1).fluidOutput("creosote", GenFluids.CREOSOTE.get(), FluidTanks.BUCKET / 4).duration(1_200).save(consumer, Resource.get("coke_oven/coal_coke"));
-			recipeDefinition().recipeBuilder().itemInput("input", Items.COAL, 1).itemOutput("output", GenItems.COAL_COKE.get(), 9).fluidOutput("creosote", GenFluids.CREOSOTE.get(), 900).duration(1_200).save(consumer, Resource.get("coke_oven/coal_coke_from_coal_block"));
+			recipeDefinition().recipeBuilder().itemInput("input", ItemTags.COALS, items, 1).itemOutput("output", GenItems.COAL_COKE.get(), 1).fluidOutput("creosote", GenFluids.CREOSOTE.get(), FluidTanks.BUCKET / 4).duration(1_200).save(consumer, Resource.get("coke_oven/coal_coke"));
+			recipeDefinition().recipeBuilder().itemInput("input", Tags.Items.STORAGE_BLOCKS_COAL, items, 1).itemOutput("output", GenItems.COAL_COKE.get(), 9).fluidOutput("creosote", GenFluids.CREOSOTE.get(), 900).duration(1_200).save(consumer, Resource.get("coke_oven/coal_coke_from_coal_block"));
 			recipeDefinition().recipeBuilder().itemInput("input", Items.CHARCOAL, 1).itemOutput("output", GenItems.COAL_COKE.get(), 1).fluidOutput("creosote", GenFluids.CREOSOTE.get(), FluidTanks.BUCKET / 2).duration(1_200).save(consumer, Resource.get("coke_oven/coal_coke_from_charcoal"));
+
 			recipeDefinition().recipeBuilder().itemInput("input", ItemTags.LOGS_THAT_BURN, items, 1).itemOutput("output", GenItems.COAL_COKE.get(), 1).fluidOutput("creosote", GenFluids.CREOSOTE.get(), FluidTanks.BUCKET / 4).duration(1_500).save(consumer, Resource.get("coke_oven/coal_coke_from_logs"));
 		}
 

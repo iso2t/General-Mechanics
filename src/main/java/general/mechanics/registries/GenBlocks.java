@@ -60,7 +60,7 @@ public class GenBlocks extends BlockRegistry {
 			return Blocks.SAND;
 		}
 	}, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.BRICKS));
-	public static final BlockDefinition<CokeOvenController>  COKE_OVEN_CONTROLLER = registerBlock("Coke Oven Controller", CokeOvenController::new);
+	public static final BlockDefinition<CokeOvenController>  COKE_OVEN_CONTROLLER = registerBlock("Coke Oven Controller", CokeOvenController::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.BRICKS));
 
 	private static String formatColorName (String colorName) {
 		String[] words = colorName.split("_");

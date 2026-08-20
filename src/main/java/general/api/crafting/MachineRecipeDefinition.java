@@ -9,17 +9,20 @@ import general.api.transfer.item.ItemResourceHandler;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.Util;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.ItemLike;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import net.neoforged.neoforge.fluids.FluidStackTemplate;
 import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
 import net.neoforged.neoforge.registries.DeferredHolder;
 
 import java.util.*;
+import java.util.function.Supplier;
 
 /**
  * Registered recipe type plus its immutable schema and generated serializers.
@@ -50,6 +53,7 @@ public final class MachineRecipeDefinition<D> {
 	private final MachineRecipeMatcher<D>                                              additionalMatcher;
 	private final MapCodec<MachineRecipe>                                              recipeCodec;
 	private final StreamCodec<RegistryFriendlyByteBuf, MachineRecipe>                  recipeStreamCodec;
+	private final List<Supplier<? extends ItemLike>>                                   craftingStations = new ArrayList<>();
 
 	MachineRecipeDefinition (Identifier id, MachineRecipeSchema schema, DeferredHolder<RecipeType<?>, RecipeType<MachineRecipe>> type, DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MachineRecipe>> serializer, MapCodec<D> dataCodec, StreamCodec<RegistryFriendlyByteBuf, D> dataStreamCodec, D defaultData, MachineRecipeMatcher<D> additionalMatcher) {
 		this.id = Objects.requireNonNull(id, "id");
@@ -70,6 +74,47 @@ public final class MachineRecipeDefinition<D> {
 
 	public MachineRecipeSchema schema () {
 		return schema;
+	}
+
+	/** Translation key used for recipe viewers and other machine-type UI. */
+	public String descriptionId () {
+		return Util.makeDescriptionId("recipe_type", id);
+	}
+
+	/** English fallback derived from the registered path. */
+	public String defaultEnglishName () {
+		String[] words = id.getPath().replace('/', '_').split("_");
+		var result = new StringBuilder();
+		for (String word : words) {
+			if (word.isEmpty()) continue;
+			if (!result.isEmpty()) result.append(' ');
+			result.append(Character.toUpperCase(word.charAt(0))).append(word.substring(1));
+		}
+		return result.toString();
+	}
+
+	/**
+	 * Adds an item that performs this recipe type. Suppliers allow deferred
+	 * blocks and items to be referenced while recipe types are bootstrapped.
+	 */
+	public MachineRecipeDefinition<D> craftingStation (Supplier<? extends ItemLike> station) {
+		craftingStations.add(Objects.requireNonNull(station, "station"));
+		return this;
+	}
+
+	/** Adds an already-available item that performs this recipe type. */
+	public MachineRecipeDefinition<D> craftingStation (ItemLike station) {
+		Objects.requireNonNull(station, "station");
+		return craftingStation(() -> station);
+	}
+
+	/** Resolves the crafting stations in declaration order. */
+	public List<ItemLike> craftingStations () {
+		var result = new ArrayList<ItemLike>(craftingStations.size());
+		for (Supplier<? extends ItemLike> supplier : craftingStations) {
+			result.add(Objects.requireNonNull(supplier.get(), "Machine recipe crafting station supplier returned null for " + id));
+		}
+		return List.copyOf(result);
 	}
 
 	public RecipeType<MachineRecipe> type () {

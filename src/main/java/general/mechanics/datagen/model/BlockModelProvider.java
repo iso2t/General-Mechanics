@@ -2,6 +2,7 @@ package general.mechanics.datagen.model;
 
 import com.mojang.math.Quadrant;
 import general.api.block.DecorativeBlock;
+import general.api.block.util.ILitProvider;
 import general.api.definitions.BlockDefinition;
 import general.api.definitions.FluidDefinition;
 import general.api.fluid.BaseFluid;
@@ -135,8 +136,12 @@ public final class BlockModelProvider extends ModelProviders {
 		var path = block.getId().getPath();
 
 		var model = ModelTemplates.CUBE.create(Resource.get("block/machine/" + path), machineMapping(machine), generators.modelOutput);
-
-		registerBlockState(block, model);
+		if (block.get() instanceof ILitProvider litProvider) {
+			var litModel = ModelTemplates.CUBE.create(Resource.get("block/machine/" + path + "_lit"), machineMapping(machine, litProvider.getLitTexture()), generators.modelOutput);
+			registerLitBlockState(block, model, litModel);
+		} else {
+			registerBlockState(block, model);
+		}
 
 		generators.registerSimpleItemModel(block.get(), model);
 	}
@@ -159,6 +164,19 @@ public final class BlockModelProvider extends ModelProviders {
 		}
 	}
 
+	/**
+	 * Selects the machine's normal or lit model first, then applies its orientation. Keeping the
+	 * orientation as a mutator lets Minecraft generate the full cartesian product of both properties.
+	 */
+	private void registerLitBlockState (BlockDefinition<?> block, Identifier model, Identifier litModel) {
+		var litDispatch = createBooleanModelDispatch(ILitProvider.LIT, plainVariant(litModel), plainVariant(model));
+		if (block.get() instanceof IRotatableBlock rotatable) {
+			generators.blockStateOutput.accept(MultiVariantGenerator.dispatch(block.get()).with(litDispatch).with(rotationMutatorDispatch(rotatable.getRotationStrategy())));
+		} else {
+			generators.blockStateOutput.accept(MultiVariantGenerator.dispatch(block.get()).with(litDispatch));
+		}
+	}
+
 	private static PropertyDispatch<MultiVariant> rotationDispatch (BlockRotationStrategy strategy, MultiVariant variant) {
 		if (strategy == BlockRotationStrategies.HORIZONTAL_FACING) {
 			return PropertyDispatch.initial(BlockStateProperties.HORIZONTAL_FACING).select(Direction.NORTH, variant).select(Direction.SOUTH, variant.with(Y_ROT_180)).select(Direction.WEST, variant.with(Y_ROT_270)).select(Direction.EAST, variant.with(Y_ROT_90));
@@ -168,6 +186,19 @@ public final class BlockModelProvider extends ModelProviders {
 		}
 		if (strategy == BlockRotationStrategies.AXIS) {
 			return PropertyDispatch.initial(BlockStateProperties.AXIS).select(Direction.Axis.X, variant).select(Direction.Axis.Y, variant).select(Direction.Axis.Z, variant);
+		}
+		throw new IllegalArgumentException("No generated blockstate dispatch for rotation strategy " + strategy);
+	}
+
+	private static PropertyDispatch<VariantMutator> rotationMutatorDispatch (BlockRotationStrategy strategy) {
+		if (strategy == BlockRotationStrategies.HORIZONTAL_FACING) {
+			return PropertyDispatch.modify(BlockStateProperties.HORIZONTAL_FACING).select(Direction.NORTH, NOP).select(Direction.SOUTH, Y_ROT_180).select(Direction.WEST, Y_ROT_270).select(Direction.EAST, Y_ROT_90);
+		}
+		if (strategy == BlockRotationStrategies.FACING) {
+			return facingDispatch();
+		}
+		if (strategy == BlockRotationStrategies.AXIS) {
+			return PropertyDispatch.modify(BlockStateProperties.AXIS).select(Direction.Axis.X, NOP).select(Direction.Axis.Y, NOP).select(Direction.Axis.Z, NOP);
 		}
 		throw new IllegalArgumentException("No generated blockstate dispatch for rotation strategy " + strategy);
 	}
@@ -254,8 +285,12 @@ public final class BlockModelProvider extends ModelProviders {
 	 * while a non-directional machine simply renders its front on the north face.
 	 */
 	private TextureMapping machineMapping (IMachineModel machine) {
+		return machineMapping(machine, machine.getFrontTexture());
+	}
+
+	private TextureMapping machineMapping (IMachineModel machine, Identifier frontTexture) {
 		var side = mat(machine.getSideTexture());
-		return new TextureMapping().put(TextureSlot.DOWN, mat(machine.getBottomTexture())).put(TextureSlot.UP, mat(machine.getTopTexture())).put(TextureSlot.NORTH, mat(machine.getFrontTexture())).put(TextureSlot.SOUTH, side).put(TextureSlot.EAST, side).put(TextureSlot.WEST, side).put(TextureSlot.PARTICLE, side);
+		return new TextureMapping().put(TextureSlot.DOWN, mat(machine.getBottomTexture())).put(TextureSlot.UP, mat(machine.getTopTexture())).put(TextureSlot.NORTH, mat(frontTexture)).put(TextureSlot.SOUTH, side).put(TextureSlot.EAST, side).put(TextureSlot.WEST, side).put(TextureSlot.PARTICLE, side);
 	}
 
 	/**

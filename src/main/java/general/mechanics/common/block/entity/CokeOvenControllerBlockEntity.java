@@ -1,5 +1,6 @@
 package general.mechanics.common.block.entity;
 
+import general.api.block.util.ILitProvider;
 import general.api.crafting.MachineRecipeProcessor;
 import general.api.definitions.MultiblockDefinition;
 import general.api.multiblock.MultiblockController;
@@ -211,22 +212,22 @@ public class CokeOvenControllerBlockEntity extends BlockEntity implements Multib
 			recipeProcessor.reset();
 			result = MachineRecipeProcessor.Status.IDLE;
 		}
-		setLit(level, result == MachineRecipeProcessor.Status.RUNNING || result == MachineRecipeProcessor.Status.COMPLETED);
+		setLit(level, result == MachineRecipeProcessor.Status.RUNNING);
 	}
 
 	private void setLit (ServerLevel level, boolean lit) {
 		BlockState state = getBlockState();
-		if (!state.hasProperty(BlockStateProperties.LIT) || state.getValue(BlockStateProperties.LIT) == lit) return;
-		level.setBlock(worldPosition, state.setValue(BlockStateProperties.LIT, lit), Block.UPDATE_CLIENTS);
+		if (!state.hasProperty(ILitProvider.LIT) || state.getValue(ILitProvider.LIT) == lit) return;
+		level.setBlock(worldPosition, state.setValue(ILitProvider.LIT, lit), Block.UPDATE_CLIENTS);
 	}
 
 	@Override
-	public Component getDisplayName () {
+	public @NonNull Component getDisplayName () {
 		return Component.translatable(getBlockState().getBlock().getDescriptionId());
 	}
 
 	@Override
-	public @Nullable AbstractContainerMenu createMenu (int containerId, Inventory inventory, Player player) {
+	public @Nullable AbstractContainerMenu createMenu (int containerId, @NonNull Inventory inventory, @NonNull Player player) {
 		return formed ? new CokeOvenMenu(containerId, inventory, this) : null;
 	}
 

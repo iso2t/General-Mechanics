@@ -4,6 +4,7 @@ import general.api.mod.GenAPI;
 import general.mechanics.registries.GenBlocks;
 import general.mechanics.registries.GenFluids;
 import general.mechanics.registries.GenItems;
+import general.mechanics.registries.GenRecipes;
 import net.minecraft.data.DataGenerator;
 import net.neoforged.neoforge.common.data.LanguageProvider;
 
@@ -25,6 +26,10 @@ public class GenMechEnLangProvider extends LanguageProvider {
 
 		for (var fluid : GenFluids.getFluids()) {
 			add(fluid.type().get().getDescriptionId(), fluid.englishName());
+		}
+
+		for (var definition : GenRecipes.REGISTRY.definitions()) {
+			add(definition.descriptionId(), definition.defaultEnglishName());
 		}
 
 		addManualTranslations();
@@ -52,4 +57,5 @@ public class GenMechEnLangProvider extends LanguageProvider {
 		add("genapi.hold_shift", "§o§8Hold §e[SHIFT]§8 for more info");
 		add("genapi.fluid.empty", "Empty");
 	}
+
 }
