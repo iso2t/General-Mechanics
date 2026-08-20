@@ -59,7 +59,6 @@ public class GenItems extends ItemRegistry {
 	public static final ItemDefinition<RecipeProviderItem> COAL_COKE        = registerItem("Coal Coke", properties -> new RecipeProviderItem(properties) {
 		@Override
 		public void registerCraftingRecipes (HolderGetter<Item> holder, RecipeOutput consumer, Criterion<?> criterion) {
-			// TODO: Add recipe when provider for Coke Oven exists.
 		}
 
 		@Override
