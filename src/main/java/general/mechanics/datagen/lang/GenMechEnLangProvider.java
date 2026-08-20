@@ -2,6 +2,7 @@ package general.mechanics.datagen.lang;
 
 import general.api.mod.GenAPI;
 import general.mechanics.registries.GenBlocks;
+import general.mechanics.registries.GenFluids;
 import general.mechanics.registries.GenItems;
 import net.minecraft.data.DataGenerator;
 import net.neoforged.neoforge.common.data.LanguageProvider;
@@ -20,6 +21,10 @@ public class GenMechEnLangProvider extends LanguageProvider {
 
 		for (var block : GenBlocks.INSTANCE.getBlocks()) {
 			add(block.get(), block.localizedName().getRawString());
+		}
+
+		for (var fluid : GenFluids.getFluids()) {
+			add(fluid.type().get().getDescriptionId(), fluid.englishName());
 		}
 
 		addManualTranslations();

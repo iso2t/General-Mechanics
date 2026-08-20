@@ -1,6 +1,8 @@
 package general.mechanics;
 
 import general.api.mod.GeneralMod;
+import general.mechanics.client.ClientFluidRegistration;
+import general.mechanics.client.color.ClientColors;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.level.Level;
 import net.neoforged.api.distmarker.Dist;
@@ -14,6 +16,10 @@ public class MechanicsClient extends MechanicsBase {
 
 	public MechanicsClient (ModContainer container, IEventBus bus) {
 		super(container, bus);
+		bus.addListener(ClientFluidRegistration::registerExtensions);
+		bus.addListener(ClientFluidRegistration::registerModels);
+		bus.addListener(ClientColors::registerItemColors);
+		bus.addListener(ClientColors::registerBlockColors);
 	}
 
 	@Override

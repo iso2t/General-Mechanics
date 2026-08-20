@@ -15,12 +15,15 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+import net.neoforged.neoforge.client.model.item.DynamicFluidContainerModel;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -37,10 +40,22 @@ public final class ItemModelProvider extends ModelProviders {
 	@Override
 	protected void registerModels (@NonNull BlockModelGenerators blockModels, @NonNull ItemModelGenerators itemModels) {
 		for (var item : GenItems.INSTANCE.getItems()) {
-			if (item.get() instanceof ToolItem) {
+			if (item.get() instanceof BucketItem bucket) {
+				registerFluidBucket(bucket, itemModels);
+			} else if (item.get() instanceof ToolItem) {
 				itemModels.generateFlatItem(item.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
 			} else itemModels.generateFlatItem(item.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
 		}
+	}
+
+	private void registerFluidBucket (BucketItem bucket, ItemModelGenerators items) {
+		var textures = new DynamicFluidContainerModel.Textures(
+				Optional.empty(),
+				Optional.of(new Material(Resource.getMinecraftResource("item/bucket"))),
+				Optional.of(new Material(Resource.getCustomResource("neoforge", "item/mask/bucket_fluid"))),
+				Optional.empty()
+		);
+		items.itemModelOutput.accept(bucket, new DynamicFluidContainerModel.Unbaked(textures, bucket.getContent(), true, true, true));
 	}
 
 	private void registerPartModels (IngotItem ingot, ItemModelGenerators items) {

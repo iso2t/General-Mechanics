@@ -1,5 +1,6 @@
 package general.mechanics.common.block.entity;
 
+import general.api.crafting.MachineRecipeProcessor;
 import general.api.definitions.MultiblockDefinition;
 import general.api.multiblock.MultiblockController;
 import general.api.multiblock.MultiblockHandler;
@@ -14,6 +15,7 @@ import general.api.transfer.item.ItemInventoryDefinition;
 import general.api.transfer.item.ItemResourceHandler;
 import general.api.transfer.item.SidedItemResourceProvider;
 import general.mechanics.common.menus.CokeOvenMenu;
+import general.mechanics.common.block.CokeOvenController;
 import general.mechanics.registries.GenMultiblocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -28,6 +30,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.storage.ValueInput;
@@ -46,8 +49,7 @@ import org.jspecify.annotations.Nullable;
  */
 public class CokeOvenControllerBlockEntity extends BlockEntity implements MultiblockController, SidedItemResourceProvider, SidedFluidResourceProvider, MenuProvider {
 
-	private static final String PROGRESS_TAG = "progress";
-	private static final String MAX_PROGRESS_TAG = "max_progress";
+	private static final String RECIPE_PROCESSOR_TAG = "recipe_processor";
 
 	public static void registerCapabilities (RegisterCapabilitiesEvent event, BlockEntityType<CokeOvenControllerBlockEntity> type) {
 		event.registerBlockEntity(Capabilities.Item.BLOCK, type, (block, side) -> block.isMultiblockFormed() ? block.getItemHandler(side) : null);
@@ -67,10 +69,9 @@ public class CokeOvenControllerBlockEntity extends BlockEntity implements Multib
 	private static final ResourceAccessPolicy<FluidResource> FLUID_AUTOMATION = FLUIDS.access().extract("creosote").build();
 
 	private       boolean                              formed;
-	private       int                                  progress;
-	private       int                                  maxProgress;
 	private final ItemResourceHandler                  items  = ITEMS.createHandler(this::setChanged);
 	private final FluidResourceHandler                 fluids = FLUIDS.createHandler(this::setChanged);
+	private final MachineRecipeProcessor               recipeProcessor = CokeOvenController.recipeDefinition().processor(items, fluids, this::setChanged);
 	private final SidedResourceHandlers<ItemResource>  sidedItems;
 	private final SidedResourceHandlers<FluidResource> sidedFluids;
 
@@ -112,6 +113,10 @@ public class CokeOvenControllerBlockEntity extends BlockEntity implements Multib
 		this.formed = formed;
 		setChanged();
 		if (level != null) {
+			if (!formed && level instanceof ServerLevel serverLevel) {
+				recipeProcessor.reset();
+				setLit(serverLevel, false);
+			}
 			level.invalidateCapabilities(worldPosition);
 			level.updateNeighborsAt(worldPosition, getBlockState().getBlock());
 		}
@@ -136,8 +141,7 @@ public class CokeOvenControllerBlockEntity extends BlockEntity implements Multib
 	protected void saveAdditional (@NonNull ValueOutput output) {
 		super.saveAdditional(output);
 		output.putBoolean(FORMED_TAG, formed);
-		output.putInt(PROGRESS_TAG, progress);
-		output.putInt(MAX_PROGRESS_TAG, maxProgress);
+		recipeProcessor.save(output.child(RECIPE_PROCESSOR_TAG));
 		items.serialize(output.child("items"));
 		fluids.serialize(output.child("fluids"));
 	}
@@ -146,8 +150,7 @@ public class CokeOvenControllerBlockEntity extends BlockEntity implements Multib
 	protected void loadAdditional (@NonNull ValueInput input) {
 		super.loadAdditional(input);
 		formed = input.getBooleanOr(FORMED_TAG, false);
-		maxProgress = Math.max(0, input.getIntOr(MAX_PROGRESS_TAG, 0));
-		progress = Math.clamp(input.getIntOr(PROGRESS_TAG, 0), 0, maxProgress);
+		recipeProcessor.load(input.childOrEmpty(RECIPE_PROCESSOR_TAG));
 		items.deserialize(input.childOrEmpty("items"));
 		fluids.deserialize(input.childOrEmpty("fluids"));
 	}
@@ -194,22 +197,27 @@ public class CokeOvenControllerBlockEntity extends BlockEntity implements Multib
 	}
 
 	public int getProgress () {
-		return progress;
+		return recipeProcessor.progress();
 	}
 
 	public int getMaxProgress () {
-		return maxProgress;
+		return recipeProcessor.maxProgress();
 	}
 
-	public void setProcessingProgress (int progress, int maxProgress) {
-		if (maxProgress < 0) throw new IllegalArgumentException("Maximum progress must be non-negative: " + maxProgress);
-		if (progress < 0 || progress > maxProgress) {
-			throw new IllegalArgumentException("Progress must be between 0 and " + maxProgress + ": " + progress);
+	public void serverTick (ServerLevel level) {
+		MachineRecipeProcessor.Status result;
+		if (formed) result = recipeProcessor.tick(level);
+		else {
+			recipeProcessor.reset();
+			result = MachineRecipeProcessor.Status.IDLE;
 		}
-		if (this.progress == progress && this.maxProgress == maxProgress) return;
-		this.progress = progress;
-		this.maxProgress = maxProgress;
-		setChanged();
+		setLit(level, result == MachineRecipeProcessor.Status.RUNNING || result == MachineRecipeProcessor.Status.COMPLETED);
+	}
+
+	private void setLit (ServerLevel level, boolean lit) {
+		BlockState state = getBlockState();
+		if (!state.hasProperty(BlockStateProperties.LIT) || state.getValue(BlockStateProperties.LIT) == lit) return;
+		level.setBlock(worldPosition, state.setValue(BlockStateProperties.LIT, lit), Block.UPDATE_CLIENTS);
 	}
 
 	@Override

@@ -5,13 +5,20 @@ import general.api.block.BlockEntityTypeOwner;
 import general.api.block.IWrenchable;
 import general.api.block.util.ILitProvider;
 import general.api.crafting.IRecipeProvider;
+import general.api.crafting.MachineRecipeDefinition;
+import general.api.crafting.MachineRecipeSchema;
+import general.api.crafting.NoRecipeData;
 import general.api.model.IMachineModel;
 import general.api.resources.Resource;
 import general.api.rotation.BlockRotationStrategies;
 import general.api.rotation.BlockRotationStrategy;
 import general.api.rotation.IRotatableBlock;
+import general.api.transfer.fluid.FluidTanks;
 import general.mechanics.common.block.entity.CokeOvenControllerBlockEntity;
 import general.mechanics.registries.GenBlocks;
+import general.mechanics.registries.GenFluids;
+import general.mechanics.registries.GenItems;
+import general.mechanics.registries.GenRecipes;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -22,17 +29,21 @@ import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
@@ -40,6 +51,8 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public class CokeOvenController extends BaseBlock implements EntityBlock, BlockEntityTypeOwner<CokeOvenControllerBlockEntity>, IWrenchable, IMachineModel, IRotatableBlock, IRecipeProvider, ILitProvider {
+
+	private static final MachineRecipeDefinition<NoRecipeData> RECIPES = GenRecipes.REGISTRY.register("coke_oven", MachineRecipeSchema.builder().itemInput("input").itemOutput("output").fluidOutput("creosote").build());
 
 	private BlockEntityType<CokeOvenControllerBlockEntity> blockEntityType;
 
@@ -56,6 +69,20 @@ public class CokeOvenController extends BaseBlock implements EntityBlock, BlockE
 	@Override
 	public @Nullable BlockEntity newBlockEntity (@NonNull BlockPos blockPos, @NonNull BlockState blockState) {
 		return new CokeOvenControllerBlockEntity(blockEntityType, blockPos, blockState);
+	}
+
+	@Override
+	public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker (Level level, BlockState state, BlockEntityType<T> type) {
+		if (level.isClientSide() || type != blockEntityType) return null;
+		return (tickLevel, pos, tickState, blockEntity) -> {
+			if (tickLevel instanceof ServerLevel serverLevel && blockEntity instanceof CokeOvenControllerBlockEntity controller) {
+				controller.serverTick(serverLevel);
+			}
+		};
+	}
+
+	public static MachineRecipeDefinition<NoRecipeData> recipeDefinition () {
+		return RECIPES;
 	}
 
 	@Override
@@ -94,14 +121,7 @@ public class CokeOvenController extends BaseBlock implements EntityBlock, BlockE
 	@Override
 	public void registerCraftingRecipes (HolderGetter<Item> holder, RecipeOutput consumer, Criterion<?> criterion) {
 		var path = Resource.getFromBlock(this).getPath();
-		ShapedRecipeBuilder.shaped(holder, RecipeCategory.MISC, this, 1)
-				.pattern("BBB")
-				.pattern("BSB")
-				.pattern("BBB")
-				.define('B', GenBlocks.COKE_OVEN_BRICKS)
-				.define('S', Blocks.BLAST_FURNACE)
-				.unlockedBy("has_any", criterion)
-				.save(consumer, IRecipeProvider.createKey(path + "_from_bricks"));
+		ShapedRecipeBuilder.shaped(holder, RecipeCategory.MISC, this, 1).pattern("BBB").pattern("BSB").pattern("BBB").define('B', GenBlocks.COKE_OVEN_BRICKS).define('S', Blocks.BLAST_FURNACE).unlockedBy("has_any", criterion).save(consumer, IRecipeProvider.createKey(path + "_from_bricks"));
 	}
 
 	@Override
@@ -138,4 +158,16 @@ public class CokeOvenController extends BaseBlock implements EntityBlock, BlockE
 			level.addParticle(new ItemParticleOption(ParticleTypes.ITEM, stack.getItem()), xPos + xOffsets, yPos + yOffsets, zPos + zOffsets, 0d, 0d, 0d);
 		}
 	}
+
+	public static class Recipes {
+
+		public static void registerMachineRecipes (HolderGetter<Item> items, RecipeOutput consumer) {
+			recipeDefinition().recipeBuilder().itemInput("input", Items.COAL, 1).itemOutput("output", GenItems.COAL_COKE.get(), 1).fluidOutput("creosote", GenFluids.CREOSOTE.get(), FluidTanks.BUCKET / 4).duration(1_200).save(consumer, Resource.get("coke_oven/coal_coke"));
+			recipeDefinition().recipeBuilder().itemInput("input", Items.COAL, 1).itemOutput("output", GenItems.COAL_COKE.get(), 9).fluidOutput("creosote", GenFluids.CREOSOTE.get(), 900).duration(1_200).save(consumer, Resource.get("coke_oven/coal_coke_from_coal_block"));
+			recipeDefinition().recipeBuilder().itemInput("input", Items.CHARCOAL, 1).itemOutput("output", GenItems.COAL_COKE.get(), 1).fluidOutput("creosote", GenFluids.CREOSOTE.get(), FluidTanks.BUCKET / 2).duration(1_200).save(consumer, Resource.get("coke_oven/coal_coke_from_charcoal"));
+			recipeDefinition().recipeBuilder().itemInput("input", ItemTags.LOGS_THAT_BURN, items, 1).itemOutput("output", GenItems.COAL_COKE.get(), 1).fluidOutput("creosote", GenFluids.CREOSOTE.get(), FluidTanks.BUCKET / 2).duration(1_500).save(consumer, Resource.get("coke_oven/coal_coke_from_logs"));
+		}
+
+	}
+
 }

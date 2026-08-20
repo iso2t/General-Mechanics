@@ -15,6 +15,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
@@ -49,6 +50,7 @@ public class DropProvider extends BlockLootSubProvider {
 	@Override
 	protected void generate () {
 		for (var block : getKnownBlocks()) {
+			if (block instanceof LiquidBlock) continue;
 			if (block == GenBlocks.RUBBER_LEAVES.get()) add(block, createLeavesDrops(GenBlocks.RUBBER_LEAVES.get(), GenBlocks.RUBBER_SAPLING.get(), NORMAL_LEAVES_SAPLING_CHANCES));
 			else add(block, overrides.getOrDefault(block, this::defaultBuilder).apply(block));
 		}

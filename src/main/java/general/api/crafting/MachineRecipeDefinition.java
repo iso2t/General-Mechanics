@@ -1,0 +1,312 @@
+package general.api.crafting;
+
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import general.api.transfer.fluid.FluidResourceHandler;
+import general.api.transfer.item.ItemResourceHandler;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.ExtraCodecs;
+import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.common.crafting.SizedIngredient;
+import net.neoforged.neoforge.fluids.FluidStackTemplate;
+import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
+import net.neoforged.neoforge.registries.DeferredHolder;
+
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+
+/**
+ * Registered recipe type plus its immutable schema and generated serializers.
+ *
+ * <p>The four standard resource maps and positive {@code duration} field are
+ * serialized automatically. A type may add strongly typed fields through a
+ * payload {@link MapCodec} and matching stream codec when it is registered.
+ * Payload map fields share the recipe object's root, so their names must not
+ * collide with {@code item_inputs}, {@code item_outputs}, {@code fluid_inputs},
+ * {@code fluid_outputs}, or {@code duration}.</p>
+ */
+public final class MachineRecipeDefinition<D> {
+
+	private static final int MAX_RESOURCE_FIELDS = 256;
+
+	private static final Codec<Map<String, SizedIngredient>> ITEM_INPUTS_CODEC = Codec.unboundedMap(Codec.STRING, SizedIngredient.NESTED_CODEC);
+	private static final Codec<Map<String, ItemStackTemplate>> ITEM_OUTPUTS_CODEC = Codec.unboundedMap(Codec.STRING, ItemStackTemplate.CODEC);
+	private static final Codec<Map<String, SizedFluidIngredient>> FLUID_INPUTS_CODEC = Codec.unboundedMap(Codec.STRING, SizedFluidIngredient.CODEC);
+	private static final Codec<Map<String, FluidStackTemplate>> FLUID_OUTPUTS_CODEC = Codec.unboundedMap(Codec.STRING, FluidStackTemplate.CODEC);
+
+	private final Identifier                                                     id;
+	private final MachineRecipeSchema                                             schema;
+	private final DeferredHolder<RecipeType<?>, RecipeType<MachineRecipe>>        type;
+	private final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MachineRecipe>> serializer;
+	private final MapCodec<D>                                                     dataCodec;
+	private final StreamCodec<RegistryFriendlyByteBuf, D>                         dataStreamCodec;
+	private final D                                                               defaultData;
+	private final MachineRecipeMatcher<D>                                         additionalMatcher;
+	private final MapCodec<MachineRecipe>                                         recipeCodec;
+	private final StreamCodec<RegistryFriendlyByteBuf, MachineRecipe>             recipeStreamCodec;
+
+	MachineRecipeDefinition (Identifier id, MachineRecipeSchema schema, DeferredHolder<RecipeType<?>, RecipeType<MachineRecipe>> type, DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MachineRecipe>> serializer, MapCodec<D> dataCodec, StreamCodec<RegistryFriendlyByteBuf, D> dataStreamCodec, D defaultData, MachineRecipeMatcher<D> additionalMatcher) {
+		this.id = Objects.requireNonNull(id, "id");
+		this.schema = Objects.requireNonNull(schema, "schema");
+		this.type = Objects.requireNonNull(type, "type");
+		this.serializer = Objects.requireNonNull(serializer, "serializer");
+		this.dataCodec = Objects.requireNonNull(dataCodec, "dataCodec");
+		this.dataStreamCodec = Objects.requireNonNull(dataStreamCodec, "dataStreamCodec");
+		this.defaultData = defaultData;
+		this.additionalMatcher = Objects.requireNonNull(additionalMatcher, "additionalMatcher");
+		this.recipeCodec = createRecipeCodec();
+		this.recipeStreamCodec = createRecipeStreamCodec();
+	}
+
+	public Identifier id () {
+		return id;
+	}
+
+	public MachineRecipeSchema schema () {
+		return schema;
+	}
+
+	public RecipeType<MachineRecipe> type () {
+		return type.get();
+	}
+
+	public RecipeSerializer<MachineRecipe> serializer () {
+		return serializer.get();
+	}
+
+	public MapCodec<MachineRecipe> codec () {
+		return recipeCodec;
+	}
+
+	public StreamCodec<RegistryFriendlyByteBuf, MachineRecipe> streamCodec () {
+		return recipeStreamCodec;
+	}
+
+	/**
+	 * Starts a validated programmatic/datagen recipe builder. Types registered
+	 * without a default payload must call {@link MachineRecipeBuilder#data(Object)}.
+	 */
+	public MachineRecipeBuilder<D> recipeBuilder () {
+		return new MachineRecipeBuilder<>(this, defaultData);
+	}
+
+	/**
+	 * Creates a same-name binding to both definition-backed handlers.
+	 */
+	public MachineRecipeBinding bind (ItemResourceHandler items, FluidResourceHandler fluids) {
+		return bindingBuilder().items(items).fluids(fluids).build();
+	}
+
+	public MachineRecipeBinding bind (ItemResourceHandler items) {
+		return bindingBuilder().items(items).build();
+	}
+
+	public MachineRecipeBinding bind (FluidResourceHandler fluids) {
+		return bindingBuilder().fluids(fluids).build();
+	}
+
+	public MachineRecipeProcessor processor (ItemResourceHandler items, FluidResourceHandler fluids, Runnable changeCallback) {
+		return bind(items, fluids).processor(changeCallback);
+	}
+
+	public MachineRecipeProcessor processor (ItemResourceHandler items, Runnable changeCallback) {
+		return bind(items).processor(changeCallback);
+	}
+
+	public MachineRecipeProcessor processor (FluidResourceHandler fluids, Runnable changeCallback) {
+		return bind(fluids).processor(changeCallback);
+	}
+
+	/**
+	 * Creates a binding builder for custom logical-to-physical slot mappings.
+	 */
+	public MachineRecipeBinding.Builder bindingBuilder () {
+		return new MachineRecipeBinding.Builder(this);
+	}
+
+	/**
+	 * Retrieves this definition's strongly typed custom data and rejects recipes
+	 * belonging to another registered definition.
+	 */
+	public D data (MachineRecipe recipe) {
+		requireOwner(recipe);
+		return castData(recipe.dataValue());
+	}
+
+	boolean matchesAdditional (MachineRecipe recipe, MachineRecipeInput input, Level level) {
+		return additionalMatcher.matches(data(recipe), input, level);
+	}
+
+	MachineRecipe create (Map<String, SizedIngredient> itemInputs, Map<String, ItemStackTemplate> itemOutputs, Map<String, SizedFluidIngredient> fluidInputs, Map<String, FluidStackTemplate> fluidOutputs, int duration, D data) {
+		if (duration <= 0) throw new IllegalArgumentException("Machine recipe duration must be positive: " + duration);
+		Objects.requireNonNull(data, "Machine recipe data is required for type " + id);
+
+		Map<String, SizedIngredient> checkedItemInputs = validateFields("item input", schema.itemInputs(), itemInputs);
+		Map<String, ItemStackTemplate> checkedItemOutputs = validateFields("item output", schema.itemOutputs(), itemOutputs);
+		Map<String, SizedFluidIngredient> checkedFluidInputs = validateFields("fluid input", schema.fluidInputs(), fluidInputs);
+		Map<String, FluidStackTemplate> checkedFluidOutputs = validateFields("fluid output", schema.fluidOutputs(), fluidOutputs);
+
+		// Ingredient constructors/codecs validate directly resolvable empty sets. Do not enumerate
+		// values here: named holder sets cannot be dereferenced while datagen recipes are constructed.
+		for (var entry : checkedItemInputs.entrySet()) {
+			SizedIngredient ingredient = Objects.requireNonNull(entry.getValue(), "Item ingredient '" + entry.getKey() + "'");
+			Objects.requireNonNull(ingredient.ingredient(), "Item input '" + entry.getKey() + "' ingredient");
+		}
+		for (var entry : checkedItemOutputs.entrySet()) {
+			ItemStackTemplate template = Objects.requireNonNull(entry.getValue(), "Item output '" + entry.getKey() + "'");
+			if (template.count() <= 0) throw new IllegalArgumentException("Item output '" + entry.getKey() + "' must be non-empty");
+		}
+		for (var entry : checkedFluidInputs.entrySet()) {
+			SizedFluidIngredient ingredient = Objects.requireNonNull(entry.getValue(), "Fluid ingredient '" + entry.getKey() + "'");
+			Objects.requireNonNull(ingredient.ingredient(), "Fluid input '" + entry.getKey() + "' ingredient");
+		}
+		for (var entry : checkedFluidOutputs.entrySet()) {
+			FluidStackTemplate template = Objects.requireNonNull(entry.getValue(), "Fluid output '" + entry.getKey() + "'");
+			if (template.amount() <= 0) throw new IllegalArgumentException("Fluid output '" + entry.getKey() + "' must be non-empty");
+		}
+
+		return new MachineRecipe(this, checkedItemInputs, checkedItemOutputs, checkedFluidInputs, checkedFluidOutputs, duration, data);
+	}
+
+	private MapCodec<MachineRecipe> createRecipeCodec () {
+		MapCodec<Serialized<D>> serializedCodec = RecordCodecBuilder.mapCodec(instance -> instance.group(
+				ITEM_INPUTS_CODEC.optionalFieldOf("item_inputs", Map.of()).forGetter(Serialized<D>::itemInputs),
+				ITEM_OUTPUTS_CODEC.optionalFieldOf("item_outputs", Map.of()).forGetter(Serialized<D>::itemOutputs),
+				FLUID_INPUTS_CODEC.optionalFieldOf("fluid_inputs", Map.of()).forGetter(Serialized<D>::fluidInputs),
+				FLUID_OUTPUTS_CODEC.optionalFieldOf("fluid_outputs", Map.of()).forGetter(Serialized<D>::fluidOutputs),
+				ExtraCodecs.POSITIVE_INT.fieldOf("duration").forGetter(Serialized<D>::duration),
+				dataCodec.forGetter(Serialized<D>::data)
+		).apply(instance, Serialized::new));
+
+		return serializedCodec.flatXmap(serialized -> {
+			try {
+				return DataResult.success(create(serialized.itemInputs(), serialized.itemOutputs(), serialized.fluidInputs(), serialized.fluidOutputs(), serialized.duration(), serialized.data()));
+			} catch (IllegalArgumentException exception) {
+				return DataResult.error(exception::getMessage);
+			}
+		}, recipe -> {
+			if (recipe.definition() != this) {
+				return DataResult.error(() -> "Cannot encode recipe for " + recipe.definition().id() + " with serializer " + id);
+			}
+			return DataResult.success(serialized(recipe));
+		});
+	}
+
+	private StreamCodec<RegistryFriendlyByteBuf, MachineRecipe> createRecipeStreamCodec () {
+		return new StreamCodec<>() {
+			@Override
+			public MachineRecipe decode (RegistryFriendlyByteBuf buffer) {
+				Map<String, SizedIngredient> itemInputs = readMap(buffer, SizedIngredient.STREAM_CODEC);
+				Map<String, ItemStackTemplate> itemOutputs = readMap(buffer, ItemStackTemplate.STREAM_CODEC);
+				Map<String, SizedFluidIngredient> fluidInputs = readMap(buffer, SizedFluidIngredient.STREAM_CODEC);
+				Map<String, FluidStackTemplate> fluidOutputs = readMap(buffer, FluidStackTemplate.STREAM_CODEC);
+				int duration = buffer.readVarInt();
+				D data = dataStreamCodec.decode(buffer);
+				return create(itemInputs, itemOutputs, fluidInputs, fluidOutputs, duration, data);
+			}
+
+			@Override
+			public void encode (RegistryFriendlyByteBuf buffer, MachineRecipe recipe) {
+				requireOwner(recipe);
+				writeMap(buffer, recipe.itemInputs(), SizedIngredient.STREAM_CODEC);
+				writeMap(buffer, internalItemOutputs(recipe), ItemStackTemplate.STREAM_CODEC);
+				writeMap(buffer, recipe.fluidInputs(), SizedFluidIngredient.STREAM_CODEC);
+				writeMap(buffer, internalFluidOutputs(recipe), FluidStackTemplate.STREAM_CODEC);
+				buffer.writeVarInt(recipe.duration());
+				dataStreamCodec.encode(buffer, data(recipe));
+			}
+		};
+	}
+
+	private Serialized<D> serialized (MachineRecipe recipe) {
+		return new Serialized<>(recipe.itemInputs(), internalItemOutputs(recipe), recipe.fluidInputs(), internalFluidOutputs(recipe), recipe.duration(), data(recipe));
+	}
+
+	private Map<String, ItemStackTemplate> internalItemOutputs (MachineRecipe recipe) {
+		var result = new LinkedHashMap<String, ItemStackTemplate>();
+		for (MachineRecipeSchema.Slot slot : schema.itemOutputs()) {
+			ItemStackTemplate template = recipe.internalItemOutputTemplate(slot.name());
+			if (template != null) result.put(slot.name(), template);
+		}
+		return result;
+	}
+
+	private Map<String, FluidStackTemplate> internalFluidOutputs (MachineRecipe recipe) {
+		var result = new LinkedHashMap<String, FluidStackTemplate>();
+		for (MachineRecipeSchema.Slot slot : schema.fluidOutputs()) {
+			FluidStackTemplate template = recipe.internalFluidOutputTemplate(slot.name());
+			if (template != null) result.put(slot.name(), template);
+		}
+		return result;
+	}
+
+	private void requireOwner (MachineRecipe recipe) {
+		Objects.requireNonNull(recipe, "recipe");
+		if (recipe.definition() != this) {
+			throw new IllegalArgumentException("Recipe belongs to " + recipe.definition().id() + ", not " + id);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private D castData (Object data) {
+		return (D) data;
+	}
+
+	private static <V> Map<String, V> validateFields (String description, java.util.List<MachineRecipeSchema.Slot> slots, Map<String, V> supplied) {
+		Objects.requireNonNull(supplied, description + " fields");
+		Set<String> expected = new LinkedHashSet<>();
+		for (MachineRecipeSchema.Slot slot : slots) expected.add(slot.name());
+		for (String name : supplied.keySet()) {
+			if (!expected.contains(name)) throw new IllegalArgumentException("Unknown machine recipe " + description + " slot '" + name + "'");
+		}
+		var ordered = new LinkedHashMap<String, V>();
+		for (MachineRecipeSchema.Slot slot : slots) {
+			V value = supplied.get(slot.name());
+			if (value == null) {
+				if (slot.required()) throw new IllegalArgumentException("Missing required machine recipe " + description + " slot '" + slot.name() + "'");
+			} else {
+				ordered.put(slot.name(), value);
+			}
+		}
+		return ordered;
+	}
+
+	private static <V> Map<String, V> readMap (RegistryFriendlyByteBuf buffer, StreamCodec<RegistryFriendlyByteBuf, V> valueCodec) {
+		int size = buffer.readVarInt();
+		if (size < 0 || size > MAX_RESOURCE_FIELDS) throw new IllegalArgumentException("Invalid machine recipe resource field count: " + size);
+		var result = new LinkedHashMap<String, V>(size);
+		for (int index = 0; index < size; index++) {
+			String name = buffer.readUtf(256);
+			V previous = result.put(name, valueCodec.decode(buffer));
+			if (previous != null) throw new IllegalArgumentException("Duplicate machine recipe resource field '" + name + "'");
+		}
+		return result;
+	}
+
+	private static <V> void writeMap (RegistryFriendlyByteBuf buffer, Map<String, V> values, StreamCodec<RegistryFriendlyByteBuf, V> valueCodec) {
+		if (values.size() > MAX_RESOURCE_FIELDS) throw new IllegalArgumentException("Too many machine recipe resource fields: " + values.size());
+		buffer.writeVarInt(values.size());
+		for (var entry : values.entrySet()) {
+			buffer.writeUtf(entry.getKey(), 256);
+			valueCodec.encode(buffer, entry.getValue());
+		}
+	}
+
+	private record Serialized<D>(Map<String, SizedIngredient> itemInputs,
+	                             Map<String, ItemStackTemplate> itemOutputs,
+	                             Map<String, SizedFluidIngredient> fluidInputs,
+	                             Map<String, FluidStackTemplate> fluidOutputs,
+	                             int duration,
+	                             D data) {
+	}
+}

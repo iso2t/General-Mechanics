@@ -3,6 +3,8 @@ package general.mechanics.datagen.model;
 import com.mojang.math.Quadrant;
 import general.api.block.DecorativeBlock;
 import general.api.definitions.BlockDefinition;
+import general.api.definitions.FluidDefinition;
+import general.api.fluid.BaseFluid;
 import general.api.mod.GenAPI;
 import general.api.model.IBasicModel;
 import general.api.model.IMachineModel;
@@ -13,6 +15,7 @@ import general.api.rotation.IRotatableBlock;
 import general.mechanics.client.model.CableModelLoader;
 import general.mechanics.common.block.RubberWood;
 import general.mechanics.registries.GenBlocks;
+import general.mechanics.registries.GenFluids;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.MultiVariant;
@@ -91,6 +94,10 @@ public final class BlockModelProvider extends ModelProviders {
 			}*/
 		}
 
+		for (var fluid : GenFluids.getFluids()) {
+			registerFluid(fluid);
+		}
+
 		registerCable();
 
 		// Rubber tree set
@@ -99,6 +106,19 @@ public final class BlockModelProvider extends ModelProviders {
 		rubberLogWithResin(GenBlocks.RUBBER_LOG.get(), "rubber_log", Resource.get("block/rubber_log_top"));
 		rubberLogWithResin(GenBlocks.RUBBER_WOOD.get(), "rubber_wood", Resource.get("block/rubber_log"));
 		blockModels.woodProvider(GenBlocks.STRIPPED_RUBBER_LOG.get()).logWithHorizontal(GenBlocks.STRIPPED_RUBBER_LOG.get()).wood(GenBlocks.STRIPPED_RUBBER_WOOD.get());
+	}
+
+	private void registerFluid (FluidDefinition definition) {
+		if (!(definition.type().get() instanceof BaseFluid fluid)) {
+			throw new IllegalStateException("Fluid definition '" + definition.englishName() + "' does not use BaseFluid");
+		}
+
+		var model = ModelTemplates.PARTICLE_ONLY.create(
+				definition.block().get(),
+				new TextureMapping().put(TextureSlot.PARTICLE, new Material(fluid.getStillTexture())),
+				generators.modelOutput
+		);
+		generators.blockStateOutput.accept(createSimpleBlock(definition.block().get(), plainVariant(model)));
 	}
 
 	private void registerCable () {
