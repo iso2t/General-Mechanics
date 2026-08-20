@@ -16,6 +16,15 @@ import java.util.stream.Stream;
 
 public interface IRecipeProvider {
 
+	/**
+	 * Registers a set of crafting recipes using the given inputs.
+	 *
+	 * @param holder    The holder of {@link Item} instances, which acts as a registry or lookup
+	 *                  mechanism for items that will be used in crafting recipes.
+	 * @param consumer  A consumer for recipe outputs, which processes or stores recipes during registration.
+	 * @param criterion A criterion for unlocking the crafting recipes, typically used for progression
+	 *                  or achievement systems.
+	 */
 	void registerCraftingRecipes (HolderGetter<Item> holder, RecipeOutput consumer, Criterion<?> criterion);
 
 	/**

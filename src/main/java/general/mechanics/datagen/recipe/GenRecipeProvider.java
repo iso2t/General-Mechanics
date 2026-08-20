@@ -52,8 +52,6 @@ public class GenRecipeProvider extends RecipeProvider {
 				provider.registerCraftingRecipes(this.items, consumer, has(provider.getCriterionItem()));
 			}
 		}
-
-		CokeOvenController.Recipes.registerMachineRecipes(this.items, consumer);
 	}
 
 }

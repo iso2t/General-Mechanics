@@ -1,6 +1,7 @@
 package general.mechanics.common.block.entity;
 
 import general.api.block.util.ILitProvider;
+import general.api.crafting.MachineRecipeBuilder;
 import general.api.crafting.MachineRecipeProcessor;
 import general.api.definitions.MultiblockDefinition;
 import general.api.multiblock.MultiblockController;
@@ -57,22 +58,22 @@ public class CokeOvenControllerBlockEntity extends BlockEntity implements Multib
 		event.registerBlockEntity(Capabilities.Fluid.BLOCK, type, (block, side) -> block.isMultiblockFormed() ? block.getFluidHandler(side) : null);
 	}
 
-	public static final ItemInventoryDefinition ITEMS = ItemInventoryDefinition.builder().input("input").output("output").build();
+	public static final ItemInventoryDefinition ITEMS = ItemInventoryDefinition.builder().input(MachineRecipeBuilder.ITEM_INPUT).output(MachineRecipeBuilder.ITEM_OUTPUT).build();
 
-	public static final FluidInventoryDefinition FLUIDS = FluidInventoryDefinition.builder().tank("creosote", FluidTanks.buckets(32)).build();
+	public static final FluidInventoryDefinition FLUIDS = FluidInventoryDefinition.builder().tank(MachineRecipeBuilder.FLUID_OUTPUT, FluidTanks.buckets(32)).build();
 
-	public static final int INPUT_SLOT    = ITEMS.index("input");
-	public static final int OUTPUT_SLOT   = ITEMS.index("output");
-	public static final int CREOSOTE_TANK = FLUIDS.index("creosote");
+	public static final int INPUT_SLOT    = ITEMS.index(MachineRecipeBuilder.ITEM_INPUT);
+	public static final int OUTPUT_SLOT   = ITEMS.index(MachineRecipeBuilder.ITEM_OUTPUT);
+	public static final int CREOSOTE_TANK = FLUIDS.index(MachineRecipeBuilder.ITEM_OUTPUT);
 
-	private static final ResourceAccessPolicy<ItemResource> ITEM_AUTOMATION = ITEMS.access().insert("input").extract("output").build();
+	private static final ResourceAccessPolicy<ItemResource> ITEM_AUTOMATION = ITEMS.access().insert(MachineRecipeBuilder.ITEM_INPUT).extract(MachineRecipeBuilder.ITEM_OUTPUT).build();
 
-	private static final ResourceAccessPolicy<FluidResource> FLUID_AUTOMATION = FLUIDS.access().extract("creosote").build();
+	private static final ResourceAccessPolicy<FluidResource> FLUID_AUTOMATION = FLUIDS.access().extract(MachineRecipeBuilder.FLUID_OUTPUT).build();
 
 	private       boolean                              formed;
 	private final ItemResourceHandler                  items           = ITEMS.createHandler(this::setChanged);
 	private final FluidResourceHandler                 fluids          = FLUIDS.createHandler(this::setChanged);
-	private final MachineRecipeProcessor               recipeProcessor = CokeOvenController.recipeDefinition().processor(items, fluids, this::setChanged);
+	private final MachineRecipeProcessor               recipeProcessor = CokeOvenController.getRecipeDefinition().processor(items, fluids, this::setChanged);
 	private final SidedResourceHandlers<ItemResource>  sidedItems;
 	private final SidedResourceHandlers<FluidResource> sidedFluids;
 

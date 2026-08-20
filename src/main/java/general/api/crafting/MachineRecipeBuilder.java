@@ -33,6 +33,11 @@ import java.util.Objects;
  */
 public final class MachineRecipeBuilder<D> {
 
+	public static final String ITEM_INPUT = "item_input";
+	public static final String ITEM_OUTPUT = "item_output";
+	public static final String FLUID_INPUT = "fluid_input";
+	public static final String FLUID_OUTPUT = "fluid_output";
+
 	private final MachineRecipeDefinition<D>        definition;
 	private final Map<String, SizedIngredient>      itemInputs   = new LinkedHashMap<>();
 	private final Map<String, ItemStackTemplate>    itemOutputs  = new LinkedHashMap<>();
