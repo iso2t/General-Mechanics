@@ -17,7 +17,7 @@ public class CokeOvenScreen extends AbstractScreen<CokeOvenMenu> {
 	public CokeOvenScreen (CokeOvenMenu menu, Inventory inventory, Component title) {
 		super(menu, inventory, title);
 		setProgressBarRenderer(new GuiProgressBarRenderer(103, 32, menu::getProgress, menu::getMaxProgress));
-		setFluidRenderer(new GuiFluidRenderer(149, 9, 17, 64, CokeOvenControllerBlockEntity.FLUIDS.get(CokeOvenControllerBlockEntity.CREOSOTE_TANK).capacity(), menu::getFluidStack, GuiFluidRenderer.TooltipMode.SHOW_AMOUNT_AND_CAPACITY));
+		setFluidRenderer(new GuiFluidRenderer(151, 9, 16, 64, CokeOvenControllerBlockEntity.FLUIDS.get(CokeOvenControllerBlockEntity.CREOSOTE_TANK).capacity(), menu::getFluidStack, GuiFluidRenderer.TooltipMode.SHOW_AMOUNT_AND_CAPACITY));
 	}
 
 	@Override

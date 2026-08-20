@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public class GuiFluidRenderer extends AbstractBarRenderer {
+	private static final Component EMPTY_FLUID = Component.translatableWithFallback("genapi.fluid.empty", "Empty");
 
 	@Getter
 	private static final NumberFormat format = NumberFormat.getIntegerInstance();
@@ -70,7 +71,7 @@ public class GuiFluidRenderer extends AbstractBarRenderer {
 
 		renderFluid(graphics, stack, getXPos(), getYPos());
 
-		if (!stack.isEmpty() && isMouseOver(mouseX, mouseY, getXPos(), getYPos())) {
+		if (isMouseOver(mouseX, mouseY, getXPos(), getYPos())) {
 			renderTooltip(graphics, mouseX, mouseY, stack);
 		}
 	}
@@ -81,7 +82,7 @@ public class GuiFluidRenderer extends AbstractBarRenderer {
 		int x = screenX + getXPos();
 		int y = screenY + getYPos();
 		renderFluid(graphics, stack, x, y);
-		if (!stack.isEmpty() && isMouseOver(mouseX, mouseY, x, y)) {
+		if (isMouseOver(mouseX, mouseY, x, y)) {
 			renderTooltip(graphics, mouseX, mouseY, stack);
 		}
 	}
@@ -160,7 +161,7 @@ public class GuiFluidRenderer extends AbstractBarRenderer {
 	private void renderTooltip (GuiGraphicsExtractor graphics, int mouseX, int mouseY, FluidStack stack) {
 		Minecraft minecraft = Minecraft.getInstance();
 
-		List<Component> tooltip = switch (tooltipMode) {
+		List<Component> tooltip = stack.isEmpty() ? getEmptyTooltip() : switch (tooltipMode) {
 			case SHOW_AMOUNT -> List.of(stack.getHoverName(), Component.literal(format.format(stack.getAmount()) + " mB").withStyle(ChatFormatting.GRAY));
 
 			case SHOW_AMOUNT_AND_CAPACITY -> List.of(stack.getHoverName(), Component.literal(format.format(stack.getAmount()) + " / " + format.format(capacity) + " mB").withStyle(ChatFormatting.GRAY));
@@ -169,6 +170,14 @@ public class GuiFluidRenderer extends AbstractBarRenderer {
 		};
 
 		graphics.setComponentTooltipForNextFrame(minecraft.font, tooltip, mouseX, mouseY);
+	}
+
+	private List<Component> getEmptyTooltip () {
+		return switch (tooltipMode) {
+			case SHOW_AMOUNT -> List.of(EMPTY_FLUID, Component.literal("0 mB").withStyle(ChatFormatting.GRAY));
+			case SHOW_AMOUNT_AND_CAPACITY -> List.of(EMPTY_FLUID, Component.literal("0 / " + format.format(capacity) + " mB").withStyle(ChatFormatting.GRAY));
+			case ITEM_LIST -> List.of(EMPTY_FLUID);
+		};
 	}
 
 	private static List<Component> getFluidTooltip (FluidStack stack) {

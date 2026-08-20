@@ -30,7 +30,6 @@ public class GenMechEnLangProvider extends LanguageProvider {
 	protected void addManualTranslations () {
 		add("itemGroup." + GenAPI.getModId() + ".items", "General Mechanics");
 		add("itemGroup." + GenAPI.getModId() + ".blocks", "General Mechanics - Blocks");
-		add("itemGroup." + GenAPI.getModId() + ".tools", "General Mechanics - Tools & Parts");
 	}
 
 	protected void addSubtitles() {
@@ -46,5 +45,6 @@ public class GenMechEnLangProvider extends LanguageProvider {
 		add("genapi.formulas.tooltip.mass", "§7Mass: §f%s g/mol");
 		add("genapi.formulats.tooltip.traits", "§7Traits: §f%s");
 		add("genapi.hold_shift", "§o§8Hold §e[SHIFT]§8 for more info");
+		add("genapi.fluid.empty", "Empty");
 	}
 }
