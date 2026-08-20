@@ -48,6 +48,7 @@ public abstract class MechanicsBase implements Mechanics {
 		GenBlocks.INSTANCE.getRegistry().register(getBus());
 
 		GenBlockEntities.REGISTRY.register(getBus());
+		GenMenus.REGISTRY.register(getBus());
 		GenSounds.REGISTRY.register(getBus());
 		GenFoliagePlacers.REGISTRY.register(getBus());
 		GenMultiblocks.REGISTRY.register(getBus());

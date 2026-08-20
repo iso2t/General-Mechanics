@@ -22,20 +22,19 @@ import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.resources.Identifier;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -117,7 +116,7 @@ public class CokeOvenController extends BaseBlock implements EntityBlock, BlockE
 
 	@Override
 	public void animateTick (@NonNull BlockState state, Level level, @NonNull BlockPos pos, @NonNull RandomSource random) {
-		if (!(level.getBlockEntity(pos) instanceof CokeOvenControllerBlockEntity controller) || !state.getValue(LIT)) return;
+		if (!(level.getBlockEntity(pos) instanceof CokeOvenControllerBlockEntity entity) || !state.getValue(LIT) || !entity.isMultiblockFormed()) return;
 
 		double xPos = pos.getX() + 0.5D;
 		double yPos = pos.getY();
@@ -134,11 +133,9 @@ public class CokeOvenController extends BaseBlock implements EntityBlock, BlockE
 		double yOffsets = random.nextDouble() * 6.0 / 8.0;
 		double zOffsets = axis == Direction.Axis.Z ? (double) direction.get().getStepZ() * 0.52 : defaultOffset;
 
-		if (level.getBlockEntity(pos) instanceof CokeOvenControllerBlockEntity entity) {
-			var stack = entity.getInputStack();
-			if (!stack.isEmpty()) {
-				level.addParticle(new ItemParticleOption(ParticleTypes.ITEM, stack.getItem()), xPos + xOffsets, yPos + yOffsets, zPos + zOffsets, 0d, 0d, 0d);
-			}
+		var stack = entity.getInputStack();
+		if (!stack.isEmpty()) {
+			level.addParticle(new ItemParticleOption(ParticleTypes.ITEM, stack.getItem()), xPos + xOffsets, yPos + yOffsets, zPos + zOffsets, 0d, 0d, 0d);
 		}
 	}
 }
