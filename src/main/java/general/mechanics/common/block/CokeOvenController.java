@@ -94,12 +94,12 @@ public class CokeOvenController extends BaseBlock implements EntityBlock, BlockE
 
 	@Override
 	public Identifier getFrontTexture () {
-		return Resource.getMainMod("block/machine/coke_oven_controller");
+		return Resource.getMainMod("block/machine/coke_oven/coke_oven_controller");
 	}
 
 	@Override
 	public Identifier getBottomTexture () {
-		return Resource.getMainMod("block/machine/coke_oven_controller_bottom");
+		return Resource.getMainMod("block/machine/coke_oven/coke_oven_controller_bottom");
 	}
 
 	@Override
@@ -109,7 +109,12 @@ public class CokeOvenController extends BaseBlock implements EntityBlock, BlockE
 
 	@Override
 	public Identifier getSideTexture () {
-		return Resource.getMainMod("block/machine/coke_oven_controller_side");
+		return Resource.getMainMod("block/machine/coke_oven/coke_oven_controller_side");
+	}
+
+	@Override
+	public Identifier getLitTexture () {
+		return Resource.getMainMod("block/machine/coke_oven/coke_oven_controller_lit");
 	}
 
 	@Override
@@ -126,11 +131,6 @@ public class CokeOvenController extends BaseBlock implements EntityBlock, BlockE
 	@Override
 	public ItemLike getCriterionItem () {
 		return GenBlocks.COKE_OVEN_BRICKS;
-	}
-
-	@Override
-	public Identifier getLitTexture () {
-		return Resource.getMainMod("block/machine/coke_oven_controller_lit");
 	}
 
 	@Override
@@ -161,7 +161,7 @@ public class CokeOvenController extends BaseBlock implements EntityBlock, BlockE
 	public static class Recipes {
 
 		public static void registerMachineRecipes (HolderGetter<Item> items, RecipeOutput consumer) {
-			recipeDefinition().recipeBuilder().itemInput("input", ItemTags.COALS, items, 1).itemOutput("output", GenItems.COAL_COKE.get(), 1).fluidOutput("creosote", GenFluids.CREOSOTE.get(), FluidTanks.BUCKET / 4).duration(1_200).save(consumer, Resource.get("coke_oven/coal_coke"));
+			recipeDefinition().recipeBuilder().itemInput("input", Items.COAL, 1).itemOutput("output", GenItems.COAL_COKE.get(), 1).fluidOutput("creosote", GenFluids.CREOSOTE.get(), FluidTanks.BUCKET / 4).duration(1_200).save(consumer, Resource.get("coke_oven/coal_coke"));
 			recipeDefinition().recipeBuilder().itemInput("input", Tags.Items.STORAGE_BLOCKS_COAL, items, 1).itemOutput("output", GenItems.COAL_COKE.get(), 9).fluidOutput("creosote", GenFluids.CREOSOTE.get(), 2_250).duration(1_200).save(consumer, Resource.get("coke_oven/coal_coke_from_coal_block"));
 			recipeDefinition().recipeBuilder().itemInput("input", Items.CHARCOAL, 1).itemOutput("output", GenItems.COAL_COKE.get(), 1).fluidOutput("creosote", GenFluids.CREOSOTE.get(), FluidTanks.BUCKET / 2).duration(1_200).save(consumer, Resource.get("coke_oven/coal_coke_from_charcoal"));
 

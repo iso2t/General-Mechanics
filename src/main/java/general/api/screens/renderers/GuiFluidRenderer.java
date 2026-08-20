@@ -1,6 +1,7 @@
 package general.api.screens.renderers;
 
 import com.google.common.base.Preconditions;
+import general.api.resources.Resource;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.ChatFormatting;
@@ -10,6 +11,7 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.block.FluidModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.TooltipFlag;
 import net.neoforged.neoforge.client.fluid.FluidTintSource;
@@ -20,7 +22,8 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public class GuiFluidRenderer extends AbstractBarRenderer {
-	private static final Component EMPTY_FLUID = Component.translatableWithFallback("genapi.fluid.empty", "Empty");
+	private static final Component  EMPTY_FLUID = Component.translatableWithFallback("genapi.fluid.empty", "Empty");
+	private static final Identifier OVERLAY     = Resource.getMainMod("textures/gui/elements/fluid_bar_overlay.png");
 
 	@Getter
 	private static final NumberFormat format = NumberFormat.getIntegerInstance();
@@ -84,6 +87,7 @@ public class GuiFluidRenderer extends AbstractBarRenderer {
 		int x = screenX + getXPos();
 		int y = screenY + getYPos();
 		renderFluid(graphics, stack, x, y);
+		graphics.blit(RenderPipelines.GUI_TEXTURED, OVERLAY, x, y, 0, 0, 16, 64, 16, 64);
 		if (isMouseOverAbsolute(mouseX, mouseY, x, y)) {
 			renderTooltip(graphics, mouseX, mouseY, stack);
 		}
