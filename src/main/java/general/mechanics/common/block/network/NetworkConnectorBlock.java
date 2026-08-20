@@ -26,7 +26,7 @@ public class NetworkConnectorBlock extends BaseBlock implements EntityBlock, Blo
 
 	private BlockEntityType<NetworkConnectorBlockEntity> blockEntityType;
 
-	public NetworkConnectorBlock(Properties properties) {
+	public NetworkConnectorBlock (Properties properties) {
 		super(properties);
 	}
 

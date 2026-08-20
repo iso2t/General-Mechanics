@@ -13,11 +13,13 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
 
-/** Applies the shared wrench contract to every item in NeoForge's wrench tag. */
+/**
+ * Applies the shared wrench contract to every item in NeoForge's wrench tag.
+ */
 @EventBusSubscriber(modid = Mechanics.MOD_ID)
 public final class WrenchInteractionHandler {
 

@@ -57,7 +57,6 @@ public final class GenFeatures {
 	}
 
 	private static TreeConfiguration.TreeConfigurationBuilder rubberTree () {
-		return new TreeConfiguration.TreeConfigurationBuilder(BlockStateProvider.simple(GenBlocks.RUBBER_LOG.get()), new StraightTrunkPlacer(7, 1, 0), BlockStateProvider.simple(GenBlocks.RUBBER_LEAVES.get()),
-				new RubberFoliagePlacer(ConstantInt.of(2), ConstantInt.of(0), ConstantInt.of(5)), new TwoLayersFeatureSize(2, 0, 2)).ignoreVines();
+		return new TreeConfiguration.TreeConfigurationBuilder(BlockStateProvider.simple(GenBlocks.RUBBER_LOG.get()), new StraightTrunkPlacer(7, 1, 0), BlockStateProvider.simple(GenBlocks.RUBBER_LEAVES.get()), new RubberFoliagePlacer(ConstantInt.of(2), ConstantInt.of(0), ConstantInt.of(5)), new TwoLayersFeatureSize(2, 0, 2)).ignoreVines();
 	}
 }

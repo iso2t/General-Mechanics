@@ -71,7 +71,7 @@ public class GuiFluidRenderer extends AbstractBarRenderer {
 
 		renderFluid(graphics, stack, getXPos(), getYPos());
 
-		if (isMouseOver(mouseX, mouseY, getXPos(), getYPos())) {
+		if (isMouseOverAbsolute(mouseX, mouseY, getXPos(), getYPos())) {
 			renderTooltip(graphics, mouseX, mouseY, stack);
 		}
 	}
@@ -82,7 +82,7 @@ public class GuiFluidRenderer extends AbstractBarRenderer {
 		int x = screenX + getXPos();
 		int y = screenY + getYPos();
 		renderFluid(graphics, stack, x, y);
-		if (isMouseOver(mouseX, mouseY, x, y)) {
+		if (isMouseOverAbsolute(mouseX, mouseY, x, y)) {
 			renderTooltip(graphics, mouseX, mouseY, stack);
 		}
 	}
@@ -154,7 +154,19 @@ public class GuiFluidRenderer extends AbstractBarRenderer {
 		return tintSource.colorAsStack(stack);
 	}
 
-	private boolean isMouseOver (int mouseX, int mouseY, int x, int y) {
+	/**
+	 * Tests this renderer's bounds relative to a screen origin.
+	 *
+	 * @param mouseX mouse x-coordinate in screen space
+	 * @param mouseY mouse y-coordinate in screen space
+	 * @param screenX x-coordinate of the screen's top-left corner
+	 * @param screenY y-coordinate of the screen's top-left corner
+	 */
+	public boolean isMouseOver (double mouseX, double mouseY, int screenX, int screenY) {
+		return isMouseOverAbsolute(mouseX, mouseY, screenX + getXPos(), screenY + getYPos());
+	}
+
+	private boolean isMouseOverAbsolute (double mouseX, double mouseY, int x, int y) {
 		return mouseX >= x && mouseX < x + getWidth() && mouseY >= y && mouseY < y + getHeight();
 	}
 

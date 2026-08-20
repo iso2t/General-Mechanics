@@ -2,11 +2,7 @@ package general.mechanics.common.network;
 
 import general.api.network.NetworkNode;
 import general.api.network.NetworkServices;
-import general.api.network.service.EnergyNetworkService;
-import general.api.network.service.FluidNetworkService;
-import general.api.network.service.ItemNetworkService;
-import general.api.network.service.NetworkService;
-import general.api.network.service.NetworkServiceType;
+import general.api.network.service.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
@@ -52,7 +48,9 @@ public final class NetworkConnectorServices {
 		BRIDGES.add(Objects.requireNonNull(bridge, "bridge"));
 	}
 
-	/** @return whether the target exposed at least one registered network service. */
+	/**
+	 * @return whether the target exposed at least one registered network service.
+	 */
 	public static boolean refresh (NetworkNode node, Level level, BlockPos targetPos, Direction targetSide) {
 		node.getServices().clear();
 		for (NetworkConnectorServiceBridge bridge : BRIDGES) {
@@ -86,9 +84,20 @@ public final class NetworkConnectorServices {
 	private static final class ItemService implements ItemNetworkService {
 
 		private static final StackAdapter<ItemStack, ItemResource> STACKS = new StackAdapter<>() {
-			@Override public ItemStack create (ItemResource resource, int amount) { return resource.toStack(amount); }
-			@Override public ItemStack empty () { return ItemStack.EMPTY; }
-			@Override public int maximumResultAmount (ItemResource resource) { return resource.getMaxStackSize(); }
+			@Override
+			public ItemStack create (ItemResource resource, int amount) {
+				return resource.toStack(amount);
+			}
+
+			@Override
+			public ItemStack empty () {
+				return ItemStack.EMPTY;
+			}
+
+			@Override
+			public int maximumResultAmount (ItemResource resource) {
+				return resource.getMaxStackSize();
+			}
 		};
 
 		private final HandlerTransfers<ItemStack, ItemResource> transfers;
@@ -119,9 +128,20 @@ public final class NetworkConnectorServices {
 	private static final class FluidService implements FluidNetworkService {
 
 		private static final StackAdapter<FluidStack, FluidResource> STACKS = new StackAdapter<>() {
-			@Override public FluidStack create (FluidResource resource, int amount) { return resource.toStack(amount); }
-			@Override public FluidStack empty () { return FluidStack.EMPTY; }
-			@Override public int maximumResultAmount (FluidResource resource) { return Integer.MAX_VALUE; }
+			@Override
+			public FluidStack create (FluidResource resource, int amount) {
+				return resource.toStack(amount);
+			}
+
+			@Override
+			public FluidStack empty () {
+				return FluidStack.EMPTY;
+			}
+
+			@Override
+			public int maximumResultAmount (FluidResource resource) {
+				return Integer.MAX_VALUE;
+			}
 		};
 
 		private final HandlerTransfers<FluidStack, FluidResource> transfers;
@@ -148,11 +168,13 @@ public final class NetworkConnectorServices {
 		}
 	}
 
-	/** Shared item/fluid transfer implementation over the generic NeoForge contract. */
+	/**
+	 * Shared item/fluid transfer implementation over the generic NeoForge contract.
+	 */
 	private static final class HandlerTransfers<S, R extends Resource> {
 
 		private final Supplier<ResourceHandler<R>> handlerSupplier;
-		private final StackAdapter<S, R> stacks;
+		private final StackAdapter<S, R>           stacks;
 
 		private HandlerTransfers (Supplier<ResourceHandler<R>> handlerSupplier, StackAdapter<S, R> stacks) {
 			this.handlerSupplier = Objects.requireNonNull(handlerSupplier, "handlerSupplier");
@@ -223,7 +245,9 @@ public final class NetworkConnectorServices {
 
 	private interface StackAdapter<S, R extends Resource> {
 		S create (R resource, int amount);
+
 		S empty ();
+
 		int maximumResultAmount (R resource);
 	}
 
@@ -250,7 +274,16 @@ public final class NetworkConnectorServices {
 			}
 		}
 
-		@Override public long getStored () { var handler = handlerSupplier.get(); return handler == null ? 0 : handler.getAmountAsLong(); }
-		@Override public long getCapacity () { var handler = handlerSupplier.get(); return handler == null ? 0 : handler.getCapacityAsLong(); }
+		@Override
+		public long getStored () {
+			var handler = handlerSupplier.get();
+			return handler == null ? 0 : handler.getAmountAsLong();
+		}
+
+		@Override
+		public long getCapacity () {
+			var handler = handlerSupplier.get();
+			return handler == null ? 0 : handler.getCapacityAsLong();
+		}
 	}
 }

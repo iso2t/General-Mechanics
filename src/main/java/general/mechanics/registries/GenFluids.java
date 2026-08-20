@@ -34,7 +34,7 @@ public class GenFluids {
 
 	private static final List<FluidDefinition> FLUIDS = new ArrayList<>();
 
-	public static final FluidDefinition CREOSOTE = registerFluid("Creosote", 0xFF281E15, new Vector3f(0.2F, 0.2F, 0.2F), 1000, 100);
+	public static final FluidDefinition CREOSOTE = registerFluid("Creosote", 0xFF281E15, new Vector3f(0.2F, 0.2F, 0.2F), 1000, 100, true);
 
 	public static List<FluidDefinition> getFluids () {
 		return Collections.unmodifiableList(FLUIDS);
@@ -61,17 +61,7 @@ public class GenFluids {
 		String baseName = englishName.toLowerCase(Locale.ROOT).replace(' ', '_');
 
 		// FluidType
-		FluidType.Properties fluidProperties = FluidType.Properties.create()
-				.density(density)
-				.viscosity(viscosity)
-				.motionScale(0.014D)
-				.canPushEntity(true)
-				.canSwim(true)
-				.canDrown(true)
-				.canConvertToSource(false)
-				.fallDistanceModifier(0.0F)
-				.sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
-				.sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY);
+		FluidType.Properties fluidProperties = FluidType.Properties.create().density(density).viscosity(viscosity).motionScale(0.014D).canPushEntity(true).canSwim(true).canDrown(true).canConvertToSource(false).fallDistanceModifier(0.0F).sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL).sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY);
 		Supplier<FluidType> type = GenFluidTypes.register(baseName, new BaseFluid(englishName, fluidProperties, opaque ? GenFluidTypes.OPAQUE_STILL : GenFluidTypes.WATER_STILL, opaque ? GenFluidTypes.OPAQUE_FLOW : GenFluidTypes.WATER_FLOWING, GenFluidTypes.WATER_OVERLAY, tintColor, fogColor, opaque, fogStart, fogEnd));
 
 		// Source/Flowing with forward references

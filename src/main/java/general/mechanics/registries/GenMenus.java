@@ -12,8 +12,7 @@ public final class GenMenus {
 
 	public static final DeferredRegister<MenuType<?>> REGISTRY = DeferredRegister.create(Registries.MENU, GenAPI.getModId());
 
-	public static final DeferredHolder<MenuType<?>, MenuType<CokeOvenMenu>> COKE_OVEN = REGISTRY.register("coke_oven",
-			() -> IMenuTypeExtension.create(CokeOvenMenu::new));
+	public static final DeferredHolder<MenuType<?>, MenuType<CokeOvenMenu>> COKE_OVEN = REGISTRY.register("coke_oven", () -> IMenuTypeExtension.create(CokeOvenMenu::new));
 
 	private GenMenus () {
 	}

@@ -21,7 +21,7 @@ public class NetworkConnectorBlockEntity extends BlockEntity implements INetwork
 	}
 
 	private final NetworkNode networkNode;
-	private Direction serviceDirection;
+	private       Direction   serviceDirection;
 
 	public NetworkConnectorBlockEntity (BlockEntityType<NetworkConnectorBlockEntity> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);

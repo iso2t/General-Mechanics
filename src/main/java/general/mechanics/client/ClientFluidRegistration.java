@@ -19,7 +19,7 @@ import org.joml.Vector4f;
 
 public final class ClientFluidRegistration {
 
-	private static final float FOG_COLOR_BRIGHTNESS_DARK = 0.2F;
+	private static final float FOG_COLOR_BRIGHTNESS_DARK  = 0.2F;
 	private static final float FOG_COLOR_BRIGHTNESS_LIGHT = 0.6F;
 
 	private ClientFluidRegistration () {
@@ -36,12 +36,7 @@ public final class ClientFluidRegistration {
 	public static void registerModels (RegisterFluidModelsEvent event) {
 		for (FluidDefinition definition : GenFluids.getFluids()) {
 			if (definition.type().get() instanceof BaseFluid fluid) {
-				FluidModel.Unbaked model = new FluidModel.Unbaked(
-						new Material(fluid.getStillTexture()),
-						new Material(fluid.getFlowingTexture()),
-						fluid.isOpaque() ? null : new Material(fluid.getOverlayTexture()),
-						_ -> fluid.getTintColor()
-				);
+				FluidModel.Unbaked model = new FluidModel.Unbaked(new Material(fluid.getStillTexture()), new Material(fluid.getFlowingTexture()), fluid.isOpaque() ? null : new Material(fluid.getOverlayTexture()), _ -> fluid.getTintColor());
 				event.register(model, definition.source(), definition.flowing());
 			}
 		}

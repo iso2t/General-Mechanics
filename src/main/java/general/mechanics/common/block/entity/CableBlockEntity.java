@@ -22,7 +22,7 @@ public class CableBlockEntity extends BlockEntity implements INetworkInterface {
 		this.networkNode = new NetworkNode("Cable");
 	}
 
-	public void markDirty() {
+	public void markDirty () {
 		//traverse(worldPosition, cable -> cable.outputs = null);
 	}
 

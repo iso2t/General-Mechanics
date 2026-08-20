@@ -61,8 +61,7 @@ public abstract class MechanicsBase implements Mechanics {
 	private void registerModListeners () {
 		getBus().addListener((RegisterEvent event) -> event.register(Registries.CREATIVE_MODE_TAB, helper -> {
 			var multitab = new TabBuilder.MultiTabBuilder();
-			multitab.addTab(new TabBuilder.Builder().setTranslationKey(String.format("itemGroup.%s.items", GenAPI.getModId())).setDisplayItem(GenItems.REDSTONE_WIRE_SPOOL).setResourceKey(Resource.get("items")).setCreateModeTab(GenItems.INSTANCE).build())
-					.addTab(new TabBuilder.Builder().setTranslationKey(String.format("itemGroup.%s.blocks", GenAPI.getModId())).setResourceKey(Resource.get("blocks")).setCreateModeTab(GenBlocks.INSTANCE).build());
+			multitab.addTab(new TabBuilder.Builder().setTranslationKey(String.format("itemGroup.%s.items", GenAPI.getModId())).setDisplayItem(GenItems.REDSTONE_WIRE_SPOOL).setResourceKey(Resource.get("items")).setCreateModeTab(GenItems.INSTANCE).build()).addTab(new TabBuilder.Builder().setTranslationKey(String.format("itemGroup.%s.blocks", GenAPI.getModId())).setResourceKey(Resource.get("blocks")).setCreateModeTab(GenBlocks.INSTANCE).build());
 			multitab.build(helper);
 		}));
 	}

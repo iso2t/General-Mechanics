@@ -7,6 +7,7 @@ import general.api.screens.renderers.GuiProgressBarRenderer;
 import lombok.Getter;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -56,6 +57,18 @@ public abstract class AbstractScreen<T extends AbstractMenu<?, ?>> extends Abstr
 		if (getPowerRenderer() != null) getPowerRenderer().renderRelative(graphics, leftPos, topPos);
 		if (getProgressBarRenderer() != null) getProgressBarRenderer().render(graphics, leftPos, topPos, mouseX, mouseY);
 		if (getFluidRenderer() != null) getFluidRenderer().render(graphics, leftPos, topPos, mouseX, mouseY);
+	}
+
+	@Override
+	public boolean mouseClicked (MouseButtonEvent event, boolean doubleClick) {
+		GuiFluidRenderer renderer = getFluidRenderer();
+		if (event.button() == 0 && renderer != null && menu.hasFluidContainerSource() && !menu.getCarried().isEmpty() && renderer.isMouseOver(event.x(), event.y(), leftPos, topPos)) {
+			if (minecraft != null && minecraft.gameMode != null) {
+				minecraft.gameMode.handleInventoryButtonClick(menu.containerId, AbstractMenu.FILL_FLUID_CONTAINER_BUTTON);
+			}
+			return true;
+		}
+		return super.mouseClicked(event, doubleClick);
 	}
 
 	/**

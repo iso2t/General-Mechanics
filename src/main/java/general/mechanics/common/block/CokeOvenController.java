@@ -165,7 +165,7 @@ public class CokeOvenController extends BaseBlock implements EntityBlock, BlockE
 			recipeDefinition().recipeBuilder().itemInput("input", Items.COAL, 1).itemOutput("output", GenItems.COAL_COKE.get(), 1).fluidOutput("creosote", GenFluids.CREOSOTE.get(), FluidTanks.BUCKET / 4).duration(1_200).save(consumer, Resource.get("coke_oven/coal_coke"));
 			recipeDefinition().recipeBuilder().itemInput("input", Items.COAL, 1).itemOutput("output", GenItems.COAL_COKE.get(), 9).fluidOutput("creosote", GenFluids.CREOSOTE.get(), 900).duration(1_200).save(consumer, Resource.get("coke_oven/coal_coke_from_coal_block"));
 			recipeDefinition().recipeBuilder().itemInput("input", Items.CHARCOAL, 1).itemOutput("output", GenItems.COAL_COKE.get(), 1).fluidOutput("creosote", GenFluids.CREOSOTE.get(), FluidTanks.BUCKET / 2).duration(1_200).save(consumer, Resource.get("coke_oven/coal_coke_from_charcoal"));
-			recipeDefinition().recipeBuilder().itemInput("input", ItemTags.LOGS_THAT_BURN, items, 1).itemOutput("output", GenItems.COAL_COKE.get(), 1).fluidOutput("creosote", GenFluids.CREOSOTE.get(), FluidTanks.BUCKET / 2).duration(1_500).save(consumer, Resource.get("coke_oven/coal_coke_from_logs"));
+			recipeDefinition().recipeBuilder().itemInput("input", ItemTags.LOGS_THAT_BURN, items, 1).itemOutput("output", GenItems.COAL_COKE.get(), 1).fluidOutput("creosote", GenFluids.CREOSOTE.get(), FluidTanks.BUCKET / 4).duration(1_500).save(consumer, Resource.get("coke_oven/coal_coke_from_logs"));
 		}
 
 	}

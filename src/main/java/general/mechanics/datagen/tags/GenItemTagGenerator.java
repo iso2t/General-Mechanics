@@ -41,8 +41,7 @@ public class GenItemTagGenerator extends ItemTagsProvider {
 			}
 		}
 
-		this.tag(ItemTags.PLANKS)
-				.add(GenBlocks.RUBBER_PLANKS.asItem());
+		this.tag(ItemTags.PLANKS).add(GenBlocks.RUBBER_PLANKS.asItem());
 
 	}
 

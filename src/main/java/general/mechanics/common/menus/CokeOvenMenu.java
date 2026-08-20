@@ -22,23 +22,27 @@ import java.util.Objects;
 
 public class CokeOvenMenu extends AbstractMenu<CokeOvenController, CokeOvenControllerBlockEntity> {
 
-	private static final int DATA_PROGRESS = 0;
+	private static final int DATA_PROGRESS     = 0;
 	private static final int DATA_MAX_PROGRESS = 1;
-	private static final int DATA_FLUID_ID = 2;
+	private static final int DATA_FLUID_ID     = 2;
 	private static final int DATA_FLUID_AMOUNT = 3;
-	private static final int DATA_COUNT = 4;
+	private static final int DATA_COUNT        = 4;
 
-	private static final int INPUT_X = 46;
-	private static final int INPUT_Y = 35;
+	private static final int INPUT_X  = 46;
+	private static final int INPUT_Y  = 35;
 	private static final int OUTPUT_X = 80;
 	private static final int OUTPUT_Y = 35;
 
-	/** Client-side construction from the block position sent by the menu provider. */
+	/**
+	 * Client-side construction from the block position sent by the menu provider.
+	 */
 	public CokeOvenMenu (int containerId, Inventory inventory, RegistryFriendlyByteBuf buffer) {
 		this(containerId, inventory, findBlockEntity(inventory, buffer), new SimpleContainerData(DATA_COUNT));
 	}
 
-	/** Server-side construction with live machine-backed synchronization data. */
+	/**
+	 * Server-side construction with live machine-backed synchronization data.
+	 */
 	public CokeOvenMenu (int containerId, Inventory inventory, CokeOvenControllerBlockEntity blockEntity) {
 		this(containerId, inventory, blockEntity, createServerData(blockEntity));
 	}
@@ -46,6 +50,7 @@ public class CokeOvenMenu extends AbstractMenu<CokeOvenController, CokeOvenContr
 	private CokeOvenMenu (int containerId, Inventory inventory, CokeOvenControllerBlockEntity blockEntity, ContainerData data) {
 		super(GenMenus.COKE_OVEN.get(), containerId, inventory, GenBlocks.COKE_OVEN_CONTROLLER.get(), blockEntity, data);
 		checkContainerDataCount(data, DATA_COUNT);
+		setFluidContainerSource(blockEntity.getFluidHandler(), CokeOvenControllerBlockEntity.CREOSOTE_TANK);
 	}
 
 	@Override

@@ -1,9 +1,9 @@
 package general.mechanics.client.model;
 
 import com.mojang.serialization.MapCodec;
+import general.api.resources.Resource;
 import general.mechanics.common.block.cable.CableBlock;
 import general.mechanics.common.block.cable.ConnectorType;
-import general.api.resources.Resource;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.resources.Identifier;
@@ -12,6 +12,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.neoforged.neoforge.client.event.RegisterBlockStateModels;
 import net.neoforged.neoforge.client.model.block.CustomBlockModelDefinition;
+import org.jspecify.annotations.NonNull;
 
 import java.util.IdentityHashMap;
 import java.util.Map;
@@ -27,20 +28,21 @@ import java.util.function.Supplier;
  */
 public final class CableModelLoader implements CustomBlockModelDefinition {
 
-	public static final Identifier ID = Resource.get("cable");
-	public static final CableModelLoader INSTANCE = new CableModelLoader();
-	public static final MapCodec<CableModelLoader> CODEC = MapCodec.unit(INSTANCE);
+	public static final Identifier                 ID       = Resource.get("cable");
+	public static final CableModelLoader           INSTANCE = new CableModelLoader();
+	public static final MapCodec<CableModelLoader> CODEC    = MapCodec.unit(INSTANCE);
 
 	private static final BlockStateModel.UnbakedRoot ROOT = new Root();
 
-	private CableModelLoader() {}
+	private CableModelLoader () {
+	}
 
 	public static void register (RegisterBlockStateModels event) {
 		event.registerDefinition(ID, CODEC);
 	}
 
 	@Override
-	public Map<BlockState, BlockStateModel.UnbakedRoot> instantiate (StateDefinition<Block, BlockState> states, Supplier<String> sourceSupplier) {
+	public @NonNull Map<BlockState, BlockStateModel.UnbakedRoot> instantiate (StateDefinition<Block, BlockState> states, Supplier<String> sourceSupplier) {
 		Map<BlockState, BlockStateModel.UnbakedRoot> result = new IdentityHashMap<>();
 		for (BlockState state : states.getPossibleStates()) {
 			result.put(state, ROOT);
@@ -49,7 +51,7 @@ public final class CableModelLoader implements CustomBlockModelDefinition {
 	}
 
 	@Override
-	public MapCodec<? extends CustomBlockModelDefinition> codec () {
+	public @NonNull MapCodec<? extends CustomBlockModelDefinition> codec () {
 		return CODEC;
 	}
 
@@ -61,23 +63,19 @@ public final class CableModelLoader implements CustomBlockModelDefinition {
 		}
 
 		@Override
-		public BlockStateModel bake (BlockState state, ModelBaker baker) {
+		public @NonNull BlockStateModel bake (@NonNull BlockState state, @NonNull ModelBaker baker) {
 			return new CableBakedModel(baker, CableState.from(state));
 		}
 
 		@Override
-		public Object visualEqualityGroup (BlockState state) {
+		public @NonNull Object visualEqualityGroup (@NonNull BlockState state) {
 			return CableState.from(state);
 		}
 	}
 
 	static record CableState(ConnectorType north, ConnectorType south, ConnectorType west, ConnectorType east, ConnectorType up, ConnectorType down) {
 		static CableState from (BlockState state) {
-			return new CableState(
-					state.getValue(CableBlock.NORTH), state.getValue(CableBlock.SOUTH),
-					state.getValue(CableBlock.WEST), state.getValue(CableBlock.EAST),
-					state.getValue(CableBlock.UP), state.getValue(CableBlock.DOWN)
-			);
+			return new CableState(state.getValue(CableBlock.NORTH), state.getValue(CableBlock.SOUTH), state.getValue(CableBlock.WEST), state.getValue(CableBlock.EAST), state.getValue(CableBlock.UP), state.getValue(CableBlock.DOWN));
 		}
 	}
 }

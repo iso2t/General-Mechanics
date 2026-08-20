@@ -113,11 +113,7 @@ public final class BlockModelProvider extends ModelProviders {
 			throw new IllegalStateException("Fluid definition '" + definition.englishName() + "' does not use BaseFluid");
 		}
 
-		var model = ModelTemplates.PARTICLE_ONLY.create(
-				definition.block().get(),
-				new TextureMapping().put(TextureSlot.PARTICLE, new Material(fluid.getStillTexture())),
-				generators.modelOutput
-		);
+		var model = ModelTemplates.PARTICLE_ONLY.create(definition.block().get(), new TextureMapping().put(TextureSlot.PARTICLE, new Material(fluid.getStillTexture())), generators.modelOutput);
 		generators.blockStateOutput.accept(createSimpleBlock(definition.block().get(), plainVariant(model)));
 	}
 

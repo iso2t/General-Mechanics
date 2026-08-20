@@ -14,10 +14,11 @@ import org.joml.Vector3f;
  */
 public final class BakedModelHelper {
 
-	private BakedModelHelper() {}
+	private BakedModelHelper () {
+	}
 
 	public static BakedQuad quad (Vec3 v1, Vec3 v2, Vec3 v3, Vec3 v4, Material.Baked material, int rotation) {
-		Vec3[] vertices = {v1, v2, v3, v4};
+		Vec3[] vertices = { v1, v2, v3, v4 };
 		int offset = Math.floorMod(rotation, 4);
 		Vec3 p1 = vertices[offset];
 		Vec3 p2 = vertices[(offset + 1) % 4];
@@ -28,14 +29,7 @@ public final class BakedModelHelper {
 		var sprite = material.sprite();
 		var transparency = material.forceTranslucent() ? Transparency.TRANSLUCENT : sprite.transparency();
 		var info = BakedQuad.MaterialInfo.of(material, transparency, -1, true, 0);
-		return new BakedQuad(
-				vector(p1), vector(p2), vector(p3), vector(p4),
-				UVPair.pack(sprite.getU(0), sprite.getV(0)),
-				UVPair.pack(sprite.getU(0), sprite.getV(1)),
-				UVPair.pack(sprite.getU(1), sprite.getV(1)),
-				UVPair.pack(sprite.getU(1), sprite.getV(0)),
-				directionFor(normal), info
-		);
+		return new BakedQuad(vector(p1), vector(p2), vector(p3), vector(p4), UVPair.pack(sprite.getU(0), sprite.getV(0)), UVPair.pack(sprite.getU(0), sprite.getV(1)), UVPair.pack(sprite.getU(1), sprite.getV(1)), UVPair.pack(sprite.getU(1), sprite.getV(0)), directionFor(normal), info);
 	}
 
 	public static Vec3 v (double x, double y, double z) {

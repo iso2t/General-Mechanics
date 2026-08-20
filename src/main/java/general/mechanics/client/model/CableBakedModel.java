@@ -1,7 +1,7 @@
 package general.mechanics.client.model;
 
-import general.mechanics.common.block.cable.ConnectorType;
 import general.api.resources.Resource;
+import general.mechanics.common.block.cable.ConnectorType;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.client.resources.model.ModelBaker;
@@ -17,10 +17,10 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
-import static general.mechanics.common.block.cable.ConnectorType.BLOCK;
-import static general.mechanics.common.block.cable.ConnectorType.CABLE;
 import static general.mechanics.client.model.BakedModelHelper.quad;
 import static general.mechanics.client.model.BakedModelHelper.v;
+import static general.mechanics.common.block.cable.ConnectorType.BLOCK;
+import static general.mechanics.common.block.cable.ConnectorType.CABLE;
 
 /**
  * A model for one cable blockstate.
@@ -54,13 +54,13 @@ public final class CableBakedModel implements BlockStateModel {
 		CablePatterns.PATTERNS.put(CablePatterns.Pattern.of(true, true, true, true), CablePatterns.QuadSetting.of(CablePatterns.SpriteIdx.SPRITE_CROSS, 0));
 	}
 
-	private final ModelBaker baker;
-	private final CableModelLoader.CableState bakedState;
-	private final Material.Baked connector;
-	private final Material.Baked normal;
-	private final Material.Baked side;
+	private final ModelBaker                                   baker;
+	private final CableModelLoader.CableState                  bakedState;
+	private final Material.Baked                               connector;
+	private final Material.Baked                               normal;
+	private final Material.Baked                               side;
 	private final Map<CablePatterns.SpriteIdx, Material.Baked> caps;
-	private final BlockStateModelPart part;
+	private final BlockStateModelPart                          part;
 
 	public CableBakedModel (ModelBaker baker, CableModelLoader.CableState bakedState) {
 		this.baker = baker;

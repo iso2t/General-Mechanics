@@ -8,12 +8,20 @@ import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.fluids.FluidType;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
 import net.neoforged.neoforge.transfer.energy.SimpleEnergyHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
 public abstract class AbstractMenu<B extends EntityBlock, T extends BlockEntity> extends AbstractContainerMenu {
+	/** Reserved menu-button id used by {@link general.api.screens.screen.AbstractScreen}. */
+	public static final int FILL_FLUID_CONTAINER_BUTTON = 0x47464C44; // "GFLD"
 
 	@Getter
 	private final B block;
@@ -23,6 +31,9 @@ public abstract class AbstractMenu<B extends EntityBlock, T extends BlockEntity>
 
 	@Getter
 	private final ContainerData data;
+
+	@Nullable
+	private FluidContainerSource fluidContainerSource;
 
 	public AbstractMenu (MenuType<?> type, int containerId, Inventory inventory, B block, T blockEntity) {
 		this(type, containerId, inventory, block, blockEntity, new SimpleContainerData(0));
@@ -85,6 +96,60 @@ public abstract class AbstractMenu<B extends EntityBlock, T extends BlockEntity>
 		return moveItemStackTo(stack, getContainerSlotStart(), getContainerSlotEnd(), false);
 	}
 
+	/**
+	 * Enables the standard fluid-renderer interaction for this menu. A primary
+	 * click fills one cursor-held fluid container with at most one bucket.
+	 */
+	protected final void setFluidContainerSource (ResourceHandler<FluidResource> handler, int tank) {
+		setFluidContainerSource(handler, tank, FluidType.BUCKET_VOLUME);
+	}
+
+	/**
+	 * Enables the standard fluid-renderer interaction with a custom per-click
+	 * transfer limit. The destination must accept, and the source must provide,
+	 * the complete selected amount or the transaction is rolled back.
+	 */
+	protected final void setFluidContainerSource (ResourceHandler<FluidResource> handler, int tank, int transferLimit) {
+		Objects.requireNonNull(handler, "handler");
+		Objects.checkIndex(tank, handler.size());
+		if (transferLimit <= 0) throw new IllegalArgumentException("Fluid container transfer limit must be greater than zero");
+		this.fluidContainerSource = new FluidContainerSource(handler, tank, transferLimit);
+	}
+
+	/** @return whether this menu has opted into fluid-renderer container filling. */
+	public final boolean hasFluidContainerSource () {
+		return fluidContainerSource != null;
+	}
+
+	@Override
+	public boolean clickMenuButton (@NonNull Player player, int buttonId) {
+		if (buttonId == FILL_FLUID_CONTAINER_BUTTON) return fillCarriedFluidContainer(player);
+		return super.clickMenuButton(player, buttonId);
+	}
+
+	private boolean fillCarriedFluidContainer (Player player) {
+		FluidContainerSource source = fluidContainerSource;
+		if (source == null || player.level().isClientSide() || !stillValid(player) || getCarried().isEmpty()) return false;
+
+		FluidResource resource = source.handler().getResource(source.tank());
+		if (resource.isEmpty()) return false;
+
+		var itemAccess = ItemAccess.forPlayerCursor(player, this).oneByOne();
+		var destination = itemAccess.getCapability(Capabilities.Fluid.ITEM);
+		if (destination == null) return false;
+
+		try (Transaction transaction = Transaction.openRoot()) {
+			int inserted = destination.insert(resource, source.transferLimit(), transaction);
+			if (inserted <= 0) return false;
+
+			int extracted = source.handler().extract(source.tank(), resource, inserted, transaction);
+			if (extracted != inserted) return false;
+
+			transaction.commit();
+			return true;
+		}
+	}
+
 	@Override
 	public boolean stillValid (@NonNull Player player) {
 		return stillValid(ContainerLevelAccess.create(player.level(), blockEntity.getBlockPos()), player, blockEntity.getBlockState().getBlock());
@@ -114,6 +179,9 @@ public abstract class AbstractMenu<B extends EntityBlock, T extends BlockEntity>
 
 	public @Nullable SimpleEnergyHandler getEnergyStorage () {
 		return null;
+	}
+
+	private record FluidContainerSource(ResourceHandler<FluidResource> handler, int tank, int transferLimit) {
 	}
 
 	public static class QuickMoveStack {

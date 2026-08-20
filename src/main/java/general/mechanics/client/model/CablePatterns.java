@@ -30,7 +30,7 @@ public class CablePatterns {
 	// This enum represents the type of sprite (texture) as well as the rotation for that sprite
 	public record QuadSetting(SpriteIdx sprite, int rotation) {
 
-		public static QuadSetting of(SpriteIdx sprite, int rotation) {
+		public static QuadSetting of (SpriteIdx sprite, int rotation) {
 			return new QuadSetting(sprite, rotation);
 		}
 	}
@@ -38,7 +38,7 @@ public class CablePatterns {
 	// A pattern represents a configuration (cable or no cable) for the four directions excluding the one we are looking at
 	public record Pattern(boolean s1, boolean s2, boolean s3, boolean s4) {
 
-		public static Pattern of(boolean s1, boolean s2, boolean s3, boolean s4) {
+		public static Pattern of (boolean s1, boolean s2, boolean s3, boolean s4) {
 			return new Pattern(s1, s2, s3, s4);
 		}
 	}

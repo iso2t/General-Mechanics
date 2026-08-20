@@ -11,25 +11,19 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 public class GenMultiblocks {
 
-	public static final DeferredRegister<Multiblock> REGISTRY = DeferredRegister.create(GenRegistries.MULTIBLOCKS, GenAPI.getModId());
-	public static final Registry<Multiblock> MULTIBLOCKS = REGISTRY.makeRegistry(builder -> {
+	public static final DeferredRegister<Multiblock> REGISTRY    = DeferredRegister.create(GenRegistries.MULTIBLOCKS, GenAPI.getModId());
+	public static final Registry<Multiblock>         MULTIBLOCKS = REGISTRY.makeRegistry(builder -> {
 	});
 
 	public static final MultiblockDefinition COKE_OVEN = register("coke_oven", MultiblockPattern.builder().where('F', MultiblockElement.block(GenBlocks.COKE_OVEN_BRICKS)).where('C', MultiblockElement.block(GenBlocks.COKE_OVEN_CONTROLLER)).where('.', MultiblockElement.air()).where('#', MultiblockElement.any())
 
 			.anchor('C')
 
-			.layer("FFF",
-					"FFF",
-					"FFF")
+			.layer("FFF", "FFF", "FFF")
 
-			.layer("FFF",
-					"F.F",
-					"FCF")
+			.layer("FFF", "F.F", "FCF")
 
-			.layer("#F#",
-					"F.F",
-					"#F#")
+			.layer("#F#", "F.F", "#F#")
 
 			.build());
 

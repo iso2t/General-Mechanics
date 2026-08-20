@@ -31,7 +31,7 @@ public final class ItemModelProvider extends ModelProviders {
 
 	private final Set<Identifier> createdPlasticModels = new HashSet<>();
 	private final Set<Identifier> createdElementModels = new HashSet<>();
-	private final Set<Identifier> createdRubberModels = new HashSet<>();
+	private final Set<Identifier> createdRubberModels  = new HashSet<>();
 
 	public ItemModelProvider (PackOutput output) {
 		super(output);
@@ -49,12 +49,7 @@ public final class ItemModelProvider extends ModelProviders {
 	}
 
 	private void registerFluidBucket (BucketItem bucket, ItemModelGenerators items) {
-		var textures = new DynamicFluidContainerModel.Textures(
-				Optional.empty(),
-				Optional.of(new Material(Resource.getMinecraftResource("item/bucket"))),
-				Optional.of(new Material(Resource.getCustomResource("neoforge", "item/mask/bucket_fluid"))),
-				Optional.empty()
-		);
+		var textures = new DynamicFluidContainerModel.Textures(Optional.empty(), Optional.of(new Material(Resource.getMinecraftResource("item/bucket"))), Optional.of(new Material(Resource.getCustomResource("neoforge", "item/mask/bucket_fluid"))), Optional.empty());
 		items.itemModelOutput.accept(bucket, new DynamicFluidContainerModel.Unbaked(textures, bucket.getContent(), true, true, true));
 	}
 
@@ -80,11 +75,11 @@ public final class ItemModelProvider extends ModelProviders {
 		return Stream.empty();
 	}
 
-	/** Only non-block items are handled here; block items are owned by {@link BlockModelProvider}. */
+	/**
+	 * Only non-block items are handled here; block items are owned by {@link BlockModelProvider}.
+	 */
 	@Override
 	protected @NotNull Stream<? extends Holder<Item>> getKnownItems () {
-		return BuiltInRegistries.ITEM.listElements()
-				.filter(holder -> holder.getKey().identifier().getNamespace().equals(GenAPI.getModId()))
-				.filter(holder -> !(holder.value() instanceof BlockItem));
+		return BuiltInRegistries.ITEM.listElements().filter(holder -> holder.getKey().identifier().getNamespace().equals(GenAPI.getModId())).filter(holder -> !(holder.value() instanceof BlockItem));
 	}
 }
