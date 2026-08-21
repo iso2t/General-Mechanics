@@ -1,13 +1,13 @@
 package general.api.item;
 
-import general.api.crafting.IRecipeProvider;
+import general.api.crafting.RecipeDataProvider;
 import lombok.NonNull;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.ItemLike;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public abstract class ToolItem extends Item implements IRecipeProvider {
+public abstract class ToolItem extends Item implements RecipeDataProvider {
 
 	private final int durability;
 
@@ -41,7 +41,7 @@ public abstract class ToolItem extends Item implements IRecipeProvider {
 	}
 
 	@Override
-	public ItemLike getCriterionItem () {
+	public ItemLike getRecipeUnlockItem () {
 		return Items.STICK;
 	}
 

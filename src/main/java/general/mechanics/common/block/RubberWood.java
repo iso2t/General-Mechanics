@@ -3,21 +3,18 @@ package general.mechanics.common.block;
 import general.api.block.DecorativeBlock;
 import general.api.block.IBlockTagsProvider;
 import general.api.block.util.IAxe;
-import general.api.crafting.IRecipeProvider;
+import general.api.crafting.RecipeDataProvider;
+import general.api.crafting.RecipeGenerationContext;
 import general.mechanics.registries.GenBlocks;
-import net.minecraft.advancements.Criterion;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderGetter;
 import net.minecraft.data.recipes.RecipeCategory;
-import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ItemLike;
@@ -106,7 +103,7 @@ public class RubberWood {
 		}
 	}
 
-	public static class Planks extends DecorativeBlock implements IRecipeProvider {
+	public static class Planks extends DecorativeBlock implements RecipeDataProvider {
 
 		public Planks (Properties properties) {
 			super(properties);
@@ -133,12 +130,12 @@ public class RubberWood {
 		}
 
 		@Override
-		public void registerCraftingRecipes (HolderGetter<Item> holder, RecipeOutput consumer, Criterion<?> criterion) {
-			ShapelessRecipeBuilder.shapeless(holder, RecipeCategory.MISC, this, 4).requires(GenBlocks.RUBBER_LOG.get()).unlockedBy("has_any", criterion).save(consumer);
+		public void generateRecipes (RecipeGenerationContext context) {
+			context.save(ShapelessRecipeBuilder.shapeless(context.items(), RecipeCategory.MISC, this, 4).requires(GenBlocks.RUBBER_LOG.get()));
 		}
 
 		@Override
-		public ItemLike getCriterionItem () {
+		public ItemLike getRecipeUnlockItem () {
 			return GenBlocks.RUBBER_LOG;
 		}
 	}

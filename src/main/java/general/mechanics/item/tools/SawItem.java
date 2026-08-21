@@ -1,13 +1,11 @@
 package general.mechanics.item.tools;
 
+import general.api.crafting.RecipeGenerationContext;
 import general.api.item.ToolItem;
 import general.mechanics.common.block.RubberWood;
 import general.mechanics.registries.GenItems;
 import net.minecraft.advancements.CriteriaTriggers;
-import net.minecraft.advancements.Criterion;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderGetter;
-import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -17,7 +15,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ToolMaterial;
@@ -92,7 +89,7 @@ public class SawItem extends ToolItem {
 	}
 
 	@Override
-	public void registerCraftingRecipes (HolderGetter<Item> holder, RecipeOutput consumer, Criterion<?> criterion) {
+	public void generateRecipes (RecipeGenerationContext context) {
 		/*ShapedRecipeBuilder.shaped(holder, RecipeCategory.MISC, this, 1)
 				.pattern("PPS")
 				.pattern("FHS")

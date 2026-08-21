@@ -1,7 +1,7 @@
 package general.mechanics.registries;
 
 import general.api.block.RecipeProviderBlock;
-import general.api.crafting.IRecipeProvider;
+import general.api.crafting.RecipeGenerationContext;
 import general.api.definitions.BlockDefinition;
 import general.api.mod.GenAPI;
 import general.api.registry.RegistryString;
@@ -13,13 +13,9 @@ import general.mechanics.common.block.cable.CableBlock;
 import general.mechanics.common.block.network.NetworkConnectorBlock;
 import general.mechanics.common.block.network.PowerInjectorBlock;
 import general.mechanics.worldgen.GenFeatures;
-import net.minecraft.advancements.Criterion;
-import net.minecraft.core.HolderGetter;
 import net.minecraft.data.recipes.RecipeCategory;
-import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -51,12 +47,12 @@ public class GenBlocks extends BlockRegistry {
 
 	public static final BlockDefinition<RecipeProviderBlock> COKE_OVEN_BRICKS     = registerBlock("Coke Oven Bricks", props -> new RecipeProviderBlock(props) {
 		@Override
-		public void registerCraftingRecipes (HolderGetter<Item> holder, RecipeOutput consumer, Criterion<?> criterion) {
-			ShapedRecipeBuilder.shaped(holder, RecipeCategory.MISC, this, 4).pattern("CSC").pattern("GWG").pattern("CSC").define('C', Blocks.CLAY).define('S', Tags.Items.SANDS).define('G', Tags.Items.GRAVELS).define('W', Tags.Items.BUCKETS_WATER).unlockedBy("has_any", criterion).save(consumer, IRecipeProvider.createKey("coke_oven_bricks"));
+		public void generateRecipes (RecipeGenerationContext context) {
+			context.save(ShapedRecipeBuilder.shaped(context.items(), RecipeCategory.MISC, this, 4).pattern("CSC").pattern("GWG").pattern("CSC").define('C', Blocks.CLAY).define('S', Tags.Items.SANDS).define('G', Tags.Items.GRAVELS).define('W', Tags.Items.BUCKETS_WATER), "coke_oven_bricks");
 		}
 
 		@Override
-		public ItemLike getCriterionItem () {
+		public ItemLike getRecipeUnlockItem () {
 			return Blocks.SAND;
 		}
 	}, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.BRICKS));

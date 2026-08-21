@@ -1,5 +1,6 @@
 package general.mechanics.registries;
 
+import general.api.crafting.RecipeGenerationContext;
 import general.api.definitions.ItemDefinition;
 import general.api.item.PartItem;
 import general.api.item.RecipeProviderItem;
@@ -12,10 +13,7 @@ import general.mechanics.item.WireSpoolItem;
 import general.mechanics.item.tools.SawItem;
 import general.mechanics.item.tools.WireCuttersItem;
 import general.mechanics.item.tools.WrenchItem;
-import net.minecraft.advancements.Criterion;
-import net.minecraft.core.HolderGetter;
 import net.minecraft.data.recipes.RecipeCategory;
-import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -58,11 +56,11 @@ public class GenItems extends ItemRegistry {
 	public static final ItemDefinition<Item>               SAWDUST          = registerItem("Sawdust", Item::new);
 	public static final ItemDefinition<RecipeProviderItem> COAL_COKE        = registerItem("Coal Coke", properties -> new RecipeProviderItem(properties) {
 		@Override
-		public void registerCraftingRecipes (HolderGetter<Item> holder, RecipeOutput consumer, Criterion<?> criterion) {
+		public void generateRecipes (RecipeGenerationContext context) {
 		}
 
 		@Override
-		public ItemLike getCriterionItem () {
+		public ItemLike getRecipeUnlockItem () {
 			return Items.COAL;
 		}
 
@@ -75,23 +73,23 @@ public class GenItems extends ItemRegistry {
 	});
 	public static final ItemDefinition<PartItem>           WET_PAPER        = registerItem("Wet Paper", properties -> new PartItem(properties) {
 		@Override
-		public void registerCraftingRecipes (HolderGetter<Item> holder, RecipeOutput consumer, Criterion<?> criterion) {
-			ShapedRecipeBuilder.shaped(holder, RecipeCategory.MISC, this, 1).pattern("WS").pattern("SS").define('W', Tags.Items.BUCKETS_WATER).define('S', SAWDUST.get()).unlockedBy("has_any", criterion).save(consumer);
+		public void generateRecipes (RecipeGenerationContext context) {
+			context.save(ShapedRecipeBuilder.shaped(context.items(), RecipeCategory.MISC, this, 1).pattern("WS").pattern("SS").define('W', Tags.Items.BUCKETS_WATER).define('S', SAWDUST.get()));
 		}
 
 		@Override
-		public ItemLike getCriterionItem () {
+		public ItemLike getRecipeUnlockItem () {
 			return SAWDUST.get();
 		}
 	});
 	public static final ItemDefinition<PartItem>           CARDBOARD        = registerItem("Cardboard", properties -> new PartItem(properties) {
 		@Override
-		public void registerCraftingRecipes (HolderGetter<Item> holder, RecipeOutput consumer, Criterion<?> criterion) {
-			ShapedRecipeBuilder.shaped(holder, RecipeCategory.MISC, this, 1).pattern("WW").pattern("WW").define('W', WET_PAPER.get()).unlockedBy("has_any", criterion).save(consumer);
+		public void generateRecipes (RecipeGenerationContext context) {
+			context.save(ShapedRecipeBuilder.shaped(context.items(), RecipeCategory.MISC, this, 1).pattern("WW").pattern("WW").define('W', WET_PAPER.get()));
 		}
 
 		@Override
-		public ItemLike getCriterionItem () {
+		public ItemLike getRecipeUnlockItem () {
 			return WET_PAPER.get();
 		}
 	});

@@ -1,18 +1,15 @@
 package general.api.item.materials;
 
-import general.api.crafting.IRecipeProvider;
-import general.api.resources.Resource;
+import general.api.crafting.RecipeDataProvider;
+import general.api.crafting.RecipeGenerationContext;
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.advancements.Criterion;
-import net.minecraft.core.HolderGetter;
 import net.minecraft.data.recipes.RecipeCategory;
-import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 
-public class IngotItem extends Item implements IRecipeProvider {
+public class IngotItem extends Item implements RecipeDataProvider {
 
 	@Getter
 	private final Properties properties;
@@ -43,15 +40,15 @@ public class IngotItem extends Item implements IRecipeProvider {
 	}
 
 	@Override
-	public void registerCraftingRecipes (HolderGetter<Item> holder, RecipeOutput consumer, Criterion<?> criterion) {
-		var path = Resource.getFromItem(this).getPath();
+	public void generateRecipes (RecipeGenerationContext context) {
+		var path = context.ownerId().getPath();
 
 		// Each recipe is emitted only when every sub-item it references exists — GenParts may skip forms
 		// the material doesn't support, leaving the matching getter null.
 
 		// Ingot -> Nugget
 		if (getNuggetItem() != null) {
-			ShapelessRecipeBuilder.shapeless(holder, RecipeCategory.MISC, getNuggetItem(), 9).requires(this).unlockedBy("has_element", criterion).save(consumer, IRecipeProvider.createKey("materials/" + path + "_to_nugget"));
+			context.save(ShapelessRecipeBuilder.shapeless(context.items(), RecipeCategory.MISC, getNuggetItem(), 9).requires(this), "materials/" + path + "_to_nugget", "has_element");
 		}
 
 		// Hammer + this -> Dust
@@ -105,7 +102,7 @@ public class IngotItem extends Item implements IRecipeProvider {
 	}
 
 	@Override
-	public ItemLike getCriterionItem () {
+	public ItemLike getRecipeUnlockItem () {
 		// Fall back to the always-present ingot when this material has no pile form.
 		return getRawItem() != null ? this::getRawItem : this;
 	}

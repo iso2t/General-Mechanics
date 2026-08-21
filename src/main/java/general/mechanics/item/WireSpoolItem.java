@@ -1,13 +1,10 @@
 package general.mechanics.item;
 
-import general.api.crafting.IRecipeProvider;
-import general.api.resources.Resource;
+import general.api.crafting.RecipeDataProvider;
+import general.api.crafting.RecipeGenerationContext;
 import general.mechanics.registries.GenItems;
 import lombok.Getter;
-import net.minecraft.advancements.Criterion;
-import net.minecraft.core.HolderGetter;
 import net.minecraft.data.recipes.RecipeCategory;
-import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemInstance;
@@ -17,7 +14,7 @@ import net.minecraft.world.level.ItemLike;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-public class WireSpoolItem extends Item implements IRecipeProvider {
+public class WireSpoolItem extends Item implements RecipeDataProvider {
 
 	public static final int MAX_USES = 5;
 
@@ -95,13 +92,13 @@ public class WireSpoolItem extends Item implements IRecipeProvider {
 	}
 
 	@Override
-	public void registerCraftingRecipes (HolderGetter<Item> holder, RecipeOutput consumer, Criterion<?> criterion) {
-		var path = Resource.getFromItem(this).getPath();
-		ShapelessRecipeBuilder.shapeless(holder, RecipeCategory.MISC, this).requires(GenItems.WIRE_SPOOL.get()).requires(getHeldWire()).unlockedBy("has_any", criterion).save(consumer, IRecipeProvider.createKey(path + "_from_spool"));
+	public void generateRecipes (RecipeGenerationContext context) {
+		var path = context.ownerId().getPath();
+		context.save(ShapelessRecipeBuilder.shapeless(context.items(), RecipeCategory.MISC, this).requires(GenItems.WIRE_SPOOL.get()).requires(getHeldWire()), path + "_from_spool");
 	}
 
 	@Override
-	public ItemLike getCriterionItem () {
+	public ItemLike getRecipeUnlockItem () {
 		return getHeldWire();
 	}
 }

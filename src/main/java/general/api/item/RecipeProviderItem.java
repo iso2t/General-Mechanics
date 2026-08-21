@@ -1,6 +1,6 @@
 package general.api.item;
 
-import general.api.crafting.IRecipeProvider;
+import general.api.crafting.RecipeDataProvider;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 
@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * An item that has an in-line recipe definition.
  */
-public abstract class RecipeProviderItem extends Item implements IRecipeProvider, IItemTagsProvider {
+public abstract class RecipeProviderItem extends Item implements RecipeDataProvider, IItemTagsProvider {
 
 	public RecipeProviderItem (Properties properties) {
 		super(properties);

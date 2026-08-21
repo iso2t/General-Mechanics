@@ -14,7 +14,12 @@ import net.minecraft.world.level.ItemLike;
 
 import java.util.stream.Stream;
 
-public interface IRecipeProvider {
+/**
+ * @deprecated Implement {@link RecipeDataProvider} and consume a
+ * {@link RecipeGenerationContext} instead.
+ */
+@Deprecated(forRemoval = true)
+public interface IRecipeProvider extends RecipeDataProvider {
 
 	/**
 	 * Registers a set of crafting recipes using the given inputs.
@@ -31,6 +36,16 @@ public interface IRecipeProvider {
 	 * The item used to build the recipe's unlock criterion.
 	 */
 	ItemLike getCriterionItem ();
+
+	@Override
+	default void generateRecipes (RecipeGenerationContext context) {
+		registerCraftingRecipes(context.items(), context.output(), context.unlockCriterion());
+	}
+
+	@Override
+	default ItemLike getRecipeUnlockItem () {
+		return getCriterionItem();
+	}
 
 	static ResourceKey<Recipe<?>> createKey (String path) {
 		return ResourceKey.create(Registries.RECIPE, Resource.get(path));

@@ -1,10 +1,7 @@
 package general.mechanics.item.tools;
 
+import general.api.crafting.RecipeGenerationContext;
 import general.api.item.ToolItem;
-import net.minecraft.advancements.Criterion;
-import net.minecraft.core.HolderGetter;
-import net.minecraft.data.recipes.RecipeOutput;
-import net.minecraft.world.item.Item;
 
 public class WrenchItem extends ToolItem {
 
@@ -13,7 +10,7 @@ public class WrenchItem extends ToolItem {
 	}
 
 	@Override
-	public void registerCraftingRecipes (HolderGetter<Item> holder, RecipeOutput consumer, Criterion<?> criterion) {
+	public void generateRecipes (RecipeGenerationContext context) {
 		/*ShapedRecipeBuilder.shaped(holder, RecipeCategory.MISC, this, 1)
 				.pattern("PHP")
 				.pattern(" R ")
