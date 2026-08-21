@@ -63,6 +63,77 @@ public final class MultiblockHandler {
 	}
 
 	/**
+	 * Returns a snapshot of the formed multiblocks whose validated patterns contain
+	 * {@code position}. Each returned instance's {@link MultiblockInstance#anchor()}
+	 * is its controller position.
+	 *
+	 * <p>This is a runtime-index lookup: it does not load chunks, create runtime
+	 * state, or synchronously validate controllers. Results are ordered by controller
+	 * position for determinism, but that order must not be treated as an ownership
+	 * preference.</p>
+	 */
+	public static List<MultiblockInstance> getFormedCandidates (ServerLevel level, BlockPos position) {
+		RuntimeState runtime = RUNTIMES.get(Objects.requireNonNull(level, "level"));
+		if (runtime == null) return List.of();
+
+		Set<BlockPos> controllerPositions = runtime.controllersByPosition.get(Objects.requireNonNull(position, "position"));
+		if (controllerPositions == null || controllerPositions.isEmpty()) return List.of();
+
+		List<MultiblockInstance> candidates = new ArrayList<>(controllerPositions.size());
+		for (BlockPos controllerPosition : controllerPositions) {
+			MultiblockInstance instance = runtime.instances.get(controllerPosition);
+			if (instance != null) candidates.add(instance);
+		}
+
+		candidates.sort(Comparator.comparingInt((MultiblockInstance instance) -> instance.anchor().getX())
+				.thenComparingInt(instance -> instance.anchor().getY())
+				.thenComparingInt(instance -> instance.anchor().getZ()));
+		return List.copyOf(candidates);
+	}
+
+	/**
+	 * Binds an unbound attachment when exactly one formed multiblock contains it.
+	 * Existing bindings and ambiguous or missing candidate sets are left untouched.
+	 *
+	 * @return {@code true} when a new binding was created
+	 */
+	public static boolean tryAutoBind (ServerLevel level, MultiblockAttachment attachment) {
+		Objects.requireNonNull(level, "level");
+		Objects.requireNonNull(attachment, "attachment");
+		if (attachment.isBound()) return false;
+
+		List<MultiblockInstance> candidates = getFormedCandidates(level, attachmentPosition(level, attachment));
+		return candidates.size() == 1 && attachment.bindController(candidates.getFirst().anchor());
+	}
+
+	/**
+	 * Revalidates an attachment against the current formed-multiblock index.
+	 *
+	 * <p>A binding is retained while its controller or a required structure chunk is
+	 * unavailable. Once invalidation is known, the attachment is rebound when exactly
+	 * one candidate remains and is otherwise left unbound.</p>
+	 *
+	 * @return {@code true} when the binding changed
+	 */
+	public static boolean revalidateAttachment (ServerLevel level, MultiblockAttachment attachment) {
+		Objects.requireNonNull(level, "level");
+		Objects.requireNonNull(attachment, "attachment");
+		BlockPos attachmentPos = attachmentPosition(level, attachment);
+		List<MultiblockInstance> candidates = getFormedCandidates(level, attachmentPos);
+		BlockPos boundController = attachment.getBoundController();
+
+		if (boundController == null) {
+			return candidates.size() == 1 && attachment.bindController(candidates.getFirst().anchor());
+		}
+		if (candidates.stream().anyMatch(candidate -> candidate.anchor().equals(boundController))) return false;
+
+		RuntimeState runtime = RUNTIMES.get(level);
+		if (runtime == null || !isLoaded(level, boundController) || isControllerValidationPending(runtime, boundController)) return false;
+
+		return candidates.size() == 1 ? attachment.bindController(candidates.getFirst().anchor()) : attachment.unbindController();
+	}
+
+	/**
 	 * Queues a localized controller search after a world block change.
 	 */
 	public static void onBlockChanged (Level level, BlockPos pos) {
@@ -81,6 +152,13 @@ public final class MultiblockHandler {
 	}
 
 	/**
+	 * Queues an attachment for unique-candidate binding after controller validation.
+	 */
+	public static void onAttachmentLoaded (ServerLevel level, MultiblockAttachment attachment) {
+		runtime(level).pendingAttachments.add(attachmentPosition(level, attachment));
+	}
+
+	/**
 	 * Restores controller indexing and retries validations that were waiting on this chunk.
 	 */
 	public static void onChunkLoaded (ServerLevel level, LevelChunk chunk) {
@@ -91,6 +169,9 @@ public final class MultiblockHandler {
 		for (BlockEntity blockEntity : chunk.getBlockEntities().values()) {
 			if (blockEntity instanceof MultiblockController controller) {
 				onControllerLoaded(level, controller);
+			}
+			if (blockEntity instanceof MultiblockAttachment attachment) {
+				onAttachmentLoaded(level, attachment);
 			}
 		}
 	}
@@ -117,21 +198,32 @@ public final class MultiblockHandler {
 			}
 		}
 
-		if (runtime.pendingControllers.isEmpty()) return;
+		if (!runtime.pendingControllers.isEmpty()) {
+			Set<BlockPos> pending = Set.copyOf(runtime.pendingControllers);
+			runtime.pendingControllers.clear();
+			for (BlockPos controllerPos : pending) {
+				if (!isLoaded(level, controllerPos)) continue;
 
-		Set<BlockPos> pending = Set.copyOf(runtime.pendingControllers);
-		runtime.pendingControllers.clear();
-		for (BlockPos controllerPos : pending) {
-			if (!isLoaded(level, controllerPos)) continue;
+				BlockEntity blockEntity = level.getBlockEntity(controllerPos);
+				if (!(blockEntity instanceof MultiblockController controller)) {
+					MultiblockInstance destroyed = unindex(runtime, controllerPos);
+					if (destroyed != null) postDestroyed(level, null, destroyed);
+					continue;
+				}
 
-			BlockEntity blockEntity = level.getBlockEntity(controllerPos);
-			if (!(blockEntity instanceof MultiblockController controller)) {
-				MultiblockInstance destroyed = unindex(runtime, controllerPos);
-				if (destroyed != null) postDestroyed(level, null, destroyed);
-				continue;
+				revalidate(level, runtime, controller);
 			}
+		}
 
-			revalidate(level, runtime, controller);
+		if (!runtime.pendingAttachments.isEmpty()) {
+			Set<BlockPos> pending = Set.copyOf(runtime.pendingAttachments);
+			runtime.pendingAttachments.clear();
+			for (BlockPos attachmentPos : pending) {
+				if (!isLoaded(level, attachmentPos)) continue;
+				if (level.getBlockEntity(attachmentPos) instanceof MultiblockAttachment attachment) {
+					revalidateAttachment(level, attachment);
+				}
+			}
 		}
 	}
 
@@ -175,6 +267,7 @@ public final class MultiblockHandler {
 		rememberControllerBounds(runtime, controller);
 		BlockPos controllerPos = controllerPosition(controller);
 		MultiblockInstance tracked = runtime.instances.get(controllerPos);
+		clearControllerWaiting(runtime, controllerPos);
 		MultiblockValidationResult result = validate(level, controllerPos, controller.getMultiblockFacing(), controller.getMultiblockDefinition());
 
 		if (result.unloaded()) {
@@ -206,6 +299,7 @@ public final class MultiblockHandler {
 		}
 		if (previous != null || wasFormed) {
 			MultiblockInstance instance = previous != null ? previous : createInstance(controllerPos, controller.getMultiblockFacing(), controller.getMultiblockDefinition());
+			scheduleAttachments(runtime, instance);
 			postDestroyed(level, wasFormed ? controller : null, instance);
 		}
 		return result;
@@ -214,6 +308,9 @@ public final class MultiblockHandler {
 	private static void scheduleAffectedControllers (ServerLevel level, RuntimeState runtime, BlockPos changedPos) {
 		Set<BlockPos> indexed = runtime.controllersByPosition.get(changedPos);
 		if (indexed != null) runtime.pendingControllers.addAll(indexed);
+		if (isLoaded(level, changedPos) && level.getBlockEntity(changedPos) instanceof MultiblockAttachment) {
+			runtime.pendingAttachments.add(changedPos.immutable());
+		}
 
 		SearchRange range = runtime.searchRange;
 		for (int y = changedPos.getY() - range.vertical; y <= changedPos.getY() + range.vertical; y++) {
@@ -246,6 +343,16 @@ public final class MultiblockHandler {
 		return position.immutable();
 	}
 
+	private static BlockPos attachmentPosition (ServerLevel level, MultiblockAttachment attachment) {
+		if (!(attachment instanceof BlockEntity blockEntity)) {
+			throw new IllegalStateException("A multiblock attachment must be implemented by a block entity.");
+		}
+		if (blockEntity.getLevel() != level) {
+			throw new IllegalStateException("A multiblock attachment must be queried in its current server level.");
+		}
+		return blockEntity.getBlockPos().immutable();
+	}
+
 	private static void index (RuntimeState runtime, BlockPos controllerPos, MultiblockInstance instance) {
 		unindex(runtime, controllerPos);
 		runtime.instances.put(controllerPos, instance);
@@ -253,9 +360,11 @@ public final class MultiblockHandler {
 			runtime.controllersByPosition.computeIfAbsent(pos.immutable(), ignored -> new HashSet<>()).add(controllerPos);
 		}
 		runtime.controllersByPosition.computeIfAbsent(controllerPos, ignored -> new HashSet<>()).add(controllerPos);
+		scheduleAttachments(runtime, instance);
 	}
 
 	private static MultiblockInstance unindex (RuntimeState runtime, BlockPos controllerPos) {
+		clearControllerWaiting(runtime, controllerPos);
 		MultiblockInstance instance = runtime.instances.remove(controllerPos);
 		if (instance == null) return null;
 
@@ -263,7 +372,29 @@ public final class MultiblockHandler {
 			removeControllerAt(runtime, pos, controllerPos);
 		}
 		removeControllerAt(runtime, controllerPos, controllerPos);
+		scheduleAttachments(runtime, instance);
 		return instance;
+	}
+
+	private static void scheduleAttachments (RuntimeState runtime, MultiblockInstance instance) {
+		runtime.pendingAttachments.addAll(instance.blocks().keySet());
+		runtime.pendingAttachments.add(instance.anchor());
+	}
+
+	private static boolean isControllerValidationPending (RuntimeState runtime, BlockPos controllerPos) {
+		if (runtime.pendingControllers.contains(controllerPos)) return true;
+		for (Set<BlockPos> controllers : runtime.waitingForChunk.values()) {
+			if (controllers.contains(controllerPos)) return true;
+		}
+		return false;
+	}
+
+	private static void clearControllerWaiting (RuntimeState runtime, BlockPos controllerPos) {
+		for (Iterator<Map.Entry<ChunkPos, Set<BlockPos>>> iterator = runtime.waitingForChunk.entrySet().iterator(); iterator.hasNext(); ) {
+			Set<BlockPos> controllers = iterator.next().getValue();
+			controllers.remove(controllerPos);
+			if (controllers.isEmpty()) iterator.remove();
+		}
 	}
 
 	private static void removeControllerAt (RuntimeState runtime, BlockPos pos, BlockPos controllerPos) {
@@ -345,6 +476,7 @@ public final class MultiblockHandler {
 		private final Map<BlockPos, MultiblockInstance> instances             = new HashMap<>();
 		private final Set<BlockPos>                     changedPositions      = new HashSet<>();
 		private final Set<BlockPos>                     pendingControllers    = new HashSet<>();
+		private final Set<BlockPos>                     pendingAttachments    = new HashSet<>();
 		private final Map<ChunkPos, Set<BlockPos>>      waitingForChunk       = new HashMap<>();
 		private       SearchRange                       searchRange           = SearchRange.ZERO;
 	}
