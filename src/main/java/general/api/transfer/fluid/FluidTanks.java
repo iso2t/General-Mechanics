@@ -1,6 +1,7 @@
 package general.api.transfer.fluid;
 
 import general.api.transfer.ResourceSlotDefinition;
+import general.api.transfer.ResourceSlotKey;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 
@@ -28,7 +29,15 @@ public final class FluidTanks {
 		return ResourceSlotDefinition.named(name, capacity);
 	}
 
+	public static ResourceSlotDefinition<FluidResource> tank (ResourceSlotKey slot, int capacity) {
+		return ResourceSlotDefinition.named(slot, capacity);
+	}
+
 	public static ResourceSlotDefinition<FluidResource> tank (String name, int capacity, Predicate<? super FluidResource> validator) {
 		return ResourceSlotDefinition.named(name, capacity, validator);
+	}
+
+	public static ResourceSlotDefinition<FluidResource> tank (ResourceSlotKey slot, int capacity, Predicate<? super FluidResource> validator) {
+		return ResourceSlotDefinition.named(slot, capacity, validator);
 	}
 }

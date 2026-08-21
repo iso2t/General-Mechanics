@@ -57,11 +57,19 @@ public final class ResourceSlotDefinition<R extends Resource> {
 		return new ResourceSlotDefinition<>(Objects.requireNonNull(name, "name"), capacity, acceptAll());
 	}
 
+	public static <R extends Resource> ResourceSlotDefinition<R> named (ResourceSlotKey slot, int capacity) {
+		return named(Objects.requireNonNull(slot, "slot").name(), capacity);
+	}
+
 	/**
 	 * Creates a named slot with a physical resource filter.
 	 */
 	public static <R extends Resource> ResourceSlotDefinition<R> named (String name, int capacity, Predicate<? super R> validator) {
 		return new ResourceSlotDefinition<>(Objects.requireNonNull(name, "name"), capacity, validator);
+	}
+
+	public static <R extends Resource> ResourceSlotDefinition<R> named (ResourceSlotKey slot, int capacity, Predicate<? super R> validator) {
+		return named(Objects.requireNonNull(slot, "slot").name(), capacity, validator);
 	}
 
 	/**

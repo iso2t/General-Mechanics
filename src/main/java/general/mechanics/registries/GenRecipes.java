@@ -15,7 +15,7 @@ public final class GenRecipes {
 
 	public static final MachineRecipeRegistry REGISTRY = MachineRecipeRegistry.create(GenAPI.getModId());
 
-	public static final MachineRecipeDefinition<NoRecipeData> COKE_OVEN = REGISTRY.register("coke_oven", MachineRecipeSchema.builder().itemInput(MachineRecipeBuilder.ITEM_INPUT).itemOutput(MachineRecipeBuilder.ITEM_OUTPUT).fluidOutput(MachineRecipeBuilder.FLUID_OUTPUT).build()).craftingStation(() -> GenBlocks.COKE_OVEN_CONTROLLER);
+	public static final MachineRecipeDefinition<NoRecipeData> COKE_OVEN = REGISTRY.register("coke_oven", MachineRecipeSchema.builder().itemInput(CokeOvenController.RecipeSlots.INPUT).itemOutput(CokeOvenController.RecipeSlots.OUTPUT).fluidOutput(CokeOvenController.RecipeSlots.CREOSOTE).build()).craftingStation(() -> GenBlocks.COKE_OVEN_CONTROLLER);
 
 	private GenRecipes () {
 	}

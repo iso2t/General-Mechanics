@@ -65,8 +65,16 @@ public final class MachineRecipeSchema {
 		return contains(itemInputs, name) || contains(itemOutputs, name);
 	}
 
+	public boolean hasItemSlot (MachineRecipeSlot.Item slot) {
+		return hasItemSlot(Objects.requireNonNull(slot, "slot").name());
+	}
+
 	public boolean hasFluidSlot (String name) {
 		return contains(fluidInputs, name) || contains(fluidOutputs, name);
+	}
+
+	public boolean hasFluidSlot (MachineRecipeSlot.Fluid slot) {
+		return hasFluidSlot(Objects.requireNonNull(slot, "slot").name());
 	}
 
 	private static boolean contains (List<Slot> slots, String name) {
@@ -122,8 +130,22 @@ public final class MachineRecipeSchema {
 			return itemInput(name, true);
 		}
 
+		public Builder itemInput (MachineRecipeSlot.ItemInput slot) {
+			return itemInput(Objects.requireNonNull(slot, "slot").name());
+		}
+
+		/** Adds the requested number of standard {@code item_input} slots. */
+		public Builder itemInputs (int count) {
+			MachineRecipeSlots.itemInputs(count).forEach(this::itemInput);
+			return this;
+		}
+
 		public Builder optionalItemInput (String name) {
 			return itemInput(name, false);
+		}
+
+		public Builder optionalItemInput (MachineRecipeSlot.ItemInput slot) {
+			return itemInput(Objects.requireNonNull(slot, "slot").name(), false);
 		}
 
 		public Builder itemInput (String name, boolean required) {
@@ -131,12 +153,30 @@ public final class MachineRecipeSchema {
 			return this;
 		}
 
+		public Builder itemInput (MachineRecipeSlot.ItemInput slot, boolean required) {
+			return itemInput(Objects.requireNonNull(slot, "slot").name(), required);
+		}
+
 		public Builder itemOutput (String name) {
 			return itemOutput(name, true);
 		}
 
+		public Builder itemOutput (MachineRecipeSlot.ItemOutput slot) {
+			return itemOutput(Objects.requireNonNull(slot, "slot").name());
+		}
+
+		/** Adds the requested number of standard {@code item_output} slots. */
+		public Builder itemOutputs (int count) {
+			MachineRecipeSlots.itemOutputs(count).forEach(this::itemOutput);
+			return this;
+		}
+
 		public Builder optionalItemOutput (String name) {
 			return itemOutput(name, false);
+		}
+
+		public Builder optionalItemOutput (MachineRecipeSlot.ItemOutput slot) {
+			return itemOutput(Objects.requireNonNull(slot, "slot").name(), false);
 		}
 
 		public Builder itemOutput (String name, boolean required) {
@@ -144,12 +184,30 @@ public final class MachineRecipeSchema {
 			return this;
 		}
 
+		public Builder itemOutput (MachineRecipeSlot.ItemOutput slot, boolean required) {
+			return itemOutput(Objects.requireNonNull(slot, "slot").name(), required);
+		}
+
 		public Builder fluidInput (String name) {
 			return fluidInput(name, true);
 		}
 
+		public Builder fluidInput (MachineRecipeSlot.FluidInput slot) {
+			return fluidInput(Objects.requireNonNull(slot, "slot").name());
+		}
+
+		/** Adds the requested number of standard {@code fluid_input} slots. */
+		public Builder fluidInputs (int count) {
+			MachineRecipeSlots.fluidInputs(count).forEach(this::fluidInput);
+			return this;
+		}
+
 		public Builder optionalFluidInput (String name) {
 			return fluidInput(name, false);
+		}
+
+		public Builder optionalFluidInput (MachineRecipeSlot.FluidInput slot) {
+			return fluidInput(Objects.requireNonNull(slot, "slot").name(), false);
 		}
 
 		public Builder fluidInput (String name, boolean required) {
@@ -157,17 +215,39 @@ public final class MachineRecipeSchema {
 			return this;
 		}
 
+		public Builder fluidInput (MachineRecipeSlot.FluidInput slot, boolean required) {
+			return fluidInput(Objects.requireNonNull(slot, "slot").name(), required);
+		}
+
 		public Builder fluidOutput (String name) {
 			return fluidOutput(name, true);
+		}
+
+		public Builder fluidOutput (MachineRecipeSlot.FluidOutput slot) {
+			return fluidOutput(Objects.requireNonNull(slot, "slot").name());
+		}
+
+		/** Adds the requested number of standard {@code fluid_output} slots. */
+		public Builder fluidOutputs (int count) {
+			MachineRecipeSlots.fluidOutputs(count).forEach(this::fluidOutput);
+			return this;
 		}
 
 		public Builder optionalFluidOutput (String name) {
 			return fluidOutput(name, false);
 		}
 
+		public Builder optionalFluidOutput (MachineRecipeSlot.FluidOutput slot) {
+			return fluidOutput(Objects.requireNonNull(slot, "slot").name(), false);
+		}
+
 		public Builder fluidOutput (String name, boolean required) {
 			fluidOutputs.add(new Slot(name, required));
 			return this;
+		}
+
+		public Builder fluidOutput (MachineRecipeSlot.FluidOutput slot, boolean required) {
+			return fluidOutput(Objects.requireNonNull(slot, "slot").name(), required);
 		}
 
 		public MachineRecipeSchema build () {

@@ -43,6 +43,10 @@ public abstract class DefinitionBackedResourceHandler<S, R extends Resource> ext
 		return definition.index(name);
 	}
 
+	public final int index (ResourceSlotKey slot) {
+		return definition.index(slot);
+	}
+
 	@Override
 	public final boolean isValid (int index, @NonNull R resource) {
 		return definition.get(index).accepts(resource);

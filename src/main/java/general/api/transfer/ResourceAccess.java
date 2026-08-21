@@ -151,14 +151,33 @@ public final class ResourceAccess {
 			return this;
 		}
 
+		public Builder<R> insert (ResourceSlotKey... slots) {
+			for (ResourceSlotKey slot : requireSlots(slots)) insert(index(slot.name()), acceptAll());
+			return this;
+		}
+
 		public Builder<R> extract (String... names) {
 			for (String name : requireNames(names)) extract(index(name), acceptAll());
+			return this;
+		}
+
+		public Builder<R> extract (ResourceSlotKey... slots) {
+			for (ResourceSlotKey slot : requireSlots(slots)) extract(index(slot.name()), acceptAll());
 			return this;
 		}
 
 		public Builder<R> both (String... names) {
 			for (String name : requireNames(names)) {
 				int index = index(name);
+				insert(index, acceptAll());
+				extract(index, acceptAll());
+			}
+			return this;
+		}
+
+		public Builder<R> both (ResourceSlotKey... slots) {
+			for (ResourceSlotKey slot : requireSlots(slots)) {
+				int index = index(slot.name());
 				insert(index, acceptAll());
 				extract(index, acceptAll());
 			}
@@ -187,8 +206,16 @@ public final class ResourceAccess {
 			return insert(index(name), filter);
 		}
 
+		public Builder<R> insert (ResourceSlotKey slot, Predicate<? super R> filter) {
+			return insert(index(Objects.requireNonNull(slot, "slot").name()), filter);
+		}
+
 		public Builder<R> extract (String name, Predicate<? super R> filter) {
 			return extract(index(name), filter);
+		}
+
+		public Builder<R> extract (ResourceSlotKey slot, Predicate<? super R> filter) {
+			return extract(index(Objects.requireNonNull(slot, "slot").name()), filter);
 		}
 
 		public Builder<R> insert (int index, Predicate<? super R> filter) {
@@ -231,6 +258,12 @@ public final class ResourceAccess {
 
 		private static String[] requireNames (String[] names) {
 			return Objects.requireNonNull(names, "names");
+		}
+
+		private static ResourceSlotKey[] requireSlots (ResourceSlotKey[] slots) {
+			Objects.requireNonNull(slots, "slots");
+			for (int index = 0; index < slots.length; index++) Objects.requireNonNull(slots[index], "slot at index " + index);
+			return slots;
 		}
 
 		private static int[] requireIndices (int[] indices) {

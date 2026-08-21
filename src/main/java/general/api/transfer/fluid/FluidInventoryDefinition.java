@@ -3,6 +3,7 @@ package general.api.transfer.fluid;
 import general.api.transfer.ResourceAccess;
 import general.api.transfer.ResourceChangeListener;
 import general.api.transfer.ResourceInventoryDefinition;
+import general.api.transfer.ResourceSlotKey;
 import general.api.transfer.ResourceSlotDefinition;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 
@@ -40,6 +41,10 @@ public final class FluidInventoryDefinition {
 		return definition.index(name);
 	}
 
+	public int index (ResourceSlotKey slot) {
+		return definition.index(slot);
+	}
+
 	public ResourceSlotDefinition<FluidResource> get (int index) {
 		return definition.get(index);
 	}
@@ -70,8 +75,18 @@ public final class FluidInventoryDefinition {
 			return this;
 		}
 
+		public Builder tank (ResourceSlotKey slot, int capacity) {
+			delegate.slot(slot, capacity);
+			return this;
+		}
+
 		public Builder tank (String name, int capacity, Predicate<? super FluidResource> validator) {
 			delegate.slot(name, capacity, validator);
+			return this;
+		}
+
+		public Builder tank (ResourceSlotKey slot, int capacity, Predicate<? super FluidResource> validator) {
+			delegate.slot(slot, capacity, validator);
 			return this;
 		}
 

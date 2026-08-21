@@ -58,6 +58,10 @@ public final class MachineRecipeInput implements RecipeInput {
 		return stack;
 	}
 
+	public ItemStack item (MachineRecipeSlot.ItemInput slot) {
+		return item(Objects.requireNonNull(slot, "slot").name());
+	}
+
 	/**
 	 * Returns the captured stack for a logical fluid input. The returned value must
 	 * be treated as read-only.
@@ -66,6 +70,10 @@ public final class MachineRecipeInput implements RecipeInput {
 		FluidStack stack = fluids.get(Objects.requireNonNull(name, "name"));
 		if (stack == null) throw new IllegalArgumentException("Unknown machine recipe fluid input '" + name + "'");
 		return stack;
+	}
+
+	public FluidStack fluid (MachineRecipeSlot.FluidInput slot) {
+		return fluid(Objects.requireNonNull(slot, "slot").name());
 	}
 
 	private static Map<String, ItemStack> copyItems (Map<String, ItemStack> source) {

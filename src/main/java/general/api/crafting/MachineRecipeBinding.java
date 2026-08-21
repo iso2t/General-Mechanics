@@ -1,6 +1,7 @@
 package general.api.crafting;
 
 import general.api.transfer.ResourceInventoryDefinition;
+import general.api.transfer.ResourceSlotKey;
 import general.api.transfer.fluid.FluidInventoryDefinition;
 import general.api.transfer.fluid.FluidResourceHandler;
 import general.api.transfer.item.ItemInventoryDefinition;
@@ -54,10 +55,18 @@ public final class MachineRecipeBinding {
 		return index;
 	}
 
+	public int itemSlotIndex (MachineRecipeSlot.Item slot) {
+		return itemSlotIndex(Objects.requireNonNull(slot, "slot").name());
+	}
+
 	public int fluidSlotIndex (String logicalName) {
 		Integer index = fluidSlots.get(Objects.requireNonNull(logicalName, "logicalName"));
 		if (index == null) throw new IllegalArgumentException("Unknown bound fluid recipe slot '" + logicalName + "'");
 		return index;
+	}
+
+	public int fluidSlotIndex (MachineRecipeSlot.Fluid slot) {
+		return fluidSlotIndex(Objects.requireNonNull(slot, "slot").name());
 	}
 
 	/**
@@ -235,10 +244,18 @@ public final class MachineRecipeBinding {
 			return this;
 		}
 
+		public Builder mapItem (MachineRecipeSlot.Item recipeSlot, ResourceSlotKey physicalSlot) {
+			return mapItem(Objects.requireNonNull(recipeSlot, "recipeSlot").name(), Objects.requireNonNull(physicalSlot, "physicalSlot").name());
+		}
+
 		public Builder mapFluid (String recipeSlot, String physicalSlot) {
 			if (!definition.schema().hasFluidSlot(recipeSlot)) throw new IllegalArgumentException("Unknown fluid recipe slot '" + recipeSlot + "'");
 			putMapping(fluidMappings, recipeSlot, physicalSlot, "fluid");
 			return this;
+		}
+
+		public Builder mapFluid (MachineRecipeSlot.Fluid recipeSlot, ResourceSlotKey physicalSlot) {
+			return mapFluid(Objects.requireNonNull(recipeSlot, "recipeSlot").name(), Objects.requireNonNull(physicalSlot, "physicalSlot").name());
 		}
 
 		public MachineRecipeBinding build () {

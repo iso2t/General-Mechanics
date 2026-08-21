@@ -76,8 +76,16 @@ public final class ResourceInventoryDefinition<R extends Resource> {
 		return index;
 	}
 
+	public int index (ResourceSlotKey slot) {
+		return index(Objects.requireNonNull(slot, "slot").name());
+	}
+
 	public boolean has (String name) {
 		return namedSlots.containsKey(Objects.requireNonNull(name, "name"));
+	}
+
+	public boolean has (ResourceSlotKey slot) {
+		return has(Objects.requireNonNull(slot, "slot").name());
 	}
 
 	/**
@@ -104,8 +112,16 @@ public final class ResourceInventoryDefinition<R extends Resource> {
 			return slot(ResourceSlotDefinition.named(name, capacity));
 		}
 
+		public Builder<R> slot (ResourceSlotKey slot, int capacity) {
+			return slot(Objects.requireNonNull(slot, "slot").name(), capacity);
+		}
+
 		public Builder<R> slot (String name, int capacity, Predicate<? super R> validator) {
 			return slot(ResourceSlotDefinition.named(name, capacity, validator));
+		}
+
+		public Builder<R> slot (ResourceSlotKey slot, int capacity, Predicate<? super R> validator) {
+			return slot(Objects.requireNonNull(slot, "slot").name(), capacity, validator);
 		}
 
 		public ResourceInventoryDefinition<R> build () {

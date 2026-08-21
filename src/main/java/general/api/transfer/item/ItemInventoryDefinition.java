@@ -3,6 +3,7 @@ package general.api.transfer.item;
 import general.api.transfer.ResourceAccess;
 import general.api.transfer.ResourceChangeListener;
 import general.api.transfer.ResourceInventoryDefinition;
+import general.api.transfer.ResourceSlotKey;
 import general.api.transfer.ResourceSlotDefinition;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.transfer.item.ItemResource;
@@ -41,6 +42,10 @@ public final class ItemInventoryDefinition {
 		return definition.index(name);
 	}
 
+	public int index (ResourceSlotKey slot) {
+		return definition.index(slot);
+	}
+
 	public ResourceSlotDefinition<ItemResource> get (int index) {
 		return definition.get(index);
 	}
@@ -70,13 +75,27 @@ public final class ItemInventoryDefinition {
 			return slot(name, Item.ABSOLUTE_MAX_STACK_SIZE);
 		}
 
+		public Builder slot (ResourceSlotKey slot) {
+			return slot(slot, Item.ABSOLUTE_MAX_STACK_SIZE);
+		}
+
 		public Builder slot (String name, int capacity) {
 			delegate.slot(name, capacity);
 			return this;
 		}
 
+		public Builder slot (ResourceSlotKey slot, int capacity) {
+			delegate.slot(slot, capacity);
+			return this;
+		}
+
 		public Builder slot (String name, int capacity, Predicate<? super ItemResource> validator) {
 			delegate.slot(name, capacity, validator);
+			return this;
+		}
+
+		public Builder slot (ResourceSlotKey slot, int capacity, Predicate<? super ItemResource> validator) {
+			delegate.slot(slot, capacity, validator);
 			return this;
 		}
 
@@ -87,12 +106,24 @@ public final class ItemInventoryDefinition {
 			return slot(name);
 		}
 
+		public Builder input (ResourceSlotKey slot) {
+			return slot(slot);
+		}
+
 		public Builder input (String name, int capacity) {
 			return slot(name, capacity);
 		}
 
+		public Builder input (ResourceSlotKey slot, int capacity) {
+			return slot(slot, capacity);
+		}
+
 		public Builder input (String name, int capacity, Predicate<? super ItemResource> validator) {
 			return slot(name, capacity, validator);
+		}
+
+		public Builder input (ResourceSlotKey slot, int capacity, Predicate<? super ItemResource> validator) {
+			return slot(slot, capacity, validator);
 		}
 
 		/**
@@ -102,12 +133,24 @@ public final class ItemInventoryDefinition {
 			return slot(name);
 		}
 
+		public Builder output (ResourceSlotKey slot) {
+			return slot(slot);
+		}
+
 		public Builder output (String name, int capacity) {
 			return slot(name, capacity);
 		}
 
+		public Builder output (ResourceSlotKey slot, int capacity) {
+			return slot(slot, capacity);
+		}
+
 		public Builder output (String name, int capacity, Predicate<? super ItemResource> validator) {
 			return slot(name, capacity, validator);
+		}
+
+		public Builder output (ResourceSlotKey slot, int capacity, Predicate<? super ItemResource> validator) {
+			return slot(slot, capacity, validator);
 		}
 
 		public ItemInventoryDefinition build () {

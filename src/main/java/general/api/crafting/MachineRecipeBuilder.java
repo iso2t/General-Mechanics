@@ -33,10 +33,18 @@ import java.util.Objects;
  */
 public final class MachineRecipeBuilder<D> {
 
-	public static final String ITEM_INPUT = "item_input";
-	public static final String ITEM_OUTPUT = "item_output";
-	public static final String FLUID_INPUT = "fluid_input";
-	public static final String FLUID_OUTPUT = "fluid_output";
+	/** @deprecated Use {@link MachineRecipeSlots#ITEM_INPUT}. */
+	@Deprecated(forRemoval = true)
+	public static final String ITEM_INPUT = MachineRecipeSlots.ITEM_INPUT.name();
+	/** @deprecated Use {@link MachineRecipeSlots#ITEM_OUTPUT}. */
+	@Deprecated(forRemoval = true)
+	public static final String ITEM_OUTPUT = MachineRecipeSlots.ITEM_OUTPUT.name();
+	/** @deprecated Use {@link MachineRecipeSlots#FLUID_INPUT}. */
+	@Deprecated(forRemoval = true)
+	public static final String FLUID_INPUT = MachineRecipeSlots.FLUID_INPUT.name();
+	/** @deprecated Use {@link MachineRecipeSlots#FLUID_OUTPUT}. */
+	@Deprecated(forRemoval = true)
+	public static final String FLUID_OUTPUT = MachineRecipeSlots.FLUID_OUTPUT.name();
 
 	private final MachineRecipeDefinition<D>        definition;
 	private final Map<String, SizedIngredient>      itemInputs   = new LinkedHashMap<>();
@@ -51,21 +59,41 @@ public final class MachineRecipeBuilder<D> {
 		this.data = defaultData;
 	}
 
+	public MachineRecipeBuilder<D> itemInput (MachineRecipeSlot.ItemInput slot, SizedIngredient ingredient) {
+		return itemInput(Objects.requireNonNull(slot, "slot").name(), ingredient);
+	}
+
 	public MachineRecipeBuilder<D> itemInput (String slot, SizedIngredient ingredient) {
 		putUnique(itemInputs, slot, Objects.requireNonNull(ingredient, "ingredient"), "item input");
 		return this;
+	}
+
+	public MachineRecipeBuilder<D> itemInput (MachineRecipeSlot.ItemInput slot, Ingredient ingredient, int count) {
+		return itemInput(Objects.requireNonNull(slot, "slot").name(), ingredient, count);
 	}
 
 	public MachineRecipeBuilder<D> itemInput (String slot, Ingredient ingredient, int count) {
 		return itemInput(slot, new SizedIngredient(Objects.requireNonNull(ingredient, "ingredient"), count));
 	}
 
+	public MachineRecipeBuilder<D> itemInput (MachineRecipeSlot.ItemInput slot, ItemLike item, int count) {
+		return itemInput(Objects.requireNonNull(slot, "slot").name(), item, count);
+	}
+
 	public MachineRecipeBuilder<D> itemInput (String slot, ItemLike item, int count) {
 		return itemInput(slot, SizedIngredient.of(Objects.requireNonNull(item, "item"), count));
 	}
 
+	public MachineRecipeBuilder<D> itemInput (MachineRecipeSlot.ItemInput slot, HolderSet<Item> items, int count) {
+		return itemInput(Objects.requireNonNull(slot, "slot").name(), items, count);
+	}
+
 	public MachineRecipeBuilder<D> itemInput (String slot, HolderSet<Item> items, int count) {
 		return itemInput(slot, Ingredient.of(Objects.requireNonNull(items, "items")), count);
+	}
+
+	public MachineRecipeBuilder<D> itemInput (MachineRecipeSlot.ItemInput slot, TagKey<Item> tag, HolderGetter<Item> items, int count) {
+		return itemInput(Objects.requireNonNull(slot, "slot").name(), tag, items, count);
 	}
 
 	/**
@@ -78,17 +106,33 @@ public final class MachineRecipeBuilder<D> {
 		return itemInput(slot, Objects.requireNonNull(items, "items").getOrThrow(tag), count);
 	}
 
+	public MachineRecipeBuilder<D> itemOutput (MachineRecipeSlot.ItemOutput slot, ItemStackTemplate template) {
+		return itemOutput(Objects.requireNonNull(slot, "slot").name(), template);
+	}
+
 	public MachineRecipeBuilder<D> itemOutput (String slot, ItemStackTemplate template) {
 		putUnique(itemOutputs, slot, Objects.requireNonNull(template, "template"), "item output");
 		return this;
+	}
+
+	public MachineRecipeBuilder<D> itemOutput (MachineRecipeSlot.ItemOutput slot, ItemStack stack) {
+		return itemOutput(Objects.requireNonNull(slot, "slot").name(), stack);
 	}
 
 	public MachineRecipeBuilder<D> itemOutput (String slot, ItemStack stack) {
 		return itemOutput(slot, ItemStackTemplate.fromNonEmptyStack(Objects.requireNonNull(stack, "stack")));
 	}
 
+	public MachineRecipeBuilder<D> itemOutput (MachineRecipeSlot.ItemOutput slot, ItemLike item, int count) {
+		return itemOutput(Objects.requireNonNull(slot, "slot").name(), item, count);
+	}
+
 	public MachineRecipeBuilder<D> itemOutput (String slot, ItemLike item, int count) {
 		return itemOutput(slot, new ItemStackTemplate(Objects.requireNonNull(item, "item").asItem(), count));
+	}
+
+	public MachineRecipeBuilder<D> fluidInput (MachineRecipeSlot.FluidInput slot, SizedFluidIngredient ingredient) {
+		return fluidInput(Objects.requireNonNull(slot, "slot").name(), ingredient);
 	}
 
 	public MachineRecipeBuilder<D> fluidInput (String slot, SizedFluidIngredient ingredient) {
@@ -96,16 +140,32 @@ public final class MachineRecipeBuilder<D> {
 		return this;
 	}
 
+	public MachineRecipeBuilder<D> fluidInput (MachineRecipeSlot.FluidInput slot, FluidIngredient ingredient, int amount) {
+		return fluidInput(Objects.requireNonNull(slot, "slot").name(), ingredient, amount);
+	}
+
 	public MachineRecipeBuilder<D> fluidInput (String slot, FluidIngredient ingredient, int amount) {
 		return fluidInput(slot, new SizedFluidIngredient(Objects.requireNonNull(ingredient, "ingredient"), amount));
+	}
+
+	public MachineRecipeBuilder<D> fluidInput (MachineRecipeSlot.FluidInput slot, Fluid fluid, int amount) {
+		return fluidInput(Objects.requireNonNull(slot, "slot").name(), fluid, amount);
 	}
 
 	public MachineRecipeBuilder<D> fluidInput (String slot, Fluid fluid, int amount) {
 		return fluidInput(slot, SizedFluidIngredient.of(Objects.requireNonNull(fluid, "fluid"), amount));
 	}
 
+	public MachineRecipeBuilder<D> fluidInput (MachineRecipeSlot.FluidInput slot, HolderSet<Fluid> fluids, int amount) {
+		return fluidInput(Objects.requireNonNull(slot, "slot").name(), fluids, amount);
+	}
+
 	public MachineRecipeBuilder<D> fluidInput (String slot, HolderSet<Fluid> fluids, int amount) {
 		return fluidInput(slot, FluidIngredient.of(Objects.requireNonNull(fluids, "fluids")), amount);
+	}
+
+	public MachineRecipeBuilder<D> fluidInput (MachineRecipeSlot.FluidInput slot, TagKey<Fluid> tag, HolderGetter<Fluid> fluids, int amount) {
+		return fluidInput(Objects.requireNonNull(slot, "slot").name(), tag, fluids, amount);
 	}
 
 	/**
@@ -116,13 +176,25 @@ public final class MachineRecipeBuilder<D> {
 		return fluidInput(slot, Objects.requireNonNull(fluids, "fluids").getOrThrow(tag), amount);
 	}
 
+	public MachineRecipeBuilder<D> fluidOutput (MachineRecipeSlot.FluidOutput slot, FluidStackTemplate template) {
+		return fluidOutput(Objects.requireNonNull(slot, "slot").name(), template);
+	}
+
 	public MachineRecipeBuilder<D> fluidOutput (String slot, FluidStackTemplate template) {
 		putUnique(fluidOutputs, slot, Objects.requireNonNull(template, "template"), "fluid output");
 		return this;
 	}
 
+	public MachineRecipeBuilder<D> fluidOutput (MachineRecipeSlot.FluidOutput slot, FluidStack stack) {
+		return fluidOutput(Objects.requireNonNull(slot, "slot").name(), stack);
+	}
+
 	public MachineRecipeBuilder<D> fluidOutput (String slot, FluidStack stack) {
 		return fluidOutput(slot, FluidStackTemplate.fromNonEmptyStack(Objects.requireNonNull(stack, "stack")));
+	}
+
+	public MachineRecipeBuilder<D> fluidOutput (MachineRecipeSlot.FluidOutput slot, Fluid fluid, int amount) {
+		return fluidOutput(Objects.requireNonNull(slot, "slot").name(), fluid, amount);
 	}
 
 	public MachineRecipeBuilder<D> fluidOutput (String slot, Fluid fluid, int amount) {
