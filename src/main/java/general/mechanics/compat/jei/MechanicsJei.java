@@ -2,17 +2,25 @@ package general.mechanics.compat.jei;
 
 import general.api.crafting.MachineRecipeCatalog;
 import general.api.resources.Resource;
+import general.api.screens.screen.AbstractScreen;
 import general.mechanics.client.crafting.ClientMachineRecipes;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
+import mezz.jei.api.gui.handlers.IGuiClickableArea;
+import mezz.jei.api.gui.handlers.IGuiContainerHandler;
+import mezz.jei.api.recipe.types.IRecipeType;
+import mezz.jei.api.recipe.types.IRecipeHolderType;
+import mezz.jei.api.registration.IGuiHandlerRegistration;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.resources.Identifier;
+import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.world.level.ItemLike;
 import org.jspecify.annotations.NonNull;
 
 import java.util.List;
+import java.util.Collection;
 
 @JeiPlugin
 public class MechanicsJei implements IModPlugin {
@@ -44,9 +52,30 @@ public class MechanicsJei implements IModPlugin {
 		}
 	}
 
+	@Override
+	public void registerGuiHandlers (@NonNull IGuiHandlerRegistration registration) {
+		registration.addGenericGuiContainerHandler(AbstractScreen.class, new MachineScreenGuiHandler());
+	}
+
 	private List<MachineRecipeCategory> getCategories () {
 		if (categories == null) throw new IllegalStateException("JEI machine categories were accessed before category registration");
 		return categories;
+	}
+
+	private static final class MachineScreenGuiHandler implements IGuiContainerHandler<AbstractScreen<?>> {
+
+		@Override
+		public Collection<IGuiClickableArea> getGuiClickableAreas (AbstractScreen<?> screen, double guiMouseX, double guiMouseY) {
+			if (!screen.isRecipeViewerButtonHovered(guiMouseX, guiMouseY)) return List.of();
+
+			IRecipeType<?>[] recipeTypes = screen.getMenu().getRecipeDefinitions().stream().map(definition -> (IRecipeType<?>) IRecipeHolderType.create(definition.type())).toArray(IRecipeType<?>[]::new);
+			return List.of(IGuiClickableArea.createBasic(AbstractScreen.RECIPE_VIEWER_BUTTON_X, AbstractScreen.RECIPE_VIEWER_BUTTON_Y, AbstractScreen.RECIPE_VIEWER_BUTTON_WIDTH, AbstractScreen.RECIPE_VIEWER_BUTTON_HEIGHT, recipeTypes));
+		}
+
+		@Override
+		public List<Rect2i> getGuiExtraAreas (AbstractScreen<?> screen) {
+			return screen.hasRecipeViewerButton() ? List.of(screen.getRecipeViewerButtonArea()) : List.of();
+		}
 	}
 
 }

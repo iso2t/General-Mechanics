@@ -1,5 +1,6 @@
 package general.api.screens.menu;
 
+import general.api.crafting.MachineRecipeDefinition;
 import general.api.screens.screen.AbstractScreen;
 import lombok.Getter;
 import lombok.NonNull;
@@ -18,6 +19,8 @@ import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Objects;
 
 public abstract class AbstractMenu<B extends EntityBlock, T extends BlockEntity> extends AbstractContainerMenu {
@@ -35,6 +38,8 @@ public abstract class AbstractMenu<B extends EntityBlock, T extends BlockEntity>
 	@Getter
 	private final ContainerData data;
 
+	private final List<MachineRecipeDefinition<?>> recipeDefinitions;
+
 	@Nullable
 	private FluidContainerSource fluidContainerSource;
 
@@ -43,15 +48,43 @@ public abstract class AbstractMenu<B extends EntityBlock, T extends BlockEntity>
 	}
 
 	public AbstractMenu (MenuType<?> type, int containerId, Inventory inventory, B block, T blockEntity, ContainerData data) {
+		this(type, containerId, inventory, block, blockEntity, data, new MachineRecipeDefinition<?>[0]);
+	}
+
+	/**
+	 * Creates a menu with recipe types exposed to compatible recipe viewers.
+	 * Definitions are retained in declaration order and duplicate definitions are
+	 * rejected. Supplying no definitions disables the shared recipe-viewer button.
+	 */
+	public AbstractMenu (MenuType<?> type, int containerId, Inventory inventory, B block, T blockEntity, ContainerData data, MachineRecipeDefinition<?>... recipeDefinitions) {
 		super(type, containerId);
 		this.block = Objects.requireNonNull(block, "block");
 		this.blockEntity = Objects.requireNonNull(blockEntity, "blockEntity");
 		this.data = Objects.requireNonNull(data, "data");
+		Objects.requireNonNull(recipeDefinitions, "recipeDefinitions");
+		var uniqueDefinitions = new LinkedHashSet<MachineRecipeDefinition<?>>();
+		for (MachineRecipeDefinition<?> definition : recipeDefinitions) {
+			if (!uniqueDefinitions.add(Objects.requireNonNull(definition, "recipeDefinition"))) {
+				throw new IllegalArgumentException("Duplicate menu recipe definition '" + definition.id() + "'");
+			}
+		}
+		this.recipeDefinitions = List.copyOf(uniqueDefinitions);
 
 		addPlayerInventory(inventory);
 		addPlayerHotbar(inventory);
 		addContainerSlots();
 		addDataSlots(data);
+	}
+
+	/**
+	 * Recipe definitions associated with this menu, in recipe-viewer display order.
+	 */
+	public final List<MachineRecipeDefinition<?>> getRecipeDefinitions () {
+		return recipeDefinitions;
+	}
+
+	public final boolean hasRecipeDefinitions () {
+		return !recipeDefinitions.isEmpty();
 	}
 
 	/**

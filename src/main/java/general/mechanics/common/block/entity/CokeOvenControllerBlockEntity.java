@@ -206,13 +206,13 @@ public class CokeOvenControllerBlockEntity extends BlockEntity implements Multib
 	}
 
 	public void serverTick (ServerLevel level) {
-		MachineRecipeProcessor.Status result;
-		if (formed) result = recipeProcessor.tick(level);
-		else {
+		if (!formed) {
 			recipeProcessor.reset();
-			result = MachineRecipeProcessor.Status.IDLE;
+			setLit(level, false);
+			return;
 		}
-		setLit(level, result == MachineRecipeProcessor.Status.RUNNING);
+		MachineRecipeProcessor.TickResult result = recipeProcessor.tick(level);
+		setLit(level, result.status() == MachineRecipeProcessor.Status.RUNNING);
 	}
 
 	private void setLit (ServerLevel level, boolean lit) {

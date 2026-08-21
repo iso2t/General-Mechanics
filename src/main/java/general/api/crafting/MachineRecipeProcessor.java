@@ -30,6 +30,10 @@ public final class MachineRecipeProcessor {
 	private static final String ACTIVE_RECIPE_TAG = "active_recipe";
 	private static final String PROGRESS_TAG      = "progress";
 	private static final String MAX_PROGRESS_TAG  = "max_progress";
+	private static final TickResult IDLE_RESULT    = new TickResult(Status.IDLE, false);
+	private static final TickResult RUNNING_RESULT = new TickResult(Status.RUNNING, false);
+	private static final TickResult BLOCKED_RESULT = new TickResult(Status.BLOCKED, false);
+	private static final TickResult CRAFTED_RESULT = new TickResult(Status.IDLE, true);
 
 	private final     MachineRecipeBinding        binding;
 	private final     Runnable                    changeCallback;
@@ -49,9 +53,10 @@ public final class MachineRecipeProcessor {
 	}
 
 	/**
-	 * Advances this subscription by one server tick.
+	 * Advances this subscription by one server tick. The returned completion flag
+	 * is an event for this call only; {@link #status()} remains durable machine state.
 	 */
-	public Status tick (ServerLevel level) {
+	public TickResult tick (ServerLevel level) {
 		Objects.requireNonNull(level, "level");
 		refreshTransferCache(level);
 		MachineRecipeInput input = binding.captureInput();
@@ -80,7 +85,7 @@ public final class MachineRecipeProcessor {
 		RecipeHolder<MachineRecipe> selected = executable != null ? executable : firstMatch;
 		if (selected == null) {
 			setState(null, 0, 0, Status.IDLE);
-			return status;
+			return result(status);
 		}
 
 		boolean changedRecipe = !selected.id().equals(activeRecipe);
@@ -88,22 +93,22 @@ public final class MachineRecipeProcessor {
 		int selectedProgress = changedRecipe ? 0 : Math.min(progress, selectedDuration);
 		if (executable == null) {
 			setState(selected.id(), selectedProgress, selectedDuration, Status.BLOCKED);
-			return status;
+			return result(status);
 		}
 
 		selectedProgress++;
 		if (selectedProgress < selectedDuration) {
 			setState(selected.id(), selectedProgress, selectedDuration, Status.RUNNING);
-			return status;
+			return result(status);
 		}
 
 		if (binding.tryExecute(selected.value(), input, level)) {
-			setState(null, 0, 0, Status.COMPLETED);
-			return status;
+			setState(null, 0, 0, Status.IDLE);
+			return CRAFTED_RESULT;
 		}
 
 		setState(selected.id(), Math.max(0, selectedDuration - 1), selectedDuration, Status.BLOCKED);
-		return status;
+		return result(status);
 	}
 
 	public void reset () {
@@ -174,6 +179,14 @@ public final class MachineRecipeProcessor {
 		revisionInitialized = false;
 	}
 
+	private static TickResult result (Status status) {
+		return switch (status) {
+			case IDLE -> IDLE_RESULT;
+			case RUNNING -> RUNNING_RESULT;
+			case BLOCKED -> BLOCKED_RESULT;
+		};
+	}
+
 	private void setState (@Nullable ResourceKey<Recipe<?>> recipe, int progress, int maxProgress, Status status) {
 		if (progress < 0 || maxProgress < 0 || progress > maxProgress) {
 			throw new IllegalArgumentException("Invalid machine recipe progress " + progress + "/" + maxProgress);
@@ -190,7 +203,22 @@ public final class MachineRecipeProcessor {
 	public enum Status {
 		IDLE,
 		RUNNING,
-		BLOCKED,
-		COMPLETED
+		BLOCKED
+	}
+
+	/**
+	 * Outcome of one processor tick.
+	 *
+	 * @param status  processor state after the tick
+	 * @param crafted {@code true} only when this tick atomically completed a recipe
+	 */
+	public record TickResult(Status status, boolean crafted) {
+
+		public TickResult {
+			Objects.requireNonNull(status, "status");
+			if (crafted && status != Status.IDLE) {
+				throw new IllegalArgumentException("A crafted tick must leave the recipe processor idle");
+			}
+		}
 	}
 }

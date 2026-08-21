@@ -1,8 +1,10 @@
 package general.api.multiblock;
 
 import general.api.definitions.MultiblockDefinition;
+import general.api.multiblock.event.MultiblockEvent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.SectionPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.particles.PowerParticleOption;
 import net.minecraft.server.level.ServerLevel;
@@ -11,6 +13,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
+import net.neoforged.neoforge.common.NeoForge;
+import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 
@@ -22,43 +27,19 @@ public final class MultiblockHandler {
 	}
 
 	public static MultiblockValidationResult validate (LevelReader level, BlockPos anchor, Direction facing, MultiblockDefinition definition) {
-		MultiblockPattern pattern = definition.get().pattern();
-
-		Map<BlockPos, MultiblockElement> matched = new LinkedHashMap<>();
-
-		BlockPos patternAnchor = pattern.getAnchor();
-
-		for (int y = 0; y < pattern.getHeight(); y++) {
-			for (int z = 0; z < pattern.getDepth(); z++) {
-				for (int x = 0; x < pattern.getWidth(); x++) {
-
-					MultiblockElement element = pattern.getElementAt(x, y, z);
-
-					// Ignored location.
-					if (element == null) {
-						continue;
-					}
-
-					int relativeX = x - patternAnchor.getX();
-					int relativeY = y - patternAnchor.getY();
-					int relativeZ = z - patternAnchor.getZ();
-
-					BlockPos worldPos = transform(anchor, relativeX, relativeY, relativeZ, facing);
-
-					if (!isLoaded(level, worldPos)) {
-						return MultiblockValidationResult.unloaded(worldPos, element);
-					}
-
-					if (!element.matches(level, worldPos)) {
-						return MultiblockValidationResult.invalid(worldPos, element, level.getBlockState(worldPos));
-					}
-
-					matched.put(worldPos, element);
-				}
+		MultiblockInstance instance = createInstance(anchor, facing, definition);
+		for (Map.Entry<BlockPos, MultiblockElement> block : instance.blocks().entrySet()) {
+			BlockPos worldPos = block.getKey();
+			MultiblockElement element = block.getValue();
+			if (!isLoaded(level, worldPos)) {
+				return MultiblockValidationResult.unloaded(worldPos, element);
+			}
+			if (!element.matches(level, worldPos)) {
+				return MultiblockValidationResult.invalid(worldPos, element, level.getBlockState(worldPos));
 			}
 		}
 
-		return MultiblockValidationResult.valid(new MultiblockInstance(definition, anchor, facing, Map.copyOf(matched)));
+		return MultiblockValidationResult.valid(instance);
 	}
 
 	public static MultiblockValidationResult find (LevelReader level, BlockPos anchor, MultiblockDefinition definition) {
@@ -141,11 +122,12 @@ public final class MultiblockHandler {
 		Set<BlockPos> pending = Set.copyOf(runtime.pendingControllers);
 		runtime.pendingControllers.clear();
 		for (BlockPos controllerPos : pending) {
-			if (!level.hasChunkAt(controllerPos)) continue;
+			if (!isLoaded(level, controllerPos)) continue;
 
 			BlockEntity blockEntity = level.getBlockEntity(controllerPos);
 			if (!(blockEntity instanceof MultiblockController controller)) {
-				unindex(runtime, controllerPos);
+				MultiblockInstance destroyed = unindex(runtime, controllerPos);
+				if (destroyed != null) postDestroyed(level, null, destroyed);
 				continue;
 			}
 
@@ -192,6 +174,7 @@ public final class MultiblockHandler {
 	private static MultiblockValidationResult revalidate (ServerLevel level, RuntimeState runtime, MultiblockController controller) {
 		rememberControllerBounds(runtime, controller);
 		BlockPos controllerPos = controllerPosition(controller);
+		MultiblockInstance tracked = runtime.instances.get(controllerPos);
 		MultiblockValidationResult result = validate(level, controllerPos, controller.getMultiblockFacing(), controller.getMultiblockDefinition());
 
 		if (result.unloaded()) {
@@ -201,20 +184,29 @@ public final class MultiblockHandler {
 		}
 
 		if (result.valid()) {
+			if (tracked != null && !controller.isMultiblockFormed()) {
+				postDestroyed(level, null, tracked);
+			}
 			index(runtime, controllerPos, result.instance());
 			if (!controller.isMultiblockFormed()) {
 				controller.setMultiblockFormed(true);
 				markChanged(controller);
 				controller.onMultiblockFormed(result.instance());
+				NeoForge.EVENT_BUS.post(new MultiblockEvent.Formed(level, controller, result.instance()));
 			}
 			return result;
 		}
 
-		unindex(runtime, controllerPos);
+		MultiblockInstance previous = unindex(runtime, controllerPos);
+		boolean wasFormed = controller.isMultiblockFormed();
 		if (controller.isMultiblockFormed()) {
 			controller.setMultiblockFormed(false);
 			markChanged(controller);
 			controller.onMultiblockInvalidated();
+		}
+		if (previous != null || wasFormed) {
+			MultiblockInstance instance = previous != null ? previous : createInstance(controllerPos, controller.getMultiblockFacing(), controller.getMultiblockDefinition());
+			postDestroyed(level, wasFormed ? controller : null, instance);
 		}
 		return result;
 	}
@@ -228,7 +220,7 @@ public final class MultiblockHandler {
 			for (int z = changedPos.getZ() - range.horizontal; z <= changedPos.getZ() + range.horizontal; z++) {
 				for (int x = changedPos.getX() - range.horizontal; x <= changedPos.getX() + range.horizontal; x++) {
 					BlockPos candidate = new BlockPos(x, y, z);
-					if (!level.hasChunkAt(candidate)) continue;
+					if (!isLoaded(level, candidate)) continue;
 					if (level.getBlockEntity(candidate) instanceof MultiblockController controller) {
 						rememberControllerBounds(runtime, controller);
 						runtime.pendingControllers.add(controllerPosition(controller));
@@ -263,14 +255,15 @@ public final class MultiblockHandler {
 		runtime.controllersByPosition.computeIfAbsent(controllerPos, ignored -> new HashSet<>()).add(controllerPos);
 	}
 
-	private static void unindex (RuntimeState runtime, BlockPos controllerPos) {
+	private static MultiblockInstance unindex (RuntimeState runtime, BlockPos controllerPos) {
 		MultiblockInstance instance = runtime.instances.remove(controllerPos);
-		if (instance == null) return;
+		if (instance == null) return null;
 
 		for (BlockPos pos : instance.blocks().keySet()) {
 			removeControllerAt(runtime, pos, controllerPos);
 		}
 		removeControllerAt(runtime, controllerPos, controllerPos);
+		return instance;
 	}
 
 	private static void removeControllerAt (RuntimeState runtime, BlockPos pos, BlockPos controllerPos) {
@@ -284,16 +277,44 @@ public final class MultiblockHandler {
 		if (controller instanceof BlockEntity blockEntity) blockEntity.setChanged();
 	}
 
+	private static void postDestroyed (ServerLevel level, @Nullable MultiblockController controller, MultiblockInstance instance) {
+		NeoForge.EVENT_BUS.post(new MultiblockEvent.Destroyed(level, controller, instance));
+	}
+
 	private static void spawnFormationParticle (ServerLevel level, BlockPos pos, Direction outward) {
 		level.sendParticles(PowerParticleOption.create(ParticleTypes.DRAGON_BREATH, 1.0F), pos.getX() + 0.5D + outward.getStepX() * 0.52D, pos.getY() + 0.5D + outward.getStepY() * 0.52D, pos.getZ() + 0.5D + outward.getStepZ() * 0.52D, 1, 0.015D, 0.015D, 0.015D, 0.0D);
 	}
 
 	private static boolean isLoaded (LevelReader level, BlockPos pos) {
-		return !(level instanceof Level loadedLevel) || loadedLevel.hasChunkAt(pos);
+		int chunkX = SectionPos.blockToSectionCoord(pos.getX());
+		int chunkZ = SectionPos.blockToSectionCoord(pos.getZ());
+		return level.getChunk(chunkX, chunkZ, ChunkStatus.FULL, false) != null;
 	}
 
 	private static RuntimeState runtime (ServerLevel level) {
 		return RUNTIMES.computeIfAbsent(level, ignored -> new RuntimeState());
+	}
+
+	private static MultiblockInstance createInstance (BlockPos anchor, Direction facing, MultiblockDefinition definition) {
+		MultiblockPattern pattern = definition.get().pattern();
+		BlockPos patternAnchor = pattern.getAnchor();
+		Map<BlockPos, MultiblockElement> blocks = new LinkedHashMap<>();
+
+		for (int y = 0; y < pattern.getHeight(); y++) {
+			for (int z = 0; z < pattern.getDepth(); z++) {
+				for (int x = 0; x < pattern.getWidth(); x++) {
+					MultiblockElement element = pattern.getElementAt(x, y, z);
+					if (element == null) continue;
+
+					int relativeX = x - patternAnchor.getX();
+					int relativeY = y - patternAnchor.getY();
+					int relativeZ = z - patternAnchor.getZ();
+					blocks.put(transform(anchor, relativeX, relativeY, relativeZ, facing), element);
+				}
+			}
+		}
+
+		return new MultiblockInstance(definition, anchor.immutable(), facing, Collections.unmodifiableMap(blocks));
 	}
 
 	private static BlockPos transform (BlockPos anchor, int x, int y, int z, Direction facing) {

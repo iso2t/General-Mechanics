@@ -48,7 +48,7 @@ public class CokeOvenMenu extends AbstractMenu<CokeOvenController, CokeOvenContr
 	}
 
 	private CokeOvenMenu (int containerId, Inventory inventory, CokeOvenControllerBlockEntity blockEntity, ContainerData data) {
-		super(GenMenus.COKE_OVEN.get(), containerId, inventory, GenBlocks.COKE_OVEN_CONTROLLER.get(), blockEntity, data);
+		super(GenMenus.COKE_OVEN.get(), containerId, inventory, GenBlocks.COKE_OVEN_CONTROLLER.get(), blockEntity, data, CokeOvenController.getRecipeDefinition());
 		checkContainerDataCount(data, DATA_COUNT);
 		setFluidContainerSource(blockEntity.getFluidHandler(), CokeOvenControllerBlockEntity.CREOSOTE_TANK);
 	}
