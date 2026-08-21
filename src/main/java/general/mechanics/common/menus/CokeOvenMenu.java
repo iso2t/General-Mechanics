@@ -77,7 +77,7 @@ public class CokeOvenMenu extends AbstractMenu<CokeOvenController, CokeOvenContr
 
 	@Override
 	public boolean stillValid (@NonNull Player player) {
-		return super.stillValid(player) && (player.level().isClientSide() || getBlockEntity().isMultiblockFormed());
+		return super.stillValid(player) && (player.level().isClientSide() || getBlockEntity().isMultiblockOperational());
 	}
 
 	public int getProgress () {
@@ -92,7 +92,7 @@ public class CokeOvenMenu extends AbstractMenu<CokeOvenController, CokeOvenContr
 		int amount = getData().get(DATA_FLUID_AMOUNT);
 		if (amount <= 0) return FluidStack.EMPTY;
 		var fluid = BuiltInRegistries.FLUID.byId(getData().get(DATA_FLUID_ID));
-		return fluid == null || fluid == Fluids.EMPTY ? FluidStack.EMPTY : new FluidStack(fluid, amount);
+		return fluid == Fluids.EMPTY ? FluidStack.EMPTY : new FluidStack(fluid, amount);
 	}
 
 	private static CokeOvenControllerBlockEntity findBlockEntity (Inventory inventory, RegistryFriendlyByteBuf buffer) {

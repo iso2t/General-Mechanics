@@ -2,9 +2,10 @@ package general.mechanics.common.block;
 
 import general.api.block.IOBlock;
 import general.api.resources.Resource;
+import general.mechanics.common.block.entity.MultiblockHatchBlockEntity;
 import net.minecraft.resources.Identifier;
 
-public class IOFluidHatch extends IOBlock {
+public class IOFluidHatch extends IOBlock<MultiblockHatchBlockEntity> {
 
 	public IOFluidHatch (Properties properties, IOMode mode) {
 		super(properties, mode, IOType.FLUID);

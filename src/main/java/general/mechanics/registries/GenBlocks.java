@@ -1,7 +1,5 @@
 package general.mechanics.registries;
 
-import general.api.block.BaseBlock;
-import general.api.block.DecorativeBlock;
 import general.api.block.IOBlock;
 import general.api.block.RecipeProviderBlock;
 import general.api.crafting.RecipeGenerationContext;
@@ -45,13 +43,13 @@ public class GenBlocks extends BlockRegistry {
 	public static final BlockDefinition<RubberWood.Planks>         RUBBER_PLANKS         = registerBlock("Rubber Planks", RubberWood.Planks::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS));
 	public static final BlockDefinition<TintedParticleLeavesBlock> RUBBER_LEAVES         = registerBlock("Rubber Leaves", props -> new TintedParticleLeavesBlock(0.01F, props), () -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_LEAVES));
 	public static final BlockDefinition<SaplingBlock>              RUBBER_SAPLING        = registerBlock("Rubber Sapling", props -> new SaplingBlock(GenFeatures.RUBBER, props), () -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_SAPLING));
-	public static final BlockDefinition<FlowerPotBlock>  POTTED_RUBBER_SAPLING = registerBlock("Potted Rubber Sapling", props -> new FlowerPotBlock(RUBBER_SAPLING.get(), props), () -> BlockBehaviour.Properties.ofFullCopy(Blocks.POTTED_OAK_SAPLING));
-	public static final BlockDefinition<IOItemHatch>     ITEM_INPUT_HATCH      = registerBlock("Item Input Hatch", properties -> new IOItemHatch(properties, IOBlock.IOMode.INPUT));
-	public static final BlockDefinition<IOItemHatch>     ITEM_OUTPUT_HATCH  = registerBlock("Item Output Hatch", properties -> new IOItemHatch(properties, IOBlock.IOMode.OUTPUT));
-	public static final BlockDefinition<IOFluidHatch>    FLUID_INPUT_HATCH  = registerBlock("Fluid Input Hatch", properties -> new IOFluidHatch(properties, IOBlock.IOMode.INPUT));
-	public static final BlockDefinition<IOFluidHatch>    FLUID_OUTPUT_HATCH = registerBlock("Fluid Output Hatch", properties -> new IOFluidHatch(properties, IOBlock.IOMode.OUTPUT));
-	public static final BlockDefinition<IOPowerHatch>    POWER_HATCH        = registerBlock("Power Hatch", IOPowerHatch::new);
-	public static final BlockDefinition<IONetworkHatch> NETWORK_HATCH      = registerBlock("Network Hatch", IONetworkHatch::new);
+	public static final BlockDefinition<FlowerPotBlock>            POTTED_RUBBER_SAPLING = registerBlock("Potted Rubber Sapling", props -> new FlowerPotBlock(RUBBER_SAPLING.get(), props), () -> BlockBehaviour.Properties.ofFullCopy(Blocks.POTTED_OAK_SAPLING));
+	public static final BlockDefinition<IOItemHatch>               ITEM_INPUT_HATCH      = registerBlock("Item Input Hatch", properties -> new IOItemHatch(properties, IOBlock.IOMode.INPUT));
+	public static final BlockDefinition<IOItemHatch>               ITEM_OUTPUT_HATCH     = registerBlock("Item Output Hatch", properties -> new IOItemHatch(properties, IOBlock.IOMode.OUTPUT));
+	public static final BlockDefinition<IOFluidHatch>              FLUID_INPUT_HATCH     = registerBlock("Fluid Input Hatch", properties -> new IOFluidHatch(properties, IOBlock.IOMode.INPUT));
+	public static final BlockDefinition<IOFluidHatch>              FLUID_OUTPUT_HATCH    = registerBlock("Fluid Output Hatch", properties -> new IOFluidHatch(properties, IOBlock.IOMode.OUTPUT));
+	public static final BlockDefinition<IOPowerHatch>              POWER_HATCH           = registerBlock("Power Hatch", IOPowerHatch::new);
+	public static final BlockDefinition<IONetworkHatch>            NETWORK_HATCH         = registerBlock("Network Hatch", IONetworkHatch::new);
 
 
 	public static final BlockDefinition<RecipeProviderBlock> COKE_OVEN_BRICKS     = registerBlock("Coke Oven Bricks", props -> new RecipeProviderBlock(props) {

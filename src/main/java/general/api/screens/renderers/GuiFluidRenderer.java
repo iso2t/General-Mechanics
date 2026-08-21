@@ -24,6 +24,7 @@ import java.util.function.Supplier;
 public class GuiFluidRenderer extends AbstractBarRenderer {
 	private static final Component  EMPTY_FLUID = Component.translatableWithFallback("genapi.fluid.empty", "Empty");
 	private static final Identifier OVERLAY     = Resource.getMainMod("textures/gui/elements/fluid_bar_overlay.png");
+	private static final Identifier UNDERLAY    = Resource.getMainMod("textures/gui/elements/fluid_bar_background.png");
 
 	@Getter
 	private static final NumberFormat format = NumberFormat.getIntegerInstance();
@@ -86,6 +87,7 @@ public class GuiFluidRenderer extends AbstractBarRenderer {
 		FluidStack stack = getFluid();
 		int x = screenX + getXPos();
 		int y = screenY + getYPos();
+		graphics.blit(RenderPipelines.GUI_TEXTURED, UNDERLAY, x - 1, y - 1, 0, 0, 18, 66, 18, 66);
 		renderFluid(graphics, stack, x, y);
 		graphics.blit(RenderPipelines.GUI_TEXTURED, OVERLAY, x, y, 0, 0, 16, 64, 16, 64);
 		if (isMouseOverAbsolute(mouseX, mouseY, x, y)) {

@@ -38,6 +38,18 @@ public interface MultiblockController {
 
 	boolean isMultiblockFormed ();
 
+	/**
+	 * Geometric formation plus exclusive ownership of every installed hatch and
+	 * ownership of every required hatch route.
+	 */
+	default boolean isMultiblockOperational () {
+		if (!isMultiblockFormed()) return false;
+		if (this instanceof BlockEntity blockEntity && blockEntity.getLevel() instanceof ServerLevel serverLevel) {
+			return MultiblockHandler.hasRequiredBoundHatches(serverLevel, this);
+		}
+		return true;
+	}
+
 	void setMultiblockFormed (boolean formed);
 
 	default void onMultiblockFormed (MultiblockInstance instance) {
@@ -61,7 +73,11 @@ public interface MultiblockController {
 		if (!(level instanceof ServerLevel serverLevel)) return InteractionResult.PASS;
 
 		MultiblockValidationResult result = MultiblockHandler.revalidate(serverLevel, this);
-		if (result.valid()) return onFormedMultiblockUse(player, hitResult, result.instance());
+		if (result.valid() && isMultiblockOperational()) return onFormedMultiblockUse(player, hitResult, result.instance());
+		if (result.valid()) {
+			player.sendSystemMessage(Component.literal("§cA multiblock hatch is not exclusively owned by this structure."));
+			return InteractionResult.CONSUME;
+		}
 
 		player.sendSystemMessage(malformedMessage(result));
 		return InteractionResult.CONSUME;
@@ -76,6 +92,7 @@ public interface MultiblockController {
 
 	private static Component malformedMessage (MultiblockValidationResult result) {
 		if (result.unloaded()) return Component.literal("§eMultiblock cannot be validated because a required chunk is unloaded.");
+		if (result.detail() != null) return Component.literal("§c" + result.detail() + ".");
 		BlockPos failed = result.failedPosition();
 		if (failed == null) return Component.literal("§cMultiblock is malformed.");
 		return Component.literal("§cMultiblock is malformed at [" + failed.getX() + ", " + failed.getY() + ", " + failed.getZ() + "].");

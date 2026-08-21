@@ -19,6 +19,7 @@ import net.minecraft.world.level.ItemLike;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 import java.util.Map;
@@ -35,6 +36,8 @@ final class MachineRecipeCategory extends AbstractRecipeCategory<RecipeHolder<Ma
 	private static final int ARROW_AREA_WIDTH = 42;
 	private static final int MIN_WIDTH        = 82;
 	private static final int MIN_HEIGHT       = 36;
+	private static final String TIME_SECONDS_KEY = "gui.generalmechanics.machine_recipe.time.seconds";
+	private static final String TIME_MINUTES_SECONDS_KEY = "gui.generalmechanics.machine_recipe.time.minutes_seconds";
 
 	private final MachineRecipeDefinition<?> definition;
 	private final List<ItemLike>             craftingStations;
@@ -81,7 +84,7 @@ final class MachineRecipeCategory extends AbstractRecipeCategory<RecipeHolder<Ma
 	}
 
 	@Override
-	public void setRecipe (IRecipeLayoutBuilder builder, RecipeHolder<MachineRecipe> holder, IFocusGroup focuses) {
+	public void setRecipe (@NonNull IRecipeLayoutBuilder builder, RecipeHolder<MachineRecipe> holder, @NonNull IFocusGroup focuses) {
 		MachineRecipe recipe = holder.value();
 		if (recipe.definition() != definition) throw new IllegalArgumentException("Recipe " + holder.id().identifier() + " does not belong to JEI category " + definition.id());
 
@@ -105,13 +108,15 @@ final class MachineRecipeCategory extends AbstractRecipeCategory<RecipeHolder<Ma
 	}
 
 	@Override
-	public void createRecipeExtras (IRecipeExtrasBuilder builder, RecipeHolder<MachineRecipe> holder, IFocusGroup focuses) {
+	public void createRecipeExtras (IRecipeExtrasBuilder builder, RecipeHolder<MachineRecipe> holder, @NonNull IFocusGroup focuses) {
 		int duration = holder.value().duration();
 		builder.addAnimatedRecipeArrow(duration).setPosition(arrowX, arrowY);
 
-		int seconds = Math.max(1, Mth.ceil(duration / 20.0));
-		Component time = Component.translatable("gui.jei.category.smelting.time.seconds", seconds);
-		builder.addText(time, ARROW_AREA_WIDTH, 10).setPosition(arrowX - (ARROW_AREA_WIDTH - ARROW_WIDTH) / 2, arrowY + 18).setTextAlignment(HorizontalAlignment.CENTER).setColor(0xFF808080);
+		int totalSeconds = Math.max(1, Mth.ceil(duration / 20.0));
+		Component time = totalSeconds < 60
+				? Component.translatableWithFallback(TIME_SECONDS_KEY, "%ss", totalSeconds)
+				: Component.translatableWithFallback(TIME_MINUTES_SECONDS_KEY, "%sm %ss", totalSeconds / 60, totalSeconds % 60);
+		builder.addText(time, ARROW_AREA_WIDTH, 10).setPosition(arrowX - (ARROW_AREA_WIDTH - ARROW_WIDTH) / 2, arrowY + 18).setTextAlignment(HorizontalAlignment.CENTER).setColor(0xFF404040);
 	}
 
 	@Override

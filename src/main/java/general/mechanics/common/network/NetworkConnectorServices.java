@@ -76,6 +76,18 @@ public final class NetworkConnectorServices {
 		};
 	}
 
+	public static ItemNetworkService itemService (Supplier<ResourceHandler<ItemResource>> handlerSupplier) {
+		return new ItemService(Objects.requireNonNull(handlerSupplier, "handlerSupplier"));
+	}
+
+	public static FluidNetworkService fluidService (Supplier<ResourceHandler<FluidResource>> handlerSupplier) {
+		return new FluidService(Objects.requireNonNull(handlerSupplier, "handlerSupplier"));
+	}
+
+	public static EnergyNetworkService energyService (Supplier<EnergyHandler> handlerSupplier) {
+		return new EnergyService(Objects.requireNonNull(handlerSupplier, "handlerSupplier"));
+	}
+
 	@FunctionalInterface
 	public interface NetworkConnectorServiceBridge {
 		void register (NetworkNode node, Level level, BlockPos targetPos, Direction targetSide);

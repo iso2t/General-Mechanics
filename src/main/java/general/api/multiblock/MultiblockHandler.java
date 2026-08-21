@@ -2,6 +2,10 @@ package general.api.multiblock;
 
 import general.api.definitions.MultiblockDefinition;
 import general.api.multiblock.event.MultiblockEvent;
+import general.api.transfer.energy.EnergyResourceProvider;
+import general.api.transfer.ResourceIoMode;
+import general.api.transfer.fluid.FluidResourceProvider;
+import general.api.transfer.item.ItemResourceProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
@@ -28,6 +32,8 @@ public final class MultiblockHandler {
 
 	public static MultiblockValidationResult validate (LevelReader level, BlockPos anchor, Direction facing, MultiblockDefinition definition) {
 		MultiblockInstance instance = createInstance(anchor, facing, definition);
+		Map<BlockPos, HatchKey> hatches = new LinkedHashMap<>();
+		Map<HatchKey, Integer> hatchCounts = new HashMap<>();
 		for (Map.Entry<BlockPos, MultiblockElement> block : instance.blocks().entrySet()) {
 			BlockPos worldPos = block.getKey();
 			MultiblockElement element = block.getValue();
@@ -37,9 +43,43 @@ public final class MultiblockHandler {
 			if (!element.matches(level, worldPos)) {
 				return MultiblockValidationResult.invalid(worldPos, element, level.getBlockState(worldPos));
 			}
+
+			BlockEntity blockEntity = level.getBlockEntity(worldPos);
+			if (!(blockEntity instanceof MultiblockHatch hatch)) continue;
+			if (!element.hatchable()) {
+				return MultiblockValidationResult.invalidHatch(worldPos, "A multiblock hatch occupies a position that is not hatchable");
+			}
+			if (hatch.isBound() && !hatch.isBoundTo(instance.anchor())) {
+				BlockPos owner = hatch.getBoundController();
+				return MultiblockValidationResult.invalidHatch(worldPos, "This hatch is owned by another multiblock at [" + owner.getX() + ", " + owner.getY() + ", " + owner.getZ() + "]");
+			}
+
+			List<MultiblockHatchDefinition> matches = definition.get().hatches().stream().filter(candidate -> candidate.matcher().matches(level, worldPos, level.getBlockState(worldPos), hatch)).toList();
+			if (matches.isEmpty()) {
+				return MultiblockValidationResult.invalidHatch(worldPos, "This hatch type is not registered for the multiblock");
+			}
+			if (matches.size() > 1) {
+				String routes = matches.stream().map(candidate -> candidate.key().name()).sorted().reduce((first, second) -> first + ", " + second).orElse("");
+				return MultiblockValidationResult.invalidHatch(worldPos, "Hatch matches multiple routes: " + routes);
+			}
+
+			HatchKey route = matches.getFirst().key();
+			hatches.put(worldPos.immutable(), route);
+			hatchCounts.merge(route, 1, Integer::sum);
 		}
 
-		return MultiblockValidationResult.valid(instance);
+		for (MultiblockHatchDefinition hatch : definition.get().hatches()) {
+			int count = hatchCounts.getOrDefault(hatch.key(), 0);
+			if (!hatch.count().contains(count)) {
+				return MultiblockValidationResult.invalidHatchCount("Hatch route '" + hatch.key() + "' requires " + formatCount(hatch.count()) + "; found " + count);
+			}
+			if (count > 0) {
+				String accessError = validateHatchAccess(level.getBlockEntity(instance.anchor()), hatch);
+				if (accessError != null) return MultiblockValidationResult.invalidHatchCount(accessError);
+			}
+		}
+
+		return MultiblockValidationResult.valid(new MultiblockInstance(instance.definition(), instance.anchor(), instance.facing(), instance.blocks(), hatches));
 	}
 
 	public static MultiblockValidationResult find (LevelReader level, BlockPos anchor, MultiblockDefinition definition) {
@@ -69,8 +109,9 @@ public final class MultiblockHandler {
 	 *
 	 * <p>This is a runtime-index lookup: it does not load chunks, create runtime
 	 * state, or synchronously validate controllers. Results are ordered by controller
-	 * position for determinism, but that order must not be treated as an ownership
-	 * preference.</p>
+	 * position for determinism. An unbound attachment shared by multiple formed
+	 * structures uses this order as a stable initial ownership tie-breaker; an
+	 * existing binding is never displaced by that ordering.</p>
 	 */
 	public static List<MultiblockInstance> getFormedCandidates (ServerLevel level, BlockPos position) {
 		RuntimeState runtime = RUNTIMES.get(Objects.requireNonNull(level, "level"));
@@ -92,8 +133,66 @@ public final class MultiblockHandler {
 	}
 
 	/**
-	 * Binds an unbound attachment when exactly one formed multiblock contains it.
-	 * Existing bindings and ambiguous or missing candidate sets are left untouched.
+	 * Returns the last validated formed instance for a controller without loading
+	 * its chunk.
+	 */
+	public static Optional<MultiblockInstance> getFormedInstance (ServerLevel level, BlockPos controllerPosition) {
+		RuntimeState runtime = RUNTIMES.get(Objects.requireNonNull(level, "level"));
+		if (runtime == null) return Optional.empty();
+		return Optional.ofNullable(runtime.instances.get(Objects.requireNonNull(controllerPosition, "controllerPosition")));
+	}
+
+	/**
+	 * Resolves the active route for a hatch whose bound controller is loaded, formed,
+	 * and still owns this hatch position.
+	 */
+	public static Optional<MultiblockHatchContext> getHatchContext (ServerLevel level, MultiblockHatch hatch) {
+		Objects.requireNonNull(level, "level");
+		Objects.requireNonNull(hatch, "hatch");
+		BlockPos controllerPos = hatch.getBoundController();
+		if (controllerPos == null || !isLoaded(level, controllerPos)) return Optional.empty();
+		if (!(level.getBlockEntity(controllerPos) instanceof MultiblockController controller) || !controller.isMultiblockOperational()) return Optional.empty();
+
+		MultiblockInstance instance = getFormedInstance(level, controllerPos).orElse(null);
+		if (instance == null) return Optional.empty();
+		BlockPos hatchPos = attachmentPosition(level, hatch);
+		HatchKey key = instance.hatchAt(hatchPos);
+		if (key == null) return Optional.empty();
+
+		return instance.definition().get().hatch(key).map(definition -> new MultiblockHatchContext(instance, hatchPos, definition));
+	}
+
+	/**
+	 * Whether every hatch physically present in the instance belongs to this
+	 * controller and every route's minimum count is satisfied. Physical hatch counts
+	 * are checked during structure validation; this runtime ownership check prevents
+	 * a wall-shared hatch from making both machines appear operational.
+	 */
+	public static boolean hasRequiredBoundHatches (ServerLevel level, MultiblockController controller) {
+		Objects.requireNonNull(level, "level");
+		Objects.requireNonNull(controller, "controller");
+		if (!controller.isMultiblockFormed()) return false;
+
+		BlockPos controllerPos = controllerPosition(controller);
+		MultiblockInstance instance = getFormedInstance(level, controllerPos).orElse(null);
+		if (instance == null) return false;
+
+		Map<HatchKey, Integer> owned = new HashMap<>();
+		for (Map.Entry<BlockPos, HatchKey> entry : instance.hatches().entrySet()) {
+			if (!isLoaded(level, entry.getKey())) return false;
+			if (!(level.getBlockEntity(entry.getKey()) instanceof MultiblockHatch hatch) || !hatch.isBoundTo(controllerPos)) return false;
+			owned.merge(entry.getValue(), 1, Integer::sum);
+		}
+
+		for (MultiblockHatchDefinition definition : instance.definition().get().hatches()) {
+			if (owned.getOrDefault(definition.key(), 0) < definition.count().minimum()) return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Binds an unbound attachment to its first deterministic formed candidate.
+	 * Existing bindings and missing candidate sets are left untouched.
 	 *
 	 * @return {@code true} when a new binding was created
 	 */
@@ -102,8 +201,12 @@ public final class MultiblockHandler {
 		Objects.requireNonNull(attachment, "attachment");
 		if (attachment.isBound()) return false;
 
-		List<MultiblockInstance> candidates = getFormedCandidates(level, attachmentPosition(level, attachment));
-		return candidates.size() == 1 && attachment.bindController(candidates.getFirst().anchor());
+		BlockPos attachmentPos = attachmentPosition(level, attachment);
+		List<MultiblockInstance> candidates = getAttachmentCandidates(level, attachmentPos, attachment);
+		boolean changed = !candidates.isEmpty() && attachment.bindController(candidates.getFirst().anchor());
+		RuntimeState runtime = RUNTIMES.get(level);
+		if (runtime != null) trackAttachmentBinding(runtime, attachmentPos, attachment.getBoundController());
+		return changed;
 	}
 
 	/**
@@ -119,18 +222,30 @@ public final class MultiblockHandler {
 		Objects.requireNonNull(level, "level");
 		Objects.requireNonNull(attachment, "attachment");
 		BlockPos attachmentPos = attachmentPosition(level, attachment);
-		List<MultiblockInstance> candidates = getFormedCandidates(level, attachmentPos);
+		List<MultiblockInstance> candidates = getAttachmentCandidates(level, attachmentPos, attachment);
 		BlockPos boundController = attachment.getBoundController();
 
 		if (boundController == null) {
-			return candidates.size() == 1 && attachment.bindController(candidates.getFirst().anchor());
+			boolean changed = !candidates.isEmpty() && attachment.bindController(candidates.getFirst().anchor());
+			RuntimeState runtime = RUNTIMES.get(level);
+			if (runtime != null) trackAttachmentBinding(runtime, attachmentPos, attachment.getBoundController());
+			return changed;
 		}
-		if (candidates.stream().anyMatch(candidate -> candidate.anchor().equals(boundController))) return false;
+		if (candidates.stream().anyMatch(candidate -> candidate.anchor().equals(boundController))) {
+			RuntimeState runtime = RUNTIMES.get(level);
+			if (runtime != null) trackAttachmentBinding(runtime, attachmentPos, boundController);
+			return false;
+		}
 
 		RuntimeState runtime = RUNTIMES.get(level);
-		if (runtime == null || !isLoaded(level, boundController) || isControllerValidationPending(runtime, boundController)) return false;
+		if (runtime == null || !isLoaded(level, boundController) || isControllerValidationPending(runtime, boundController)) {
+			if (runtime != null) trackAttachmentBinding(runtime, attachmentPos, boundController);
+			return false;
+		}
 
-		return candidates.size() == 1 ? attachment.bindController(candidates.getFirst().anchor()) : attachment.unbindController();
+		boolean changed = candidates.size() == 1 ? attachment.bindController(candidates.getFirst().anchor()) : attachment.unbindController();
+		trackAttachmentBinding(runtime, attachmentPos, attachment.getBoundController());
+		return changed;
 	}
 
 	/**
@@ -155,7 +270,10 @@ public final class MultiblockHandler {
 	 * Queues an attachment for unique-candidate binding after controller validation.
 	 */
 	public static void onAttachmentLoaded (ServerLevel level, MultiblockAttachment attachment) {
-		runtime(level).pendingAttachments.add(attachmentPosition(level, attachment));
+		RuntimeState runtime = runtime(level);
+		BlockPos attachmentPos = attachmentPosition(level, attachment);
+		runtime.pendingAttachments.add(attachmentPos);
+		runtime.attachmentsAwaitingLoadRefresh.add(attachmentPos);
 	}
 
 	/**
@@ -165,6 +283,7 @@ public final class MultiblockHandler {
 		RuntimeState runtime = runtime(level);
 		Set<BlockPos> waiting = runtime.waitingForChunk.remove(chunk.getPos());
 		if (waiting != null) runtime.pendingControllers.addAll(waiting);
+		scheduleAttachmentsBoundInChunk(runtime, chunk.getPos());
 
 		for (BlockEntity blockEntity : chunk.getBlockEntities().values()) {
 			if (blockEntity instanceof MultiblockController controller) {
@@ -221,9 +340,17 @@ public final class MultiblockHandler {
 			for (BlockPos attachmentPos : pending) {
 				if (!isLoaded(level, attachmentPos)) continue;
 				if (level.getBlockEntity(attachmentPos) instanceof MultiblockAttachment attachment) {
-					revalidateAttachment(level, attachment);
+					if (revalidateAttachment(level, attachment)) {
+						// A real binding change already invalidated capabilities and notified
+						// neighbors through MultiblockAttachment's binding listener.
+						runtime.attachmentsAwaitingLoadRefresh.remove(attachmentPos);
+					}
+				} else {
+					forgetAttachment(runtime, attachmentPos);
+					runtime.attachmentsAwaitingLoadRefresh.remove(attachmentPos);
 				}
 			}
+			refreshLoadedAttachmentConnections(level, runtime);
 		}
 	}
 
@@ -308,6 +435,7 @@ public final class MultiblockHandler {
 	private static void scheduleAffectedControllers (ServerLevel level, RuntimeState runtime, BlockPos changedPos) {
 		Set<BlockPos> indexed = runtime.controllersByPosition.get(changedPos);
 		if (indexed != null) runtime.pendingControllers.addAll(indexed);
+		forgetAttachment(runtime, changedPos);
 		if (isLoaded(level, changedPos) && level.getBlockEntity(changedPos) instanceof MultiblockAttachment) {
 			runtime.pendingAttachments.add(changedPos.immutable());
 		}
@@ -351,6 +479,12 @@ public final class MultiblockHandler {
 			throw new IllegalStateException("A multiblock attachment must be queried in its current server level.");
 		}
 		return blockEntity.getBlockPos().immutable();
+	}
+
+	private static List<MultiblockInstance> getAttachmentCandidates (ServerLevel level, BlockPos attachmentPos, MultiblockAttachment attachment) {
+		List<MultiblockInstance> candidates = getFormedCandidates(level, attachmentPos);
+		if (!(attachment instanceof MultiblockHatch)) return candidates;
+		return candidates.stream().filter(instance -> instance.hatches().containsKey(attachmentPos)).toList();
 	}
 
 	private static void index (RuntimeState runtime, BlockPos controllerPos, MultiblockInstance instance) {
@@ -397,6 +531,66 @@ public final class MultiblockHandler {
 		}
 	}
 
+	private static void trackAttachmentBinding (RuntimeState runtime, BlockPos attachmentPos, @Nullable BlockPos controllerPos) {
+		forgetAttachment(runtime, attachmentPos);
+		if (controllerPos == null) return;
+		BlockPos immutableController = controllerPos.immutable();
+		BlockPos immutableAttachment = attachmentPos.immutable();
+		runtime.controllerByAttachment.put(immutableAttachment, immutableController);
+		runtime.attachmentsByController.computeIfAbsent(immutableController, ignored -> new HashSet<>()).add(immutableAttachment);
+	}
+
+	private static void forgetAttachment (RuntimeState runtime, BlockPos attachmentPos) {
+		BlockPos controllerPos = runtime.controllerByAttachment.remove(attachmentPos);
+		if (controllerPos == null) return;
+		Set<BlockPos> attachments = runtime.attachmentsByController.get(controllerPos);
+		if (attachments == null) return;
+		attachments.remove(attachmentPos);
+		if (attachments.isEmpty()) runtime.attachmentsByController.remove(controllerPos);
+	}
+
+	private static void scheduleAttachmentsBoundInChunk (RuntimeState runtime, ChunkPos chunkPos) {
+		for (Map.Entry<BlockPos, Set<BlockPos>> entry : runtime.attachmentsByController.entrySet()) {
+			BlockPos controllerPos = entry.getKey();
+			if ((controllerPos.getX() >> 4) == chunkPos.x() && (controllerPos.getZ() >> 4) == chunkPos.z()) {
+				runtime.pendingAttachments.addAll(entry.getValue());
+			}
+		}
+	}
+
+	/**
+	 * Re-announces capabilities whose persistent binding survived a load unchanged.
+	 * Capability consumers may have queried an attachment before its controller was
+	 * re-indexed, so the initial null result must be invalidated once the attachment
+	 * is operational again.
+	 */
+	private static void refreshLoadedAttachmentConnections (ServerLevel level, RuntimeState runtime) {
+		for (BlockPos attachmentPos : Set.copyOf(runtime.attachmentsAwaitingLoadRefresh)) {
+			if (!isLoaded(level, attachmentPos)) continue;
+			if (!(level.getBlockEntity(attachmentPos) instanceof MultiblockAttachment attachment)) {
+				runtime.attachmentsAwaitingLoadRefresh.remove(attachmentPos);
+				continue;
+			}
+			if (!attachment.isBound()) {
+				runtime.attachmentsAwaitingLoadRefresh.remove(attachmentPos);
+				continue;
+			}
+			if (!isAttachmentConnectionReady(level, attachmentPos, attachment)) continue;
+
+			runtime.attachmentsAwaitingLoadRefresh.remove(attachmentPos);
+			level.invalidateCapabilities(attachmentPos);
+			level.updateNeighborsAt(attachmentPos, level.getBlockState(attachmentPos).getBlock());
+		}
+	}
+
+	private static boolean isAttachmentConnectionReady (ServerLevel level, BlockPos attachmentPos, MultiblockAttachment attachment) {
+		BlockPos controllerPos = attachment.getBoundController();
+		if (controllerPos == null) return false;
+		boolean indexed = getAttachmentCandidates(level, attachmentPos, attachment).stream().anyMatch(instance -> instance.anchor().equals(controllerPos));
+		if (!indexed) return false;
+		return !(attachment instanceof MultiblockHatch hatch) || getHatchContext(level, hatch).isPresent();
+	}
+
 	private static void removeControllerAt (RuntimeState runtime, BlockPos pos, BlockPos controllerPos) {
 		Set<BlockPos> controllers = runtime.controllersByPosition.get(pos);
 		if (controllers == null) return;
@@ -420,6 +614,39 @@ public final class MultiblockHandler {
 		int chunkX = SectionPos.blockToSectionCoord(pos.getX());
 		int chunkZ = SectionPos.blockToSectionCoord(pos.getZ());
 		return level.getChunk(chunkX, chunkZ, ChunkStatus.FULL, false) != null;
+	}
+
+	private static String formatCount (HatchCount count) {
+		if (count.minimum() == count.maximum()) return "exactly " + count.minimum();
+		if (count.maximum() == Integer.MAX_VALUE) return "at least " + count.minimum();
+		if (count.minimum() == 0) return "at most " + count.maximum();
+		return "between " + count.minimum() + " and " + count.maximum();
+	}
+
+	private static @Nullable String validateHatchAccess (@Nullable BlockEntity controller, MultiblockHatchDefinition hatch) {
+		HatchAccess access = hatch.access();
+		if (access.hasItemAccess()) {
+			if (!(controller instanceof ItemResourceProvider provider)) return "Hatch route '" + hatch.key() + "' requires controller item storage";
+			for (String slot : access.itemInsertion()) {
+				if (!provider.getItemDefinition().genericDefinition().has(slot)) return "Hatch route '" + hatch.key() + "' references unknown item slot '" + slot + "'";
+			}
+			for (String slot : access.itemExtraction()) {
+				if (!provider.getItemDefinition().genericDefinition().has(slot)) return "Hatch route '" + hatch.key() + "' references unknown item slot '" + slot + "'";
+			}
+		}
+		if (access.hasFluidAccess()) {
+			if (!(controller instanceof FluidResourceProvider provider)) return "Hatch route '" + hatch.key() + "' requires controller fluid storage";
+			for (String tank : access.fluidInsertion()) {
+				if (!provider.getFluidDefinition().genericDefinition().has(tank)) return "Hatch route '" + hatch.key() + "' references unknown fluid tank '" + tank + "'";
+			}
+			for (String tank : access.fluidExtraction()) {
+				if (!provider.getFluidDefinition().genericDefinition().has(tank)) return "Hatch route '" + hatch.key() + "' references unknown fluid tank '" + tank + "'";
+			}
+		}
+		if (access.energyMode() != ResourceIoMode.NONE && !(controller instanceof EnergyResourceProvider)) {
+			return "Hatch route '" + hatch.key() + "' requires controller energy storage";
+		}
+		return null;
 	}
 
 	private static RuntimeState runtime (ServerLevel level) {
@@ -474,9 +701,12 @@ public final class MultiblockHandler {
 	private static final class RuntimeState {
 		private final Map<BlockPos, Set<BlockPos>>      controllersByPosition = new HashMap<>();
 		private final Map<BlockPos, MultiblockInstance> instances             = new HashMap<>();
+		private final Map<BlockPos, Set<BlockPos>>      attachmentsByController = new HashMap<>();
+		private final Map<BlockPos, BlockPos>           controllerByAttachment = new HashMap<>();
 		private final Set<BlockPos>                     changedPositions      = new HashSet<>();
 		private final Set<BlockPos>                     pendingControllers    = new HashSet<>();
 		private final Set<BlockPos>                     pendingAttachments    = new HashSet<>();
+		private final Set<BlockPos>                     attachmentsAwaitingLoadRefresh = new HashSet<>();
 		private final Map<ChunkPos, Set<BlockPos>>      waitingForChunk       = new HashMap<>();
 		private       SearchRange                       searchRange           = SearchRange.ZERO;
 	}

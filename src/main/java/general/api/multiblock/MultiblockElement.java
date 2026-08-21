@@ -11,7 +11,11 @@ import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public record MultiblockElement(Matcher matcher, Supplier<BlockState> placementStateSupplier) {
+public record MultiblockElement(Matcher matcher, Supplier<BlockState> placementStateSupplier, boolean hatchable) {
+
+	public MultiblockElement (Matcher matcher, Supplier<BlockState> placementStateSupplier) {
+		this(matcher, placementStateSupplier, false);
+	}
 
 	public boolean matches (LevelReader level, BlockPos pos) {
 		return matcher.matches(level, pos, level.getBlockState(pos));
@@ -94,6 +98,17 @@ public record MultiblockElement(Matcher matcher, Supplier<BlockState> placementS
 
 	public static MultiblockElement matcher (Matcher matcher) {
 		return new MultiblockElement(Objects.requireNonNull(matcher), null);
+	}
+
+	/**
+	 * Allows a registered {@link MultiblockHatch} to replace the supplied normal
+	 * casing element. Hatch registration and count validation remain properties of
+	 * the multiblock definition.
+	 */
+	public static MultiblockElement hatchable (MultiblockElement casing) {
+		Objects.requireNonNull(casing, "casing");
+		if (casing.hatchable()) return casing;
+		return new MultiblockElement((level, pos, state) -> casing.matcher().matches(level, pos, state) || level.getBlockEntity(pos) instanceof MultiblockHatch, casing.placementStateSupplier(), true);
 	}
 
 	public static MultiblockElement air () {

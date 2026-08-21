@@ -149,7 +149,7 @@ public class CokeOvenController extends BaseBlock implements EntityBlock, BlockE
 
 		// Register specific recipes for the Coke Oven
 		context.save(getRecipeDefinition().recipeBuilder().itemInput(RecipeSlots.INPUT, Items.COAL, 1).itemOutput(RecipeSlots.OUTPUT, GenItems.COAL_COKE.get(), 1).fluidOutput(RecipeSlots.CREOSOTE, GenFluids.CREOSOTE.get(), FluidTanks.BUCKET / 4).duration(1_200), "coke_oven/coal_coke");
-		context.save(getRecipeDefinition().recipeBuilder().itemInput(RecipeSlots.INPUT, Tags.Items.STORAGE_BLOCKS_COAL, context.items(), 1).itemOutput(RecipeSlots.OUTPUT, GenItems.COAL_COKE.get(), 9).fluidOutput(RecipeSlots.CREOSOTE, GenFluids.CREOSOTE.get(), 2_250).duration(1_200), "coke_oven/coal_coke_from_coal_block");
+		context.save(getRecipeDefinition().recipeBuilder().itemInput(RecipeSlots.INPUT, Tags.Items.STORAGE_BLOCKS_COAL, context.items(), 1).itemOutput(RecipeSlots.OUTPUT, GenItems.COAL_COKE.get(), 9).fluidOutput(RecipeSlots.CREOSOTE, GenFluids.CREOSOTE.get(), 2_250).duration(1_200 * 9), "coke_oven/coal_coke_from_coal_block");
 		context.save(getRecipeDefinition().recipeBuilder().itemInput(RecipeSlots.INPUT, Items.CHARCOAL, 1).itemOutput(RecipeSlots.OUTPUT, GenItems.COAL_COKE.get(), 1).fluidOutput(RecipeSlots.CREOSOTE, GenFluids.CREOSOTE.get(), FluidTanks.BUCKET / 2).duration(1_200), "coke_oven/coal_coke_from_charcoal");
 		context.save(getRecipeDefinition().recipeBuilder().itemInput(RecipeSlots.INPUT, ItemTags.LOGS_THAT_BURN, context.items(), 1).itemOutput(RecipeSlots.OUTPUT, GenItems.COAL_COKE.get(), 1).fluidOutput(RecipeSlots.CREOSOTE, GenFluids.CREOSOTE.get(), FluidTanks.BUCKET / 4).duration(1_500), "coke_oven/coal_coke_from_logs");
 	}

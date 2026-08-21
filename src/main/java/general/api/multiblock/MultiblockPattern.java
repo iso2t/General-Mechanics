@@ -68,6 +68,30 @@ public final class MultiblockPattern {
 			return this;
 		}
 
+		public Builder whereHatchable (char symbol, MultiblockElement casing) {
+			return where(symbol, MultiblockElement.hatchable(casing));
+		}
+
+		public Builder whereHatchable (char symbol, Block casing) {
+			return whereHatchable(symbol, MultiblockElement.block(casing));
+		}
+
+		public Builder whereHatchable (char symbol, BlockDefinition<? extends Block> casing) {
+			return whereHatchable(symbol, MultiblockElement.block(casing));
+		}
+
+		public Builder whereHatchable (char symbol, TagKey<Block> casing) {
+			return whereHatchable(symbol, MultiblockElement.tag(casing));
+		}
+
+		public Builder whereHatchable (char symbol, TagKey<Block> casing, Block constructionBlock) {
+			return whereHatchable(symbol, MultiblockElement.tag(casing, constructionBlock));
+		}
+
+		public Builder whereHatchable (char symbol, TagKey<Block> casing, BlockDefinition<? extends Block> constructionBlock) {
+			return whereHatchable(symbol, MultiblockElement.tag(casing, constructionBlock));
+		}
+
 		/**
 		 * Defines a symbol that accepts any block in the supplied block tag. Tag-only
 		 * elements are intentionally not constructible because no tag member can be

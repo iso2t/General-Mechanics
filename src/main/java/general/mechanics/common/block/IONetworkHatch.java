@@ -2,9 +2,10 @@ package general.mechanics.common.block;
 
 import general.api.block.IOBlock;
 import general.api.resources.Resource;
+import general.mechanics.common.block.entity.MultiblockHatchBlockEntity;
 import net.minecraft.resources.Identifier;
 
-public class IONetworkHatch extends IOBlock {
+public class IONetworkHatch extends IOBlock<MultiblockHatchBlockEntity> {
 
 	public IONetworkHatch (Properties properties) {
 		super(properties, IOMode.ANY, IOType.NETWORK);

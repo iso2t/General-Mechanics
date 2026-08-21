@@ -37,7 +37,6 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.BlockHitResult;
-import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
@@ -53,8 +52,8 @@ public class CokeOvenControllerBlockEntity extends BlockEntity implements Multib
 	private static final String RECIPE_PROCESSOR_TAG = "recipe_processor";
 
 	public static void registerCapabilities (RegisterCapabilitiesEvent event, BlockEntityType<CokeOvenControllerBlockEntity> type) {
-		event.registerBlockEntity(Capabilities.Item.BLOCK, type, (block, side) -> block.isMultiblockFormed() ? block.getItemHandler(side) : null);
-		event.registerBlockEntity(Capabilities.Fluid.BLOCK, type, (block, side) -> block.isMultiblockFormed() ? block.getFluidHandler(side) : null);
+		// External automation is routed through registered multiblock hatches. The
+		// controller providers remain available to recipes, menus, and hatch proxies.
 	}
 
 	public static final ItemInventoryDefinition ITEMS = ItemInventoryDefinition.builder().input(CokeOvenController.RecipeSlots.INPUT).output(CokeOvenController.RecipeSlots.OUTPUT).build();
@@ -206,7 +205,7 @@ public class CokeOvenControllerBlockEntity extends BlockEntity implements Multib
 	}
 
 	public void serverTick (ServerLevel level) {
-		if (!formed) {
+		if (!isMultiblockOperational()) {
 			recipeProcessor.reset();
 			setLit(level, false);
 			return;
@@ -228,7 +227,7 @@ public class CokeOvenControllerBlockEntity extends BlockEntity implements Multib
 
 	@Override
 	public @Nullable AbstractContainerMenu createMenu (int containerId, @NonNull Inventory inventory, @NonNull Player player) {
-		return formed ? new CokeOvenMenu(containerId, inventory, this) : null;
+		return isMultiblockOperational() ? new CokeOvenMenu(containerId, inventory, this) : null;
 	}
 
 }

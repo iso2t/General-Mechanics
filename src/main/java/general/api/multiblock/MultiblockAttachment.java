@@ -25,7 +25,7 @@ public interface MultiblockAttachment {
 	 * once when initializing the value returned by {@link #getMultiblockBinding()}.
 	 *
 	 * <p>Every runtime binding change marks the block entity dirty, invalidates its
-	 * block capabilities, notifies its neighbors, and finally calls
+	 * block capabilities, notifies its neighbors, and calls
 	 * {@link #onMultiblockBindingChanged(BlockPos, BlockPos)}.</p>
 	 */
 	default MultiblockAttachmentBinding createAttachmentBinding () {
@@ -34,6 +34,7 @@ public interface MultiblockAttachment {
 		}
 
 		return new MultiblockAttachmentBinding((previous, current) -> {
+			onMultiblockBindingChanged(previous, current);
 			blockEntity.setChanged();
 			Level level = blockEntity.getLevel();
 			if (level != null) {
@@ -41,12 +42,12 @@ public interface MultiblockAttachment {
 				level.invalidateCapabilities(position);
 				level.updateNeighborsAt(position, blockEntity.getBlockState().getBlock());
 			}
-			onMultiblockBindingChanged(previous, current);
 		});
 	}
 
 	/**
-	 * Optional attachment-specific behavior after the standard binding-change updates.
+	 * Optional attachment-specific behavior before capability invalidation and neighbor
+	 * notification.
 	 */
 	default void onMultiblockBindingChanged (@Nullable BlockPos previous, @Nullable BlockPos current) {
 	}
