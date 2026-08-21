@@ -30,13 +30,13 @@ import java.util.Objects;
  */
 final class MachineRecipeCategory extends AbstractRecipeCategory<RecipeHolder<MachineRecipe>> {
 
-	private static final int SLOT_SIZE        = 18;
-	private static final int MAX_ROWS         = 3;
-	private static final int ARROW_WIDTH      = 24;
-	private static final int ARROW_AREA_WIDTH = 42;
-	private static final int MIN_WIDTH        = 82;
-	private static final int MIN_HEIGHT       = 36;
-	private static final String TIME_SECONDS_KEY = "gui.generalmechanics.machine_recipe.time.seconds";
+	private static final int    SLOT_SIZE                = 18;
+	private static final int    MAX_ROWS                 = 3;
+	private static final int    ARROW_WIDTH              = 24;
+	private static final int    ARROW_AREA_WIDTH         = 42;
+	private static final int    MIN_WIDTH                = 82;
+	private static final int    MIN_HEIGHT               = 36;
+	private static final String TIME_SECONDS_KEY         = "gui.generalmechanics.machine_recipe.time.seconds";
 	private static final String TIME_MINUTES_SECONDS_KEY = "gui.generalmechanics.machine_recipe.time.minutes_seconds";
 
 	private final MachineRecipeDefinition<?> definition;
@@ -113,9 +113,7 @@ final class MachineRecipeCategory extends AbstractRecipeCategory<RecipeHolder<Ma
 		builder.addAnimatedRecipeArrow(duration).setPosition(arrowX, arrowY);
 
 		int totalSeconds = Math.max(1, Mth.ceil(duration / 20.0));
-		Component time = totalSeconds < 60
-				? Component.translatableWithFallback(TIME_SECONDS_KEY, "%ss", totalSeconds)
-				: Component.translatableWithFallback(TIME_MINUTES_SECONDS_KEY, "%sm %ss", totalSeconds / 60, totalSeconds % 60);
+		Component time = totalSeconds < 60 ? Component.translatableWithFallback(TIME_SECONDS_KEY, "%ss", totalSeconds) : Component.translatableWithFallback(TIME_MINUTES_SECONDS_KEY, "%sm %ss", totalSeconds / 60, totalSeconds % 60);
 		builder.addText(time, ARROW_AREA_WIDTH, 10).setPosition(arrowX - (ARROW_AREA_WIDTH - ARROW_WIDTH) / 2, arrowY + 18).setTextAlignment(HorizontalAlignment.CENTER).setColor(0xFF404040);
 	}
 

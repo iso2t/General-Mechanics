@@ -2,14 +2,10 @@ package general.mechanics.registries;
 
 import general.api.definitions.MultiblockDefinition;
 import general.api.mod.GenAPI;
-import general.api.multiblock.Multiblock;
-import general.api.multiblock.MultiblockElement;
-import general.api.multiblock.MultiblockHatchDefinition;
-import general.api.multiblock.MultiblockPattern;
-import general.api.multiblock.HatchCount;
+import general.api.multiblock.*;
 import general.api.network.NetworkServices;
-import general.mechanics.common.block.CokeOvenController;
 import general.api.registry.GenRegistries;
+import general.mechanics.common.block.CokeOvenController;
 import net.minecraft.core.Registry;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -22,21 +18,17 @@ public class GenMultiblocks {
 
 	public static final MultiblockDefinition COKE_OVEN = register("coke_oven", Multiblock.builder(MultiblockPattern.builder().whereHatchable('F', MultiblockElement.block(GenBlocks.COKE_OVEN_BRICKS)).where('C', MultiblockElement.block(GenBlocks.COKE_OVEN_CONTROLLER)).where('.', MultiblockElement.air()).where('#', MultiblockElement.any()).where('L', MultiblockElement.block(Blocks.LAVA))
 
-			.anchor('C')
+					.anchor('C')
 
-			.layer("FFF", "FFF", "FFF")
+					.layer("FFF", "FFF", "FFF")
 
-			.layer("FFF", "FLF", "FCF")
+					.layer("FFF", "FLF", "FCF")
 
-			.layer("#F#", "F#F", "#F#")
+					.layer("#F#", "F#F", "#F#")
 
-			.build())
+					.build())
 
-			.hatch(MultiblockHatchDefinition.builder("item_input", GenBlocks.ITEM_INPUT_HATCH).count(HatchCount.atMost(1)).itemInsert(CokeOvenController.RecipeSlots.INPUT).build())
-			.hatch(MultiblockHatchDefinition.builder("item_output", GenBlocks.ITEM_OUTPUT_HATCH).count(HatchCount.atMost(1)).itemExtract(CokeOvenController.RecipeSlots.OUTPUT).build())
-			.hatch(MultiblockHatchDefinition.builder("fluid_output", GenBlocks.FLUID_OUTPUT_HATCH).count(HatchCount.atMost(1)).fluidExtract(CokeOvenController.RecipeSlots.CREOSOTE).build())
-			.hatch(MultiblockHatchDefinition.builder("network", GenBlocks.NETWORK_HATCH).count(HatchCount.atMost(1)).itemInsert(CokeOvenController.RecipeSlots.INPUT).itemExtract(CokeOvenController.RecipeSlots.OUTPUT).fluidExtract(CokeOvenController.RecipeSlots.CREOSOTE).network(NetworkServices.ITEM, NetworkServices.FLUID).build())
-			.build());
+			.hatch(MultiblockHatchDefinition.builder("item_input", GenBlocks.ITEM_INPUT_HATCH).count(HatchCount.atMost(1)).itemInsert(CokeOvenController.RecipeSlots.INPUT).build()).hatch(MultiblockHatchDefinition.builder("item_output", GenBlocks.ITEM_OUTPUT_HATCH).count(HatchCount.atMost(1)).itemExtract(CokeOvenController.RecipeSlots.OUTPUT).build()).hatch(MultiblockHatchDefinition.builder("fluid_output", GenBlocks.FLUID_OUTPUT_HATCH).count(HatchCount.atMost(1)).fluidExtract(CokeOvenController.RecipeSlots.CREOSOTE).build()).hatch(MultiblockHatchDefinition.builder("network", GenBlocks.NETWORK_HATCH).count(HatchCount.atMost(1)).itemInsert(CokeOvenController.RecipeSlots.INPUT).itemExtract(CokeOvenController.RecipeSlots.OUTPUT).fluidExtract(CokeOvenController.RecipeSlots.CREOSOTE).network(NetworkServices.ITEM, NetworkServices.FLUID).build()).build());
 
 	public static MultiblockDefinition register (String name, MultiblockPattern pattern) {
 		return register(name, new Multiblock(pattern));

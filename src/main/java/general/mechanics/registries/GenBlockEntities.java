@@ -6,11 +6,7 @@ import general.api.capabilities.ICapabilityRegistrar;
 import general.api.definitions.BlockDefinition;
 import general.api.definitions.BlockEntityDefinition;
 import general.api.mod.GenAPI;
-import general.mechanics.common.block.entity.CableBlockEntity;
-import general.mechanics.common.block.entity.CokeOvenControllerBlockEntity;
-import general.mechanics.common.block.entity.NetworkConnectorBlockEntity;
-import general.mechanics.common.block.entity.PowerInjectorBlockEntity;
-import general.mechanics.common.block.entity.MultiblockHatchBlockEntity;
+import general.mechanics.common.block.entity.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.Block;
@@ -34,7 +30,7 @@ public class GenBlockEntities {
 	public static final BlockEntityDefinition<NetworkConnectorBlockEntity>   NETWORK_CONNECTOR    = create("network_connector", NetworkConnectorBlockEntity.class, NetworkConnectorBlockEntity::new, NetworkConnectorBlockEntity::registerCapabilities, GenBlocks.NETWORK_CONNECTOR);
 	public static final BlockEntityDefinition<PowerInjectorBlockEntity>      POWER_INJECTOR       = create("power_injector", PowerInjectorBlockEntity.class, PowerInjectorBlockEntity::new, PowerInjectorBlockEntity::registerCapabilities, GenBlocks.POWER_INJECTOR);
 	public static final BlockEntityDefinition<CokeOvenControllerBlockEntity> COKE_OVEN_CONTROLLER = create("coke_oven_controller", CokeOvenControllerBlockEntity.class, CokeOvenControllerBlockEntity::new, CokeOvenControllerBlockEntity::registerCapabilities, GenBlocks.COKE_OVEN_CONTROLLER);
-	public static final BlockEntityDefinition<MultiblockHatchBlockEntity>     MULTIBLOCK_HATCH     = create("multiblock_hatch", MultiblockHatchBlockEntity.class, MultiblockHatchBlockEntity::new, MultiblockHatchBlockEntity::registerCapabilities, GenBlocks.ITEM_INPUT_HATCH, GenBlocks.ITEM_OUTPUT_HATCH, GenBlocks.FLUID_INPUT_HATCH, GenBlocks.FLUID_OUTPUT_HATCH, GenBlocks.POWER_HATCH, GenBlocks.NETWORK_HATCH);
+	public static final BlockEntityDefinition<MultiblockHatchBlockEntity>    MULTIBLOCK_HATCH     = create("multiblock_hatch", MultiblockHatchBlockEntity.class, MultiblockHatchBlockEntity::new, MultiblockHatchBlockEntity::registerCapabilities, GenBlocks.ITEM_INPUT_HATCH, GenBlocks.ITEM_OUTPUT_HATCH, GenBlocks.FLUID_INPUT_HATCH, GenBlocks.FLUID_OUTPUT_HATCH, GenBlocks.POWER_HATCH, GenBlocks.NETWORK_HATCH);
 
 	public static List<BlockEntityDefinition<?>> getBlockEntities () {
 		return Collections.unmodifiableList(BLOCK_ENTITIES);

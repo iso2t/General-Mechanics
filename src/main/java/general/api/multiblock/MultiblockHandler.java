@@ -2,8 +2,8 @@ package general.api.multiblock;
 
 import general.api.definitions.MultiblockDefinition;
 import general.api.multiblock.event.MultiblockEvent;
-import general.api.transfer.energy.EnergyResourceProvider;
 import general.api.transfer.ResourceIoMode;
+import general.api.transfer.energy.EnergyResourceProvider;
 import general.api.transfer.fluid.FluidResourceProvider;
 import general.api.transfer.item.ItemResourceProvider;
 import net.minecraft.core.BlockPos;
@@ -126,9 +126,7 @@ public final class MultiblockHandler {
 			if (instance != null) candidates.add(instance);
 		}
 
-		candidates.sort(Comparator.comparingInt((MultiblockInstance instance) -> instance.anchor().getX())
-				.thenComparingInt(instance -> instance.anchor().getY())
-				.thenComparingInt(instance -> instance.anchor().getZ()));
+		candidates.sort(Comparator.comparingInt((MultiblockInstance instance) -> instance.anchor().getX()).thenComparingInt(instance -> instance.anchor().getY()).thenComparingInt(instance -> instance.anchor().getZ()));
 		return List.copyOf(candidates);
 	}
 
@@ -699,15 +697,15 @@ public final class MultiblockHandler {
 	}
 
 	private static final class RuntimeState {
-		private final Map<BlockPos, Set<BlockPos>>      controllersByPosition = new HashMap<>();
-		private final Map<BlockPos, MultiblockInstance> instances             = new HashMap<>();
-		private final Map<BlockPos, Set<BlockPos>>      attachmentsByController = new HashMap<>();
-		private final Map<BlockPos, BlockPos>           controllerByAttachment = new HashMap<>();
-		private final Set<BlockPos>                     changedPositions      = new HashSet<>();
-		private final Set<BlockPos>                     pendingControllers    = new HashSet<>();
-		private final Set<BlockPos>                     pendingAttachments    = new HashSet<>();
+		private final Map<BlockPos, Set<BlockPos>>      controllersByPosition          = new HashMap<>();
+		private final Map<BlockPos, MultiblockInstance> instances                      = new HashMap<>();
+		private final Map<BlockPos, Set<BlockPos>>      attachmentsByController        = new HashMap<>();
+		private final Map<BlockPos, BlockPos>           controllerByAttachment         = new HashMap<>();
+		private final Set<BlockPos>                     changedPositions               = new HashSet<>();
+		private final Set<BlockPos>                     pendingControllers             = new HashSet<>();
+		private final Set<BlockPos>                     pendingAttachments             = new HashSet<>();
 		private final Set<BlockPos>                     attachmentsAwaitingLoadRefresh = new HashSet<>();
-		private final Map<ChunkPos, Set<BlockPos>>      waitingForChunk       = new HashMap<>();
-		private       SearchRange                       searchRange           = SearchRange.ZERO;
+		private final Map<ChunkPos, Set<BlockPos>>      waitingForChunk                = new HashMap<>();
+		private       SearchRange                       searchRange                    = SearchRange.ZERO;
 	}
 }

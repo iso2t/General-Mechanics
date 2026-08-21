@@ -12,8 +12,8 @@ import java.util.function.Supplier;
  */
 public final class SupplierBackedEnergyHandler implements EnergyHandler {
 
-	private final Supplier<? extends EnergyHandler>  handlerSupplier;
-	private final Supplier<ResourceIoMode>           modeSupplier;
+	private final Supplier<? extends EnergyHandler> handlerSupplier;
+	private final Supplier<ResourceIoMode>          modeSupplier;
 
 	public SupplierBackedEnergyHandler (Supplier<? extends EnergyHandler> handlerSupplier, Supplier<ResourceIoMode> modeSupplier) {
 		this.handlerSupplier = Objects.requireNonNull(handlerSupplier, "handlerSupplier");

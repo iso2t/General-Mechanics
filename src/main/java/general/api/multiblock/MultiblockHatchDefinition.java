@@ -36,10 +36,10 @@ public record MultiblockHatchDefinition(HatchKey key, MultiblockHatchMatcher mat
 
 	public static final class Builder {
 
-		private final HatchKey                  key;
-		private final MultiblockHatchMatcher    matcher;
-		private final HatchAccess.Builder       access = HatchAccess.builder();
-		private       HatchCount                count  = HatchCount.any();
+		private final HatchKey               key;
+		private final MultiblockHatchMatcher matcher;
+		private final HatchAccess.Builder    access = HatchAccess.builder();
+		private       HatchCount             count  = HatchCount.any();
 
 		private Builder (HatchKey key, MultiblockHatchMatcher matcher) {
 			this.key = Objects.requireNonNull(key, "key");

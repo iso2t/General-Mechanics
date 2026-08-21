@@ -4,7 +4,9 @@ import general.api.network.service.NetworkServiceType;
 import general.api.transfer.ResourceIoMode;
 import general.api.transfer.ResourceSlotKey;
 
-import java.util.*;
+import java.util.LinkedHashSet;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * Immutable controller resources and network services exposed through a hatch
@@ -67,9 +69,9 @@ public final class HatchAccess {
 
 	public static final class Builder {
 
-		private final Set<String>                itemInsertion  = new LinkedHashSet<>();
-		private final Set<String>                itemExtraction = new LinkedHashSet<>();
-		private final Set<String>                fluidInsertion = new LinkedHashSet<>();
+		private final Set<String>                itemInsertion   = new LinkedHashSet<>();
+		private final Set<String>                itemExtraction  = new LinkedHashSet<>();
+		private final Set<String>                fluidInsertion  = new LinkedHashSet<>();
 		private final Set<String>                fluidExtraction = new LinkedHashSet<>();
 		private final Set<NetworkServiceType<?>> networkServices = new LinkedHashSet<>();
 		private       ResourceIoMode             energyMode      = ResourceIoMode.NONE;

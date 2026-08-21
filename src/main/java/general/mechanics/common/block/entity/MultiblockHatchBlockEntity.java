@@ -2,11 +2,7 @@ package general.mechanics.common.block.entity;
 
 import general.api.block.IOBlock;
 import general.api.capabilities.GeneralCapabilities;
-import general.api.multiblock.MultiblockAttachmentBinding;
-import general.api.multiblock.HatchKey;
-import general.api.multiblock.MultiblockHandler;
-import general.api.multiblock.MultiblockHatch;
-import general.api.multiblock.MultiblockHatchContext;
+import general.api.multiblock.*;
 import general.api.network.INetworkInterface;
 import general.api.network.NetworkEndpoint;
 import general.api.network.NetworkNode;
@@ -51,11 +47,11 @@ public class MultiblockHatchBlockEntity extends BlockEntity implements Multibloc
 		event.registerBlockEntity(GeneralCapabilities.NETWORK_HANDLER_BLOCK, type, MultiblockHatchBlockEntity::getNetworkCapability);
 	}
 
-	private final MultiblockAttachmentBinding multiblockBinding = createAttachmentBinding();
-	private final ResourceHandler<ItemResource> itemCapability = new SupplierBackedRestrictedResourceHandler<>(this::resolveItemHandler, this::resolveItemPolicy);
-	private final ResourceHandler<FluidResource> fluidCapability = new SupplierBackedRestrictedResourceHandler<>(this::resolveFluidHandler, this::resolveFluidPolicy);
-	private final EnergyHandler                  energyCapability = new SupplierBackedEnergyHandler(this::resolveEnergyHandler, this::resolveEnergyMode);
-	private final NetworkNode                    networkNode      = new NetworkNode("MultiblockHatch");
+	private final MultiblockAttachmentBinding    multiblockBinding = createAttachmentBinding();
+	private final ResourceHandler<ItemResource>  itemCapability    = new SupplierBackedRestrictedResourceHandler<>(this::resolveItemHandler, this::resolveItemPolicy);
+	private final ResourceHandler<FluidResource> fluidCapability   = new SupplierBackedRestrictedResourceHandler<>(this::resolveFluidHandler, this::resolveFluidPolicy);
+	private final EnergyHandler                  energyCapability  = new SupplierBackedEnergyHandler(this::resolveEnergyHandler, this::resolveEnergyMode);
+	private final NetworkNode                    networkNode       = new NetworkNode("MultiblockHatch");
 
 	private @Nullable PolicyCache<ItemResource>  itemPolicy;
 	private @Nullable PolicyCache<FluidResource> fluidPolicy;

@@ -65,7 +65,7 @@ public class MechanicsJei implements IModPlugin {
 	private static final class MachineScreenGuiHandler implements IGuiContainerHandler<AbstractScreen<?>> {
 
 		@Override
-		public Collection<IGuiClickableArea> getGuiClickableAreas (AbstractScreen<?> screen, double guiMouseX, double guiMouseY) {
+		public @NonNull Collection<IGuiClickableArea> getGuiClickableAreas (AbstractScreen<?> screen, double guiMouseX, double guiMouseY) {
 			if (!screen.isRecipeViewerButtonHovered(guiMouseX, guiMouseY)) return List.of();
 
 			IRecipeType<?>[] recipeTypes = screen.getMenu().getRecipeDefinitions().stream().map(definition -> (IRecipeType<?>) IRecipeHolderType.create(definition.type())).toArray(IRecipeType<?>[]::new);
@@ -73,7 +73,7 @@ public class MechanicsJei implements IModPlugin {
 		}
 
 		@Override
-		public List<Rect2i> getGuiExtraAreas (AbstractScreen<?> screen) {
+		public @NonNull List<Rect2i> getGuiExtraAreas (AbstractScreen<?> screen) {
 			return screen.hasRecipeViewerButton() ? List.of(screen.getRecipeViewerButtonArea()) : List.of();
 		}
 	}

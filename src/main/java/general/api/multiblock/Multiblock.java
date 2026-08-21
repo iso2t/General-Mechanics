@@ -31,8 +31,8 @@ public record Multiblock(MultiblockPattern pattern, List<MultiblockHatchDefiniti
 
 	public static final class Builder {
 
-		private final MultiblockPattern                    pattern;
-		private final List<MultiblockHatchDefinition>      hatches = new ArrayList<>();
+		private final MultiblockPattern               pattern;
+		private final List<MultiblockHatchDefinition> hatches = new ArrayList<>();
 
 		private Builder (MultiblockPattern pattern) {
 			this.pattern = Objects.requireNonNull(pattern, "pattern");
