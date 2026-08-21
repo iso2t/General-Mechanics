@@ -51,7 +51,8 @@ public interface MultiblockController {
 	 * interactions to {@link #onFormedMultiblockUse(Player, BlockHitResult, MultiblockInstance)}.
 	 */
 	default InteractionResult useMultiblock (Player player, BlockHitResult hitResult) {
-		if (!player.getItemInHand(InteractionHand.MAIN_HAND).isEmpty() & !isMultiblockFormed()) return InteractionResult.PASS;
+		if (!player.getItemInHand(InteractionHand.MAIN_HAND).isEmpty()) return InteractionResult.PASS;
+		if (!isMultiblockFormed()) return InteractionResult.FAIL;
 		if (!(this instanceof BlockEntity blockEntity)) return InteractionResult.PASS;
 
 		Level level = blockEntity.getLevel();
