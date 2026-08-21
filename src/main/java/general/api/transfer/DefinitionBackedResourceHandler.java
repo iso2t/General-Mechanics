@@ -23,11 +23,12 @@ import java.util.Objects;
  * <p>Like NeoForge's handlers, instances are intended for server-thread use and
  * are not thread-safe.</p>
  */
-public abstract class DefinitionBackedResourceHandler<S, R extends Resource> extends StacksResourceHandler<S, R> {
+public abstract class DefinitionBackedResourceHandler<S, R extends Resource> extends StacksResourceHandler<S, R> implements VersionedResourceHandler<R> {
 
 	@Getter
 	private final ResourceInventoryDefinition<R> definition;
 	private final ResourceChangeListener<R>      changeListener;
+	private       long                           contentRevision;
 
 	protected DefinitionBackedResourceHandler (ResourceInventoryDefinition<R> definition, S emptyStack, Codec<S> stackCodec, ResourceChangeListener<R> changeListener) {
 		super(requireDefinition(definition).size(), Objects.requireNonNull(emptyStack, "emptyStack"), Objects.requireNonNull(stackCodec, "stackCodec"));
@@ -37,6 +38,16 @@ public abstract class DefinitionBackedResourceHandler<S, R extends Resource> ext
 
 	public final ResourceSlotDefinition<R> slotDefinition (int index) {
 		return definition.get(index);
+	}
+
+	/**
+	 * Monotonic runtime revision incremented after each committed content change.
+	 * Consumers can use this to invalidate derived state without rescanning or
+	 * simulating an unchanged handler every tick.
+	 */
+	@Override
+	public final long contentRevision () {
+		return contentRevision;
 	}
 
 	public final int index (String name) {
@@ -103,6 +114,7 @@ public abstract class DefinitionBackedResourceHandler<S, R extends Resource> ext
 			NonNullList<S> normalized = normalizeLoadedStacks(loaded);
 			validateLoadedStacks(normalized);
 			setStacks(normalized);
+			contentRevision++;
 		});
 	}
 
@@ -115,6 +127,7 @@ public abstract class DefinitionBackedResourceHandler<S, R extends Resource> ext
 		if (previousAmount == currentAmount && previousResource.equals(currentResource)) {
 			return;
 		}
+		contentRevision++;
 		changeListener.onResourceChanged(index, previousResource, previousAmount, currentResource, currentAmount);
 	}
 

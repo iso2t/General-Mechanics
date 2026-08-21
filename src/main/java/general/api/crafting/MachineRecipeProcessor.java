@@ -10,6 +10,8 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import org.jspecify.annotations.Nullable;
 
+import java.util.IdentityHashMap;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -19,7 +21,9 @@ import java.util.Objects;
  * recipes when that recipe's outputs are blocked, preserves progress while
  * blocked, and delegates final mutation to the binding's atomic transaction.
  * Persistence is self-contained through {@link #save(ValueOutput)} and
- * {@link #load(ValueInput)}.</p>
+ * {@link #load(ValueInput)}. Transfer simulations are cached while the bound
+ * handlers and loaded recipe map remain unchanged; matching itself is always
+ * evaluated against the current level and input.</p>
  */
 public final class MachineRecipeProcessor {
 
@@ -27,12 +31,17 @@ public final class MachineRecipeProcessor {
 	private static final String PROGRESS_TAG      = "progress";
 	private static final String MAX_PROGRESS_TAG  = "max_progress";
 
-	private final     MachineRecipeBinding   binding;
-	private final     Runnable               changeCallback;
+	private final     MachineRecipeBinding          binding;
+	private final     Runnable                      changeCallback;
+	private final     Map<MachineRecipe, Boolean>   transferCache = new IdentityHashMap<>();
 	private @Nullable ResourceKey<Recipe<?>> activeRecipe;
-	private           int                    progress;
-	private           int                    maxProgress;
-	private           Status                 status = Status.IDLE;
+	private @Nullable Object                         recipeMapIdentity;
+	private           int                            progress;
+	private           int                            maxProgress;
+	private           Status                         status = Status.IDLE;
+	private           boolean                        revisionInitialized;
+	private           long                           itemRevision;
+	private           long                           fluidRevision;
 
 	MachineRecipeProcessor (MachineRecipeBinding binding, Runnable changeCallback) {
 		this.binding = Objects.requireNonNull(binding, "binding");
@@ -44,6 +53,7 @@ public final class MachineRecipeProcessor {
 	 */
 	public Status tick (ServerLevel level) {
 		Objects.requireNonNull(level, "level");
+		refreshTransferCache(level);
 		MachineRecipeInput input = binding.captureInput();
 		RecipeHolder<MachineRecipe> firstMatch = null;
 		RecipeHolder<MachineRecipe> executable = null;
@@ -52,7 +62,7 @@ public final class MachineRecipeProcessor {
 			var active = level.recipeAccess().getRecipeFor(binding.definition().type(), input, level, activeRecipe);
 			if (active.isPresent()) {
 				firstMatch = active.orElseThrow();
-				if (binding.canExecute(firstMatch.value(), level)) executable = firstMatch;
+				if (canTransfer(firstMatch.value())) executable = firstMatch;
 			}
 		}
 
@@ -60,7 +70,7 @@ public final class MachineRecipeProcessor {
 			for (RecipeHolder<MachineRecipe> holder : level.recipeAccess().recipeMap().byType(binding.definition().type())) {
 				if (holder.id().equals(activeRecipe) || !holder.value().matches(input, level)) continue;
 				if (firstMatch == null) firstMatch = holder;
-				if (binding.canExecute(holder.value(), level)) {
+				if (canTransfer(holder.value())) {
 					executable = holder;
 					break;
 				}
@@ -87,7 +97,7 @@ public final class MachineRecipeProcessor {
 			return status;
 		}
 
-		if (binding.tryExecute(selected.value(), level)) {
+		if (binding.tryExecute(selected.value(), input, level)) {
 			setState(null, 0, 0, Status.COMPLETED);
 			return status;
 		}
@@ -137,6 +147,31 @@ public final class MachineRecipeProcessor {
 		this.progress = loadedRecipe == null ? 0 : loadedProgress;
 		this.maxProgress = loadedRecipe == null ? 0 : loadedMax;
 		this.status = Status.IDLE;
+		invalidateTransferCache();
+	}
+
+	private boolean canTransfer (MachineRecipe recipe) {
+		if (!binding.tracksContentRevisions()) return binding.canTransfer(recipe);
+		return transferCache.computeIfAbsent(recipe, binding::canTransfer);
+	}
+
+	private void refreshTransferCache (ServerLevel level) {
+		if (!binding.tracksContentRevisions()) return;
+		long currentItemRevision = binding.itemContentRevision();
+		long currentFluidRevision = binding.fluidContentRevision();
+		Object currentRecipeMap = level.recipeAccess().recipeMap();
+		if (revisionInitialized && itemRevision == currentItemRevision && fluidRevision == currentFluidRevision && recipeMapIdentity == currentRecipeMap) return;
+		transferCache.clear();
+		itemRevision = currentItemRevision;
+		fluidRevision = currentFluidRevision;
+		recipeMapIdentity = currentRecipeMap;
+		revisionInitialized = true;
+	}
+
+	private void invalidateTransferCache () {
+		transferCache.clear();
+		recipeMapIdentity = null;
+		revisionInitialized = false;
 	}
 
 	private void setState (@Nullable ResourceKey<Recipe<?>> recipe, int progress, int maxProgress, Status status) {

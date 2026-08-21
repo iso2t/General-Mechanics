@@ -2,6 +2,7 @@ package general.api.crafting;
 
 import general.api.transfer.ResourceInventoryDefinition;
 import general.api.transfer.ResourceSlotKey;
+import general.api.transfer.VersionedResourceHandler;
 import general.api.transfer.fluid.FluidInventoryDefinition;
 import general.api.transfer.fluid.FluidResourceHandler;
 import general.api.transfer.item.ItemInventoryDefinition;
@@ -31,11 +32,14 @@ import java.util.Objects;
  */
 public final class MachineRecipeBinding {
 
-	private final           MachineRecipeDefinition<?>     definition;
-	private final @Nullable ResourceHandler<ItemResource>  items;
-	private final @Nullable ResourceHandler<FluidResource> fluids;
-	private final           Map<String, Integer>           itemSlots;
-	private final           Map<String, Integer>           fluidSlots;
+	private final           MachineRecipeDefinition<?>                 definition;
+	private final @Nullable ResourceHandler<ItemResource>              items;
+	private final @Nullable ResourceHandler<FluidResource>             fluids;
+	private final           Map<String, Integer>                       itemSlots;
+	private final           Map<String, Integer>                       fluidSlots;
+	private final @Nullable VersionedResourceHandler<?>                       itemRevisionSource;
+	private final @Nullable VersionedResourceHandler<?>                       fluidRevisionSource;
+	private final           boolean                                    tracksContentRevisions;
 
 	private MachineRecipeBinding (Builder builder) {
 		this.definition = builder.definition;
@@ -43,6 +47,9 @@ public final class MachineRecipeBinding {
 		this.fluids = builder.fluids;
 		this.itemSlots = resolve("item", definition.schema().itemSlots(), builder.itemMappings, builder.itemDefinition, items);
 		this.fluidSlots = resolve("fluid", definition.schema().fluidSlots(), builder.fluidMappings, builder.fluidDefinition, fluids);
+		this.itemRevisionSource = items instanceof VersionedResourceHandler<?> handler ? handler : null;
+		this.fluidRevisionSource = fluids instanceof VersionedResourceHandler<?> handler ? handler : null;
+		this.tracksContentRevisions = (items == null || itemRevisionSource != null) && (fluids == null || fluidRevisionSource != null);
 	}
 
 	public MachineRecipeDefinition<?> definition () {
@@ -92,7 +99,15 @@ public final class MachineRecipeBinding {
 	}
 
 	public boolean matches (MachineRecipe recipe, Level level) {
-		return recipe.definition() == definition && recipe.matches(captureInput(), level);
+		return matches(recipe, captureInput(), level);
+	}
+
+	/** Tests a recipe against an input snapshot already captured this tick. */
+	public boolean matches (MachineRecipe recipe, MachineRecipeInput input, Level level) {
+		Objects.requireNonNull(recipe, "recipe");
+		Objects.requireNonNull(input, "input");
+		Objects.requireNonNull(level, "level");
+		return recipe.definition() == definition && recipe.matches(input, level);
 	}
 
 	/**
@@ -100,10 +115,12 @@ public final class MachineRecipeBinding {
 	 * consumed inputs when input and output mappings share a physical slot.
 	 */
 	public boolean canExecute (MachineRecipe recipe, Level level) {
-		if (!matches(recipe, level)) return false;
-		try (Transaction transaction = Transaction.openRoot()) {
-			return transfer(recipe, transaction);
-		}
+		return canExecute(recipe, captureInput(), level);
+	}
+
+	/** Simulates execution using an input snapshot already captured this tick. */
+	public boolean canExecute (MachineRecipe recipe, MachineRecipeInput input, Level level) {
+		return matches(recipe, input, level) && canTransfer(recipe);
 	}
 
 	/**
@@ -113,12 +130,40 @@ public final class MachineRecipeBinding {
 	 * committed
 	 */
 	public boolean tryExecute (MachineRecipe recipe, Level level) {
-		if (!matches(recipe, level)) return false;
+		return tryExecute(recipe, captureInput(), level);
+	}
+
+	/** Attempts execution using an input snapshot already captured this tick. */
+	public boolean tryExecute (MachineRecipe recipe, MachineRecipeInput input, Level level) {
+		if (!matches(recipe, input, level)) return false;
 		try (Transaction transaction = Transaction.openRoot()) {
 			if (!transfer(recipe, transaction)) return false;
 			transaction.commit();
 			return true;
 		}
+	}
+
+	/**
+	 * Simulates only resource transfer. The caller must separately establish that
+	 * the recipe matches the current input and any level-dependent conditions.
+	 */
+	boolean canTransfer (MachineRecipe recipe) {
+		requireRecipe(recipe);
+		try (Transaction transaction = Transaction.openRoot()) {
+			return transfer(recipe, transaction);
+		}
+	}
+
+	boolean tracksContentRevisions () {
+		return tracksContentRevisions;
+	}
+
+	long itemContentRevision () {
+		return itemRevisionSource == null ? 0 : itemRevisionSource.contentRevision();
+	}
+
+	long fluidContentRevision () {
+		return fluidRevisionSource == null ? 0 : fluidRevisionSource.contentRevision();
 	}
 
 	public MachineRecipeProcessor processor (Runnable changeCallback) {
