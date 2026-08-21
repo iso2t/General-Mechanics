@@ -1,6 +1,7 @@
 package general.mechanics.common.menus;
 
 import general.api.screens.menu.AbstractMenu;
+import general.api.screens.slot.MachineItemSlot;
 import general.mechanics.common.block.CokeOvenController;
 import general.mechanics.common.block.entity.CokeOvenControllerBlockEntity;
 import general.mechanics.registries.GenBlockEntities;
@@ -51,6 +52,7 @@ public class CokeOvenMenu extends AbstractMenu<CokeOvenController, CokeOvenContr
 		super(GenMenus.COKE_OVEN.get(), containerId, inventory, GenBlocks.COKE_OVEN_CONTROLLER.get(), blockEntity, data, CokeOvenController.getRecipeDefinition());
 		checkContainerDataCount(data, DATA_COUNT);
 		setFluidContainerSource(blockEntity.getFluidHandler(), CokeOvenControllerBlockEntity.CREOSOTE_TANK);
+		enableItemSlotLocking(blockEntity.getItemHandler());
 	}
 
 	@Override
@@ -61,7 +63,7 @@ public class CokeOvenMenu extends AbstractMenu<CokeOvenController, CokeOvenContr
 	@Override
 	public void addContainerSlots () {
 		var handler = getBlockEntity().getItemHandler();
-		addSlot(new ResourceHandlerSlot(handler, handler::set, CokeOvenControllerBlockEntity.INPUT_SLOT, INPUT_X, INPUT_Y));
+		addSlot(new MachineItemSlot(handler, handler::set, CokeOvenControllerBlockEntity.INPUT_SLOT, INPUT_X, INPUT_Y));
 		addSlot(new ResourceHandlerSlot(handler, handler::set, CokeOvenControllerBlockEntity.OUTPUT_SLOT, OUTPUT_X, OUTPUT_Y) {
 			@Override
 			public boolean mayPlace (@NonNull ItemStack stack) {

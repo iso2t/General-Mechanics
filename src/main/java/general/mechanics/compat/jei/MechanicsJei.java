@@ -19,6 +19,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.ItemLike;
 import org.jspecify.annotations.NonNull;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -74,7 +75,10 @@ public class MechanicsJei implements IModPlugin {
 
 		@Override
 		public @NonNull List<Rect2i> getGuiExtraAreas (AbstractScreen<?> screen) {
-			return screen.hasRecipeViewerButton() ? List.of(screen.getRecipeViewerButtonArea()) : List.of();
+			List<Rect2i> areas = new ArrayList<>(2);
+			if (screen.hasRecipeViewerButton()) areas.add(screen.getRecipeViewerButtonArea());
+			if (screen.hasItemLockButton()) areas.add(screen.getItemLockButtonArea());
+			return List.copyOf(areas);
 		}
 	}
 

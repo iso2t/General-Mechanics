@@ -136,6 +136,9 @@ public class CokeOvenController extends BaseBlock implements EntityBlock, BlockE
 		double yOffsets = random.nextDouble() * 6.0 / 8.0;
 		double zOffsets = axis == Direction.Axis.Z ? (double) direction.get().getStepZ() * 0.52 : defaultOffset;
 
+		level.addParticle(ParticleTypes.SMOKE, xPos + xOffsets, yPos + yOffsets, zPos + zOffsets, 0d, 0d, 0d);
+		level.addParticle(ParticleTypes.FLAME, xPos + xOffsets, yPos + yOffsets, zPos + zOffsets, 0d, 0d, 0d);
+
 		var stack = entity.getInputStack();
 		if (!stack.isEmpty()) {
 			level.addParticle(new ItemParticleOption(ParticleTypes.ITEM, stack.getItem()), xPos + xOffsets, yPos + yOffsets, zPos + zOffsets, 0d, 0d, 0d);

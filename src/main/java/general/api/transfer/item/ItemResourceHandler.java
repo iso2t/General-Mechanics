@@ -10,7 +10,7 @@ import net.neoforged.neoforge.transfer.item.ItemResource;
 /**
  * Definition-backed transactional item storage.
  */
-public final class ItemResourceHandler extends DefinitionBackedResourceHandler<ItemStack, ItemResource> {
+public class ItemResourceHandler extends DefinitionBackedResourceHandler<ItemStack, ItemResource> {
 
 	public ItemResourceHandler (ItemInventoryDefinition definition, ResourceChangeListener<ItemResource> changeListener) {
 		super(definition.genericDefinition(), ItemStack.EMPTY, ItemStack.OPTIONAL_CODEC, changeListener);

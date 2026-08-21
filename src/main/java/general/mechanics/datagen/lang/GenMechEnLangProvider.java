@@ -40,8 +40,10 @@ public class GenMechEnLangProvider extends LanguageProvider {
 	protected void addManualTranslations () {
 		add("itemGroup." + GenAPI.getModId() + ".items", "General Mechanics");
 		add("itemGroup." + GenAPI.getModId() + ".blocks", "General Mechanics - Blocks");
-		add("gui.generalmechanics.machine_recipe.time.seconds", "%s s");
-		add("gui.generalmechanics.machine_recipe.time.minutes_seconds", "%s m %s s");
+		add("gui.generalmechanics.machine_recipe.time.seconds", "%ss");
+		add("gui.generalmechanics.machine_recipe.time.minutes_seconds", "%sm %ss");
+		add("gui.generalmechanics.machine.item_lock.locked", "Input Lock: Locked");
+		add("gui.generalmechanics.machine.item_lock.unlocked", "Input Lock: Unlocked");
 		add("guide.generalmechanics.machine_recipe.duration", "Time: %s s");
 	}
 

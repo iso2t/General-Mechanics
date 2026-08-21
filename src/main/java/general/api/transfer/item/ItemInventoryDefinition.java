@@ -5,6 +5,7 @@ import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 /**
@@ -56,6 +57,24 @@ public final class ItemInventoryDefinition {
 
 	public ItemResourceHandler createHandler (ResourceChangeListener<ItemResource> changeListener) {
 		return new ItemResourceHandler(this, changeListener);
+	}
+
+	/**
+	 * Creates storage whose selected input slots can be locked to their current item
+	 * identities. Lock state remains machine-wide while each listed slot retains its
+	 * own item filter.
+	 */
+	public LockableItemResourceHandler createLockableHandler (Runnable changeCallback, int... lockableSlots) {
+		return new LockableItemResourceHandler(this, changeCallback, changeCallback, lockableSlots);
+	}
+
+	public LockableItemResourceHandler createLockableHandler (Runnable changeCallback, ResourceSlotKey... lockableSlots) {
+		Objects.requireNonNull(lockableSlots, "lockableSlots");
+		int[] indices = new int[lockableSlots.length];
+		for (int index = 0; index < lockableSlots.length; index++) {
+			indices[index] = this.index(Objects.requireNonNull(lockableSlots[index], "lockable slot at index " + index));
+		}
+		return createLockableHandler(changeCallback, indices);
 	}
 
 	public static final class Builder {

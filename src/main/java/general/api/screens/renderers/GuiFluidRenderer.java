@@ -65,10 +65,6 @@ public class GuiFluidRenderer extends AbstractBarRenderer {
 
 	/**
 	 * Renders the fluid and handles its tooltip.
-	 * <p>
-	 * GuiGraphicsExtractor stores the mouse position internally, but does not
-	 * expose public mouse position getters in 26.1.2, so the screen should use
-	 * this overload when tooltip support is desired.
 	 */
 	public void render (GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		FluidStack stack = getFluid();
@@ -117,10 +113,6 @@ public class GuiFluidRenderer extends AbstractBarRenderer {
 		graphics.enableScissor(x, top, x + getWidth(), bottom);
 
 		try {
-			/*
-			 * Tile the normal 16x16 fluid texture rather than stretching it.
-			 * Starting from the bottom makes partial fills behave naturally.
-			 */
 			for (int tileY = bottom - textureSize; tileY < bottom; tileY -= textureSize) {
 				for (int tileX = x; tileX < x + getWidth(); tileX += textureSize) {
 					graphics.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, tileX, tileY, textureSize, textureSize, tint);

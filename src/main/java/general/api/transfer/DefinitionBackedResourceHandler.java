@@ -60,7 +60,16 @@ public abstract class DefinitionBackedResourceHandler<S, R extends Resource> ext
 
 	@Override
 	public final boolean isValid (int index, @NonNull R resource) {
-		return definition.get(index).accepts(resource);
+		return definition.get(index).accepts(resource) && acceptsRuntimeInsertion(index, resource);
+	}
+
+	/**
+	 * Additional live insertion rule layered on top of the immutable slot
+	 * definition. Specializations may use this for persisted machine modes such as
+	 * locking an input slot to one resource identity.
+	 */
+	protected boolean acceptsRuntimeInsertion (int index, R resource) {
+		return true;
 	}
 
 	@Override
@@ -91,7 +100,7 @@ public abstract class DefinitionBackedResourceHandler<S, R extends Resource> ext
 		if (resource.isEmpty() && amount > 0) {
 			throw new IllegalArgumentException("Cannot store a positive amount of an empty resource in slot '" + displayName(index) + "'");
 		}
-		if (amount > 0 && !slot.accepts(resource)) {
+		if (amount > 0 && !isValid(index, resource)) {
 			throw new IllegalArgumentException("Resource " + resource + " is not valid for slot '" + displayName(index) + "'");
 		}
 		int capacity = getEffectiveCapacity(slot, resource);

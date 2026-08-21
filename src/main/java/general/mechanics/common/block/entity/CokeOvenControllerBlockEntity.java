@@ -13,7 +13,7 @@ import general.api.transfer.fluid.FluidResourceHandler;
 import general.api.transfer.fluid.FluidTanks;
 import general.api.transfer.fluid.SidedFluidResourceProvider;
 import general.api.transfer.item.ItemInventoryDefinition;
-import general.api.transfer.item.ItemResourceHandler;
+import general.api.transfer.item.LockableItemResourceHandler;
 import general.api.transfer.item.SidedItemResourceProvider;
 import general.mechanics.common.block.CokeOvenController;
 import general.mechanics.common.menus.CokeOvenMenu;
@@ -50,6 +50,7 @@ import org.jspecify.annotations.Nullable;
 public class CokeOvenControllerBlockEntity extends BlockEntity implements MultiblockController, SidedItemResourceProvider, SidedFluidResourceProvider, MenuProvider {
 
 	private static final String RECIPE_PROCESSOR_TAG = "recipe_processor";
+	private static final String ITEM_LOCK_TAG        = "item_lock";
 
 	public static void registerCapabilities (RegisterCapabilitiesEvent event, BlockEntityType<CokeOvenControllerBlockEntity> type) {
 		// External automation is routed through registered multiblock hatches. The
@@ -69,7 +70,7 @@ public class CokeOvenControllerBlockEntity extends BlockEntity implements Multib
 	private static final ResourceAccessPolicy<FluidResource> FLUID_AUTOMATION = FLUIDS.access().extract(CokeOvenController.RecipeSlots.CREOSOTE).build();
 
 	private       boolean                              formed;
-	private final ItemResourceHandler                  items           = ITEMS.createHandler(this::setChanged);
+	private final LockableItemResourceHandler          items           = ITEMS.createLockableHandler(this::setChanged, INPUT_SLOT);
 	private final FluidResourceHandler                 fluids          = FLUIDS.createHandler(this::setChanged);
 	private final MachineRecipeProcessor               recipeProcessor = CokeOvenController.getRecipeDefinition().processor(items, fluids, this::setChanged);
 	private final SidedResourceHandlers<ItemResource>  sidedItems;
@@ -143,6 +144,7 @@ public class CokeOvenControllerBlockEntity extends BlockEntity implements Multib
 		output.putBoolean(FORMED_TAG, formed);
 		recipeProcessor.save(output.child(RECIPE_PROCESSOR_TAG));
 		items.serialize(output.child("items"));
+		items.serializeLockState(output.child(ITEM_LOCK_TAG));
 		fluids.serialize(output.child("fluids"));
 	}
 
@@ -152,6 +154,7 @@ public class CokeOvenControllerBlockEntity extends BlockEntity implements Multib
 		formed = input.getBooleanOr(FORMED_TAG, false);
 		recipeProcessor.load(input.childOrEmpty(RECIPE_PROCESSOR_TAG));
 		items.deserialize(input.childOrEmpty("items"));
+		items.deserializeLockState(input.childOrEmpty(ITEM_LOCK_TAG));
 		fluids.deserialize(input.childOrEmpty("fluids"));
 	}
 
@@ -171,7 +174,7 @@ public class CokeOvenControllerBlockEntity extends BlockEntity implements Multib
 	}
 
 	@Override
-	public ItemResourceHandler getItemHandler () {
+	public LockableItemResourceHandler getItemHandler () {
 		return items;
 	}
 

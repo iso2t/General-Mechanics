@@ -2,8 +2,11 @@ package general.api.screens.menu;
 
 import general.api.crafting.MachineRecipeDefinition;
 import general.api.screens.screen.AbstractScreen;
+import general.api.screens.slot.MachineItemSlot;
+import general.api.transfer.item.LockableItemResourceHandler;
 import lombok.Getter;
 import lombok.NonNull;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
@@ -22,12 +25,15 @@ import org.jetbrains.annotations.Nullable;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.function.Supplier;
 
 public abstract class AbstractMenu<B extends EntityBlock, T extends BlockEntity> extends AbstractContainerMenu {
 	/**
 	 * Reserved menu-button id used by {@link AbstractScreen}.
 	 */
 	public static final int FILL_FLUID_CONTAINER_BUTTON = 0x47464C44; // "GFLD"
+	public static final int TOGGLE_ITEM_LOCK_BUTTON     = 0x474C4F43; // "GLOC"
 
 	@Getter
 	private final B block;
@@ -42,6 +48,11 @@ public abstract class AbstractMenu<B extends EntityBlock, T extends BlockEntity>
 
 	@Nullable
 	private FluidContainerSource fluidContainerSource;
+
+	@Nullable
+	private LockableItemResourceHandler lockableItemHandler;
+
+	private boolean itemSlotsLocked;
 
 	public AbstractMenu (MenuType<?> type, int containerId, Inventory inventory, B block, T blockEntity) {
 		this(type, containerId, inventory, block, blockEntity, new SimpleContainerData(0));
@@ -154,6 +165,60 @@ public abstract class AbstractMenu<B extends EntityBlock, T extends BlockEntity>
 	}
 
 	/**
+	 * Enables the shared machine input lock for every {@link MachineItemSlot} in
+	 * this menu. The handler is authoritative on the server; hidden inactive slots
+	 * synchronize full ghost item identities to the client without adding custom
+	 * packets.
+	 */
+	protected final void enableItemSlotLocking (LockableItemResourceHandler handler) {
+		Objects.requireNonNull(handler, "handler");
+		if (lockableItemHandler != null) throw new IllegalStateException("Item slot locking is already enabled for this menu");
+
+		List<MachineItemSlot> machineSlots = slots.subList(getContainerSlotStart(), getContainerSlotEnd()).stream().filter(MachineItemSlot.class::isInstance).map(MachineItemSlot.class::cast).toList();
+		if (machineSlots.isEmpty()) throw new IllegalStateException("Item slot locking requires at least one MachineItemSlot");
+		Set<Integer> configuredSlots = new LinkedHashSet<>();
+		for (MachineItemSlot slot : machineSlots) {
+			if (slot.getResourceHandler() != handler) throw new IllegalArgumentException("MachineItemSlot must use the lockable handler supplied to its menu");
+			int handlerSlot = slot.getSlotIndex();
+			if (!handler.isLockableSlot(handlerSlot)) throw new IllegalArgumentException("MachineItemSlot references non-lockable handler slot " + handlerSlot);
+			if (!configuredSlots.add(handlerSlot)) throw new IllegalArgumentException("Duplicate MachineItemSlot for lockable handler slot " + handlerSlot);
+		}
+		if (configuredSlots.size() != handler.getLockableSlotCount()) {
+			throw new IllegalArgumentException("Menu defines " + configuredSlots.size() + " lockable item slots, but its handler defines " + handler.getLockableSlotCount());
+		}
+
+		this.lockableItemHandler = handler;
+		this.itemSlotsLocked = handler.isLocked();
+		addDataSlot(new DataSlot() {
+			@Override
+			public int get () {
+				return handler.isLocked() ? 1 : 0;
+			}
+
+			@Override
+			public void set (int value) {
+				itemSlotsLocked = value != 0;
+			}
+		});
+
+		boolean clientSide = blockEntity.getLevel() != null && blockEntity.getLevel().isClientSide();
+		for (MachineItemSlot slot : machineSlots) {
+			int handlerSlot = slot.getSlotIndex();
+			SynchronizedGhostSlot ghostSlot = new SynchronizedGhostSlot(clientSide ? null : () -> handler.getGhostStack(handlerSlot));
+			addSlot(ghostSlot);
+			slot.bindLockState(this::areItemSlotsLocked, ghostSlot::getItem);
+		}
+	}
+
+	public final boolean hasItemSlotLocking () {
+		return lockableItemHandler != null;
+	}
+
+	public final boolean areItemSlotsLocked () {
+		return itemSlotsLocked;
+	}
+
+	/**
 	 * @return whether this menu has opted into fluid-renderer container filling.
 	 */
 	public final boolean hasFluidContainerSource () {
@@ -163,7 +228,17 @@ public abstract class AbstractMenu<B extends EntityBlock, T extends BlockEntity>
 	@Override
 	public boolean clickMenuButton (@NonNull Player player, int buttonId) {
 		if (buttonId == FILL_FLUID_CONTAINER_BUTTON) return fillCarriedFluidContainer(player);
+		if (buttonId == TOGGLE_ITEM_LOCK_BUTTON) return toggleItemSlotLock(player);
 		return super.clickMenuButton(player, buttonId);
+	}
+
+	private boolean toggleItemSlotLock (Player player) {
+		LockableItemResourceHandler handler = lockableItemHandler;
+		if (handler == null || player.level().isClientSide() || !stillValid(player)) return false;
+		handler.toggleLocked();
+		itemSlotsLocked = handler.isLocked();
+		broadcastChanges();
+		return true;
 	}
 
 	private boolean fillCarriedFluidContainer (Player player) {
@@ -223,6 +298,52 @@ public abstract class AbstractMenu<B extends EntityBlock, T extends BlockEntity>
 	}
 
 	private record FluidContainerSource(ResourceHandler<FluidResource> handler, int tank, int transferLimit) {
+	}
+
+	/**
+	 * Inactive synchronization-only slot. The server reads its stack from the lock
+	 * handler, while the client accepts normal menu slot updates into a local copy.
+	 */
+	private static final class SynchronizedGhostSlot extends Slot {
+
+		@Nullable
+		private final Supplier<ItemStack> authoritativeStack;
+		private ItemStack remoteStack = ItemStack.EMPTY;
+
+		private SynchronizedGhostSlot (@Nullable Supplier<ItemStack> authoritativeStack) {
+			super(new SimpleContainer(1), 0, -10_000, -10_000);
+			this.authoritativeStack = authoritativeStack;
+		}
+
+		@Override
+		public ItemStack getItem () {
+			return authoritativeStack == null ? remoteStack : Objects.requireNonNull(authoritativeStack.get(), "Authoritative ghost item stack");
+		}
+
+		@Override
+		public void set (ItemStack stack) {
+			if (authoritativeStack == null) remoteStack = Objects.requireNonNull(stack, "stack").copy();
+		}
+
+		@Override
+		public boolean mayPlace (ItemStack stack) {
+			return false;
+		}
+
+		@Override
+		public boolean mayPickup (Player player) {
+			return false;
+		}
+
+		@Override
+		public boolean isActive () {
+			return false;
+		}
+
+		@Override
+		public boolean isHighlightable () {
+			return false;
+		}
 	}
 
 	public static class QuickMoveStack {
