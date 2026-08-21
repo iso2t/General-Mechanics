@@ -1,24 +1,22 @@
 package general.api.screens.screen;
 
-import general.api.resources.Resource;
 import general.api.mod.GenAPI;
+import general.api.resources.Resource;
 import general.api.screens.menu.AbstractMenu;
 import general.api.screens.renderers.GuiFluidRenderer;
 import general.api.screens.renderers.GuiPowerRenderer;
 import general.api.screens.renderers.GuiProgressBarRenderer;
 import lombok.Getter;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.Rect2i;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.glfw.GLFW;
 
 public abstract class AbstractScreen<T extends AbstractMenu<?, ?>> extends AbstractContainerScreen<T> {
 
@@ -29,12 +27,12 @@ public abstract class AbstractScreen<T extends AbstractMenu<?, ?>> extends Abstr
 	public static final int RECIPE_VIEWER_BUTTON_WIDTH  = 16;
 	public static final int RECIPE_VIEWER_BUTTON_HEIGHT = 16;
 
-	public static final Identifier STATUS_ACTIVE = Resource.getMainMod("textures/gui/elements/status_active.png");
+	public static final Identifier STATUS_ACTIVE   = Resource.getMainMod("textures/gui/elements/status_active.png");
 	public static final Identifier STATUS_INACTIVE = Resource.getMainMod("textures/gui/elements/status_inactive.png");
-	public static final Identifier STATUS_ERROR = Resource.getMainMod("textures/gui/elements/status_error.png");
-	public static final Identifier INFO_ICON = Resource.getMainMod("textures/gui/elements/info.png");
-	public static final Identifier LOCKED_ICON = Resource.getMainMod("textures/gui/elements/locked.png");
-	public static final Identifier UNLOCKED_ICON = Resource.getMainMod("textures/gui/elements/unlocked.png");
+	public static final Identifier STATUS_ERROR    = Resource.getMainMod("textures/gui/elements/status_error.png");
+	public static final Identifier INFO_ICON       = Resource.getMainMod("textures/gui/elements/info.png");
+	public static final Identifier LOCKED_ICON     = Resource.getMainMod("textures/gui/elements/locked.png");
+	public static final Identifier UNLOCKED_ICON   = Resource.getMainMod("textures/gui/elements/unlocked.png");
 
 	@Nullable
 	@Getter

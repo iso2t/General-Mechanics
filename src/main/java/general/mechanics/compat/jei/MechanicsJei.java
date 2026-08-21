@@ -8,19 +8,19 @@ import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.gui.handlers.IGuiClickableArea;
 import mezz.jei.api.gui.handlers.IGuiContainerHandler;
-import mezz.jei.api.recipe.types.IRecipeType;
 import mezz.jei.api.recipe.types.IRecipeHolderType;
+import mezz.jei.api.recipe.types.IRecipeType;
 import mezz.jei.api.registration.IGuiHandlerRegistration;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
-import net.minecraft.resources.Identifier;
 import net.minecraft.client.renderer.Rect2i;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.ItemLike;
 import org.jspecify.annotations.NonNull;
 
-import java.util.List;
 import java.util.Collection;
+import java.util.List;
 
 @JeiPlugin
 public class MechanicsJei implements IModPlugin {

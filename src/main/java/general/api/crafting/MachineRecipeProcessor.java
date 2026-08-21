@@ -27,13 +27,13 @@ import java.util.Objects;
  */
 public final class MachineRecipeProcessor {
 
-	private static final String ACTIVE_RECIPE_TAG = "active_recipe";
-	private static final String PROGRESS_TAG      = "progress";
-	private static final String MAX_PROGRESS_TAG  = "max_progress";
-	private static final TickResult IDLE_RESULT    = new TickResult(Status.IDLE, false);
-	private static final TickResult RUNNING_RESULT = new TickResult(Status.RUNNING, false);
-	private static final TickResult BLOCKED_RESULT = new TickResult(Status.BLOCKED, false);
-	private static final TickResult CRAFTED_RESULT = new TickResult(Status.IDLE, true);
+	private static final String     ACTIVE_RECIPE_TAG = "active_recipe";
+	private static final String     PROGRESS_TAG      = "progress";
+	private static final String     MAX_PROGRESS_TAG  = "max_progress";
+	private static final TickResult IDLE_RESULT       = new TickResult(Status.IDLE, false);
+	private static final TickResult RUNNING_RESULT    = new TickResult(Status.RUNNING, false);
+	private static final TickResult BLOCKED_RESULT    = new TickResult(Status.BLOCKED, false);
+	private static final TickResult CRAFTED_RESULT    = new TickResult(Status.IDLE, true);
 
 	private final     MachineRecipeBinding        binding;
 	private final     Runnable                    changeCallback;

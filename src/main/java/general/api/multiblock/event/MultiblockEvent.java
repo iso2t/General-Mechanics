@@ -15,9 +15,9 @@ import java.util.Objects;
  */
 public abstract class MultiblockEvent extends Event {
 
-	private final ServerLevel          level;
+	private final           ServerLevel          level;
 	private final @Nullable MultiblockController controller;
-	private final MultiblockInstance   instance;
+	private final           MultiblockInstance   instance;
 
 	public MultiblockEvent (ServerLevel level, @Nullable MultiblockController controller, MultiblockInstance instance) {
 		this.level = Objects.requireNonNull(level, "level");
@@ -86,7 +86,9 @@ public abstract class MultiblockEvent extends Event {
 		}
 	}
 
-	/** Fired once after a controller transitions from unformed to formed. */
+	/**
+	 * Fired once after a controller transitions from unformed to formed.
+	 */
 	public static final class Formed extends StateChanged {
 
 		public Formed (ServerLevel level, MultiblockController controller, MultiblockInstance instance) {
