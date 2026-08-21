@@ -1,10 +1,6 @@
 package general.api.transfer.fluid;
 
-import general.api.transfer.ResourceAccess;
-import general.api.transfer.ResourceChangeListener;
-import general.api.transfer.ResourceInventoryDefinition;
-import general.api.transfer.ResourceSlotKey;
-import general.api.transfer.ResourceSlotDefinition;
+import general.api.transfer.*;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 
 import java.util.List;

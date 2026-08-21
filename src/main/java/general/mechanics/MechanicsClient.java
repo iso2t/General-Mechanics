@@ -2,13 +2,13 @@ package general.mechanics;
 
 import general.api.mod.GeneralMod;
 import general.mechanics.client.ClientFluidRegistration;
-import general.mechanics.client.crafting.ClientMachineRecipes;
 import general.mechanics.client.color.ClientColors;
+import general.mechanics.client.crafting.ClientMachineRecipes;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.level.Level;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.common.NeoForge;

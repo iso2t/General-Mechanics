@@ -1,10 +1,6 @@
 package general.api.transfer.item;
 
-import general.api.transfer.ResourceAccess;
-import general.api.transfer.ResourceChangeListener;
-import general.api.transfer.ResourceInventoryDefinition;
-import general.api.transfer.ResourceSlotKey;
-import general.api.transfer.ResourceSlotDefinition;
+import general.api.transfer.*;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 

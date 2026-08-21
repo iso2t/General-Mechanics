@@ -5,11 +5,7 @@ import general.api.block.BlockEntityTypeOwner;
 import general.api.block.IWrenchable;
 import general.api.block.util.ILitProvider;
 import general.api.block.util.IPickaxe;
-import general.api.crafting.IRecipeProvider;
-import general.api.crafting.MachineRecipeDefinition;
-import general.api.crafting.MachineRecipeSlot;
-import general.api.crafting.MachineRecipeSlots;
-import general.api.crafting.NoRecipeData;
+import general.api.crafting.*;
 import general.api.model.IMachineModel;
 import general.api.resources.Resource;
 import general.api.rotation.BlockRotationStrategies;
@@ -55,7 +51,9 @@ import org.jspecify.annotations.Nullable;
 
 public class CokeOvenController extends BaseBlock implements EntityBlock, BlockEntityTypeOwner<CokeOvenControllerBlockEntity>, IWrenchable, IMachineModel, IRotatableBlock, IRecipeProvider, ILitProvider, IPickaxe {
 
-	/** Logical recipe fields shared by the Coke Oven schema, storage, and datagen. */
+	/**
+	 * Logical recipe fields shared by the Coke Oven schema, storage, and datagen.
+	 */
 	public static final class RecipeSlots {
 
 		public static final MachineRecipeSlot.ItemInput   INPUT    = MachineRecipeSlots.ITEM_INPUT;

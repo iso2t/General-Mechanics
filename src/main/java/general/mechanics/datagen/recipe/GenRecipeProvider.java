@@ -2,7 +2,6 @@ package general.mechanics.datagen.recipe;
 
 import general.api.crafting.IRecipeProvider;
 import general.mechanics.Mechanics;
-import general.mechanics.common.block.CokeOvenController;
 import general.mechanics.registries.GenBlocks;
 import general.mechanics.registries.GenItems;
 import lombok.NonNull;

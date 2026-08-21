@@ -4,12 +4,7 @@ import general.api.crafting.MachineRecipe;
 import general.api.crafting.MachineRecipeDefinition;
 import general.api.crafting.MachineRecipeSchema;
 import guideme.document.LytSize;
-import guideme.document.block.AlignItems;
-import guideme.document.block.LytBlock;
-import guideme.document.block.LytGuiSprite;
-import guideme.document.block.LytHBox;
-import guideme.document.block.LytParagraph;
-import guideme.document.block.LytVBox;
+import guideme.document.block.*;
 import guideme.document.block.recipes.LytStandardRecipeBox;
 import guideme.render.GuiAssets;
 import net.minecraft.network.chat.Component;
@@ -22,10 +17,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/** Builds GuideME recipe panels directly from a machine recipe schema. */
+/**
+ * Builds GuideME recipe panels directly from a machine recipe schema.
+ */
 final class MachineRecipeGuideRenderer {
 
-	private static final int MAX_ROWS = 3;
+	private static final int    MAX_ROWS                = 3;
 	private static final String DURATION_DESCRIPTION_ID = "guide.generalmechanics.machine_recipe.duration";
 
 	private MachineRecipeGuideRenderer () {

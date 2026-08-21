@@ -1,10 +1,12 @@
 package general.mechanics.registries;
 
-import general.api.crafting.*;
+import general.api.crafting.MachineRecipeDefinition;
+import general.api.crafting.MachineRecipeRegistry;
+import general.api.crafting.MachineRecipeSchema;
+import general.api.crafting.NoRecipeData;
 import general.api.mod.GenAPI;
 import general.mechanics.common.block.CokeOvenController;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 
 /**
  * Owns the paired machine recipe registries. Individual machines retain their
@@ -24,10 +26,4 @@ public final class GenRecipes {
 		REGISTRY.register(bus);
 	}
 
-	/**
-	 * Requests client synchronization for every registered machine recipe type.
-	 */
-	public static void syncRecipes (OnDatapackSyncEvent event) {
-		for (var definition : REGISTRY.definitions()) event.sendRecipes(definition.type());
-	}
 }

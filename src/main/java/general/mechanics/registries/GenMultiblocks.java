@@ -16,8 +16,7 @@ public class GenMultiblocks {
 	public static final Registry<Multiblock>         MULTIBLOCKS = REGISTRY.makeRegistry(builder -> {
 	});
 
-	public static final MultiblockDefinition COKE_OVEN = register("coke_oven", MultiblockPattern.builder().where('F', MultiblockElement.block(GenBlocks.COKE_OVEN_BRICKS)).where('C', MultiblockElement.block(GenBlocks.COKE_OVEN_CONTROLLER)).where('.', MultiblockElement.air()).where('#', MultiblockElement.any())
-			.where('L', MultiblockElement.block(Blocks.LAVA))
+	public static final MultiblockDefinition COKE_OVEN = register("coke_oven", MultiblockPattern.builder().where('F', MultiblockElement.block(GenBlocks.COKE_OVEN_BRICKS)).where('C', MultiblockElement.block(GenBlocks.COKE_OVEN_CONTROLLER)).where('.', MultiblockElement.air()).where('#', MultiblockElement.any()).where('L', MultiblockElement.block(Blocks.LAVA))
 
 			.anchor('C')
 

@@ -20,7 +20,8 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * <p>Definitions must be added before {@link #register(IEventBus)} attaches the
  * two deferred registries. A mod normally owns one instance and may declare its
- * machine definitions in any registry class.</p>
+ * machine definitions in any registry class. Every definition is also published
+ * to {@link MachineRecipeCatalog} for cross-mod runtime discovery.</p>
  */
 public final class MachineRecipeRegistry {
 
@@ -92,6 +93,7 @@ public final class MachineRecipeRegistry {
 		var definition = new MachineRecipeDefinition<>(id, Objects.requireNonNull(schema, "schema"), type, serializer, Objects.requireNonNull(dataCodec, "dataCodec"), Objects.requireNonNull(dataStreamCodec, "dataStreamCodec"), defaultData, Objects.requireNonNull(additionalMatcher, "additionalMatcher"));
 		definitionReference.set(definition);
 		definitions.add(definition);
+		MachineRecipeCatalog.add(definition);
 		return definition;
 	}
 

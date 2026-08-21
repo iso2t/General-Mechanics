@@ -32,14 +32,14 @@ import java.util.Objects;
  */
 public final class MachineRecipeBinding {
 
-	private final           MachineRecipeDefinition<?>                 definition;
-	private final @Nullable ResourceHandler<ItemResource>              items;
-	private final @Nullable ResourceHandler<FluidResource>             fluids;
-	private final           Map<String, Integer>                       itemSlots;
-	private final           Map<String, Integer>                       fluidSlots;
-	private final @Nullable VersionedResourceHandler<?>                       itemRevisionSource;
-	private final @Nullable VersionedResourceHandler<?>                       fluidRevisionSource;
-	private final           boolean                                    tracksContentRevisions;
+	private final           MachineRecipeDefinition<?>     definition;
+	private final @Nullable ResourceHandler<ItemResource>  items;
+	private final @Nullable ResourceHandler<FluidResource> fluids;
+	private final           Map<String, Integer>           itemSlots;
+	private final           Map<String, Integer>           fluidSlots;
+	private final @Nullable VersionedResourceHandler<?>    itemRevisionSource;
+	private final @Nullable VersionedResourceHandler<?>    fluidRevisionSource;
+	private final           boolean                        tracksContentRevisions;
 
 	private MachineRecipeBinding (Builder builder) {
 		this.definition = builder.definition;
@@ -102,7 +102,9 @@ public final class MachineRecipeBinding {
 		return matches(recipe, captureInput(), level);
 	}
 
-	/** Tests a recipe against an input snapshot already captured this tick. */
+	/**
+	 * Tests a recipe against an input snapshot already captured this tick.
+	 */
 	public boolean matches (MachineRecipe recipe, MachineRecipeInput input, Level level) {
 		Objects.requireNonNull(recipe, "recipe");
 		Objects.requireNonNull(input, "input");
@@ -118,7 +120,9 @@ public final class MachineRecipeBinding {
 		return canExecute(recipe, captureInput(), level);
 	}
 
-	/** Simulates execution using an input snapshot already captured this tick. */
+	/**
+	 * Simulates execution using an input snapshot already captured this tick.
+	 */
 	public boolean canExecute (MachineRecipe recipe, MachineRecipeInput input, Level level) {
 		return matches(recipe, input, level) && canTransfer(recipe);
 	}
@@ -133,7 +137,9 @@ public final class MachineRecipeBinding {
 		return tryExecute(recipe, captureInput(), level);
 	}
 
-	/** Attempts execution using an input snapshot already captured this tick. */
+	/**
+	 * Attempts execution using an input snapshot already captured this tick.
+	 */
 	public boolean tryExecute (MachineRecipe recipe, MachineRecipeInput input, Level level) {
 		if (!matches(recipe, input, level)) return false;
 		try (Transaction transaction = Transaction.openRoot()) {

@@ -1,10 +1,10 @@
 package general.mechanics.datagen.lang;
 
+import general.api.crafting.MachineRecipeCatalog;
 import general.api.mod.GenAPI;
 import general.mechanics.registries.GenBlocks;
 import general.mechanics.registries.GenFluids;
 import general.mechanics.registries.GenItems;
-import general.mechanics.registries.GenRecipes;
 import net.minecraft.data.DataGenerator;
 import net.neoforged.neoforge.common.data.LanguageProvider;
 
@@ -28,7 +28,7 @@ public class GenMechEnLangProvider extends LanguageProvider {
 			add(fluid.type().get().getDescriptionId(), fluid.englishName());
 		}
 
-		for (var definition : GenRecipes.REGISTRY.definitions()) {
+		for (var definition : MachineRecipeCatalog.definitions(GenAPI.getModId())) {
 			add(definition.descriptionId(), definition.defaultEnglishName());
 		}
 

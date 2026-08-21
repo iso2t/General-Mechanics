@@ -29,23 +29,23 @@ import java.util.Objects;
  */
 final class MachineRecipeCategory extends AbstractRecipeCategory<RecipeHolder<MachineRecipe>> {
 
-	private static final int SLOT_SIZE = 18;
-	private static final int MAX_ROWS = 3;
-	private static final int ARROW_WIDTH = 24;
+	private static final int SLOT_SIZE        = 18;
+	private static final int MAX_ROWS         = 3;
+	private static final int ARROW_WIDTH      = 24;
 	private static final int ARROW_AREA_WIDTH = 42;
-	private static final int MIN_WIDTH = 82;
-	private static final int MIN_HEIGHT = 36;
+	private static final int MIN_WIDTH        = 82;
+	private static final int MIN_HEIGHT       = 36;
 
 	private final MachineRecipeDefinition<?> definition;
-	private final List<ItemLike>              craftingStations;
-	private final int                         inputCount;
-	private final int                         outputCount;
-	private final int                         inputRows;
-	private final int                         outputRows;
-	private final int                         inputStartX;
-	private final int                         outputStartX;
-	private final int                         arrowX;
-	private final int                         arrowY;
+	private final List<ItemLike>             craftingStations;
+	private final int                        inputCount;
+	private final int                        outputCount;
+	private final int                        inputRows;
+	private final int                        outputRows;
+	private final int                        inputStartX;
+	private final int                        outputStartX;
+	private final int                        arrowX;
+	private final int                        arrowY;
 
 	MachineRecipeCategory (IGuiHelper guiHelper, MachineRecipeDefinition<?> definition) {
 		this(guiHelper, definition, definition.craftingStations());

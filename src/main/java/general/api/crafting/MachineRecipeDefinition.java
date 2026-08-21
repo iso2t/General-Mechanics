@@ -9,13 +9,13 @@ import general.api.transfer.item.ItemResourceHandler;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.Util;
 import net.minecraft.util.ExtraCodecs;
+import net.minecraft.util.Util;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import net.neoforged.neoforge.fluids.FluidStackTemplate;
 import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
@@ -76,12 +76,16 @@ public final class MachineRecipeDefinition<D> {
 		return schema;
 	}
 
-	/** Translation key used for recipe viewers and other machine-type UI. */
+	/**
+	 * Translation key used for recipe viewers and other machine-type UI.
+	 */
 	public String descriptionId () {
 		return Util.makeDescriptionId("recipe_type", id);
 	}
 
-	/** English fallback derived from the registered path. */
+	/**
+	 * English fallback derived from the registered path.
+	 */
 	public String defaultEnglishName () {
 		String[] words = id.getPath().replace('/', '_').split("_");
 		var result = new StringBuilder();
@@ -102,13 +106,17 @@ public final class MachineRecipeDefinition<D> {
 		return this;
 	}
 
-	/** Adds an already-available item that performs this recipe type. */
+	/**
+	 * Adds an already-available item that performs this recipe type.
+	 */
 	public MachineRecipeDefinition<D> craftingStation (ItemLike station) {
 		Objects.requireNonNull(station, "station");
 		return craftingStation(() -> station);
 	}
 
-	/** Resolves the crafting stations in declaration order. */
+	/**
+	 * Resolves the crafting stations in declaration order.
+	 */
 	public List<ItemLike> craftingStations () {
 		var result = new ArrayList<ItemLike>(craftingStations.size());
 		for (Supplier<? extends ItemLike> supplier : craftingStations) {

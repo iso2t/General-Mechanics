@@ -1,8 +1,8 @@
 package general.mechanics.compat.jei;
 
+import general.api.crafting.MachineRecipeCatalog;
 import general.api.resources.Resource;
 import general.mechanics.client.crafting.ClientMachineRecipes;
-import general.mechanics.registries.GenRecipes;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
@@ -25,7 +25,7 @@ public class MechanicsJei implements IModPlugin {
 
 	@Override
 	public void registerCategories (@NonNull IRecipeCategoryRegistration registration) {
-		categories = GenRecipes.REGISTRY.definitions().stream().map(definition -> new MachineRecipeCategory(registration.getJeiHelpers().getGuiHelper(), definition)).toList();
+		categories = MachineRecipeCatalog.definitions().stream().map(definition -> new MachineRecipeCategory(registration.getJeiHelpers().getGuiHelper(), definition)).toList();
 		registration.addRecipeCategories(categories.toArray(MachineRecipeCategory[]::new));
 	}
 

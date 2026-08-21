@@ -134,7 +134,9 @@ public final class MachineRecipeSchema {
 			return itemInput(Objects.requireNonNull(slot, "slot").name());
 		}
 
-		/** Adds the requested number of standard {@code item_input} slots. */
+		/**
+		 * Adds the requested number of standard {@code item_input} slots.
+		 */
 		public Builder itemInputs (int count) {
 			MachineRecipeSlots.itemInputs(count).forEach(this::itemInput);
 			return this;
@@ -165,7 +167,9 @@ public final class MachineRecipeSchema {
 			return itemOutput(Objects.requireNonNull(slot, "slot").name());
 		}
 
-		/** Adds the requested number of standard {@code item_output} slots. */
+		/**
+		 * Adds the requested number of standard {@code item_output} slots.
+		 */
 		public Builder itemOutputs (int count) {
 			MachineRecipeSlots.itemOutputs(count).forEach(this::itemOutput);
 			return this;
@@ -196,7 +200,9 @@ public final class MachineRecipeSchema {
 			return fluidInput(Objects.requireNonNull(slot, "slot").name());
 		}
 
-		/** Adds the requested number of standard {@code fluid_input} slots. */
+		/**
+		 * Adds the requested number of standard {@code fluid_input} slots.
+		 */
 		public Builder fluidInputs (int count) {
 			MachineRecipeSlots.fluidInputs(count).forEach(this::fluidInput);
 			return this;
@@ -227,7 +233,9 @@ public final class MachineRecipeSchema {
 			return fluidOutput(Objects.requireNonNull(slot, "slot").name());
 		}
 
-		/** Adds the requested number of standard {@code fluid_output} slots. */
+		/**
+		 * Adds the requested number of standard {@code fluid_output} slots.
+		 */
 		public Builder fluidOutputs (int count) {
 			MachineRecipeSlots.fluidOutputs(count).forEach(this::fluidOutput);
 			return this;

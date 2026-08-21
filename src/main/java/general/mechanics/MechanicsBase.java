@@ -1,5 +1,6 @@
 package general.mechanics;
 
+import general.api.crafting.MachineRecipeCatalog;
 import general.api.item.ITooltipProvider;
 import general.api.mod.GenAPI;
 import general.api.resources.Resource;
@@ -12,8 +13,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
-import net.neoforged.neoforge.event.ModifyDefaultComponentsEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.ModifyDefaultComponentsEvent;
 import net.neoforged.neoforge.registries.RegisterEvent;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.Nullable;
@@ -60,7 +61,7 @@ public abstract class MechanicsBase implements Mechanics {
 	}
 
 	private void registerModListeners () {
-		NeoForge.EVENT_BUS.addListener(GenRecipes::syncRecipes);
+		NeoForge.EVENT_BUS.addListener(MachineRecipeCatalog::syncRecipes);
 		getBus().addListener((RegisterEvent event) -> event.register(Registries.CREATIVE_MODE_TAB, helper -> {
 			var multitab = new TabBuilder.MultiTabBuilder();
 			multitab.addTab(new TabBuilder.Builder().setTranslationKey(String.format("itemGroup.%s.items", GenAPI.getModId())).setDisplayItem(GenItems.REDSTONE_WIRE_SPOOL).setResourceKey(Resource.get("items")).setCreateModeTab(GenItems.INSTANCE).build()).addTab(new TabBuilder.Builder().setTranslationKey(String.format("itemGroup.%s.blocks", GenAPI.getModId())).setResourceKey(Resource.get("blocks")).setCreateModeTab(GenBlocks.INSTANCE).build());

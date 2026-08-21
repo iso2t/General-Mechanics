@@ -9,7 +9,9 @@ import net.neoforged.neoforge.client.event.RecipesReceivedEvent;
 
 import java.util.List;
 
-/** Client-side snapshot of the full machine recipes requested during datapack sync. */
+/**
+ * Client-side snapshot of the full machine recipes requested during datapack sync.
+ */
 public final class ClientMachineRecipes {
 
 	private static RecipeMap recipes = RecipeMap.EMPTY;

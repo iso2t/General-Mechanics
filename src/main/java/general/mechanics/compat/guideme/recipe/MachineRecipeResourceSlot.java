@@ -21,15 +21,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-/** GuideME slot capable of displaying either cycling item stacks or fluid stacks. */
+/**
+ * GuideME slot capable of displaying either cycling item stacks or fluid stacks.
+ */
 final class MachineRecipeResourceSlot extends LytBlock implements InteractiveElement, ExportableResourceProvider {
 
-	private static final int CONTENT_SIZE = 16;
-	private static final int PADDING = 1;
-	private static final int OUTER_SIZE = CONTENT_SIZE + PADDING * 2;
+	private static final int CONTENT_SIZE  = 16;
+	private static final int PADDING       = 1;
+	private static final int OUTER_SIZE    = CONTENT_SIZE + PADDING * 2;
 	private static final int CYCLE_TIME_MS = 2_000;
 
-	private final List<ItemStack> items;
+	private final List<ItemStack>  items;
 	private final List<FluidStack> fluids;
 
 	private MachineRecipeResourceSlot (List<ItemStack> items, List<FluidStack> fluids) {

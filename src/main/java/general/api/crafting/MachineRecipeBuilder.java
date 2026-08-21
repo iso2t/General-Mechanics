@@ -33,16 +33,24 @@ import java.util.Objects;
  */
 public final class MachineRecipeBuilder<D> {
 
-	/** @deprecated Use {@link MachineRecipeSlots#ITEM_INPUT}. */
+	/**
+	 * @deprecated Use {@link MachineRecipeSlots#ITEM_INPUT}.
+	 */
 	@Deprecated(forRemoval = true)
-	public static final String ITEM_INPUT = MachineRecipeSlots.ITEM_INPUT.name();
-	/** @deprecated Use {@link MachineRecipeSlots#ITEM_OUTPUT}. */
+	public static final String ITEM_INPUT   = MachineRecipeSlots.ITEM_INPUT.name();
+	/**
+	 * @deprecated Use {@link MachineRecipeSlots#ITEM_OUTPUT}.
+	 */
 	@Deprecated(forRemoval = true)
-	public static final String ITEM_OUTPUT = MachineRecipeSlots.ITEM_OUTPUT.name();
-	/** @deprecated Use {@link MachineRecipeSlots#FLUID_INPUT}. */
+	public static final String ITEM_OUTPUT  = MachineRecipeSlots.ITEM_OUTPUT.name();
+	/**
+	 * @deprecated Use {@link MachineRecipeSlots#FLUID_INPUT}.
+	 */
 	@Deprecated(forRemoval = true)
-	public static final String FLUID_INPUT = MachineRecipeSlots.FLUID_INPUT.name();
-	/** @deprecated Use {@link MachineRecipeSlots#FLUID_OUTPUT}. */
+	public static final String FLUID_INPUT  = MachineRecipeSlots.FLUID_INPUT.name();
+	/**
+	 * @deprecated Use {@link MachineRecipeSlots#FLUID_OUTPUT}.
+	 */
 	@Deprecated(forRemoval = true)
 	public static final String FLUID_OUTPUT = MachineRecipeSlots.FLUID_OUTPUT.name();
 

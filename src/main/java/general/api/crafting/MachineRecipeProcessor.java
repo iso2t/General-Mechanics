@@ -31,17 +31,17 @@ public final class MachineRecipeProcessor {
 	private static final String PROGRESS_TAG      = "progress";
 	private static final String MAX_PROGRESS_TAG  = "max_progress";
 
-	private final     MachineRecipeBinding          binding;
-	private final     Runnable                      changeCallback;
-	private final     Map<MachineRecipe, Boolean>   transferCache = new IdentityHashMap<>();
-	private @Nullable ResourceKey<Recipe<?>> activeRecipe;
-	private @Nullable Object                         recipeMapIdentity;
-	private           int                            progress;
-	private           int                            maxProgress;
-	private           Status                         status = Status.IDLE;
-	private           boolean                        revisionInitialized;
-	private           long                           itemRevision;
-	private           long                           fluidRevision;
+	private final     MachineRecipeBinding        binding;
+	private final     Runnable                    changeCallback;
+	private final     Map<MachineRecipe, Boolean> transferCache = new IdentityHashMap<>();
+	private @Nullable ResourceKey<Recipe<?>>      activeRecipe;
+	private @Nullable Object                      recipeMapIdentity;
+	private           int                         progress;
+	private           int                         maxProgress;
+	private           Status                      status        = Status.IDLE;
+	private           boolean                     revisionInitialized;
+	private           long                        itemRevision;
+	private           long                        fluidRevision;
 
 	MachineRecipeProcessor (MachineRecipeBinding binding, Runnable changeCallback) {
 		this.binding = Objects.requireNonNull(binding, "binding");
