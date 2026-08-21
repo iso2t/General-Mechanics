@@ -54,11 +54,36 @@ public record MultiblockElement(Matcher matcher, Supplier<BlockState> placementS
 		return new MultiblockElement((level, pos, state) -> state.is(tag), null);
 	}
 
+	/**
+	 * Matches any member of {@code tag} while using {@code constructionBlock} as
+	 * the representative state for previews or assisted construction. The supplied
+	 * block should itself be a member of the tag.
+	 */
 	public static MultiblockElement tag (TagKey<Block> tag, Block constructionBlock) {
 		Objects.requireNonNull(tag);
 		Objects.requireNonNull(constructionBlock);
 
 		return new MultiblockElement((level, pos, state) -> state.is(tag), constructionBlock::defaultBlockState);
+	}
+
+	/**
+	 * Registry-definition form of {@link #tag(TagKey, Block)}.
+	 */
+	public static MultiblockElement tag (TagKey<Block> tag, BlockDefinition<? extends Block> constructionBlock) {
+		Objects.requireNonNull(constructionBlock);
+		return tag(tag, constructionBlock::get);
+	}
+
+	/**
+	 * Deferred form of {@link #tag(TagKey, Block)} for registry-backed blocks.
+	 * The supplier is resolved only when a representative placement state is
+	 * requested, never while the pattern is declared.
+	 */
+	public static MultiblockElement tag (TagKey<Block> tag, Supplier<? extends Block> constructionBlock) {
+		Objects.requireNonNull(tag);
+		Objects.requireNonNull(constructionBlock);
+
+		return new MultiblockElement((level, pos, state) -> state.is(tag), () -> Objects.requireNonNull(constructionBlock.get(), "Tagged multiblock construction block supplier returned null").defaultBlockState());
 	}
 
 	public static MultiblockElement predicate (Predicate<BlockState> predicate) {

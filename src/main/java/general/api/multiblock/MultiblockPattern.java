@@ -1,12 +1,13 @@
 package general.api.multiblock;
 
+import general.api.definitions.BlockDefinition;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.level.block.Block;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Supplier;
 
 public final class MultiblockPattern {
 
@@ -62,9 +63,40 @@ public final class MultiblockPattern {
 				throw new IllegalArgumentException("Space is reserved for ignored positions.");
 			}
 
-			palette.put(symbol, element);
+			palette.put(symbol, Objects.requireNonNull(element, "element"));
 
 			return this;
+		}
+
+		/**
+		 * Defines a symbol that accepts any block in the supplied block tag. Tag-only
+		 * elements are intentionally not constructible because no tag member can be
+		 * selected unambiguously as the representative block.
+		 */
+		public Builder where (char symbol, TagKey<Block> tag) {
+			return where(symbol, MultiblockElement.tag(tag));
+		}
+
+		/**
+		 * Defines a tagged symbol with an explicit representative block for previews
+		 * and assisted construction.
+		 */
+		public Builder where (char symbol, TagKey<Block> tag, Block constructionBlock) {
+			return where(symbol, MultiblockElement.tag(tag, constructionBlock));
+		}
+
+		/**
+		 * Registry-definition form of {@link #where(char, TagKey, Block)}.
+		 */
+		public Builder where (char symbol, TagKey<Block> tag, BlockDefinition<? extends Block> constructionBlock) {
+			return where(symbol, MultiblockElement.tag(tag, constructionBlock));
+		}
+
+		/**
+		 * Deferred registry-backed form of {@link #where(char, TagKey, Block)}.
+		 */
+		public Builder where (char symbol, TagKey<Block> tag, Supplier<? extends Block> constructionBlock) {
+			return where(symbol, MultiblockElement.tag(tag, constructionBlock));
 		}
 
 		public Builder anchor (char symbol) {
