@@ -47,19 +47,6 @@ import org.jspecify.annotations.Nullable;
 
 public class CokeOvenController extends BaseBlock implements EntityBlock, BlockEntityTypeOwner<CokeOvenControllerBlockEntity>, IWrenchable, IMachineModel, IRotatableBlock, RecipeDataProvider, ILitProvider, IPickaxe {
 
-	/**
-	 * Logical recipe fields shared by the Coke Oven schema, storage, and datagen.
-	 */
-	public static final class RecipeSlots {
-
-		public static final MachineRecipeSlot.ItemInput   INPUT    = MachineRecipeSlots.ITEM_INPUT;
-		public static final MachineRecipeSlot.ItemOutput  OUTPUT   = MachineRecipeSlots.ITEM_OUTPUT;
-		public static final MachineRecipeSlot.FluidOutput CREOSOTE = MachineRecipeSlots.FLUID_OUTPUT;
-
-		private RecipeSlots () {
-		}
-	}
-
 	private BlockEntityType<CokeOvenControllerBlockEntity> blockEntityType;
 
 	public CokeOvenController (Properties properties) {
@@ -169,6 +156,19 @@ public class CokeOvenController extends BaseBlock implements EntityBlock, BlockE
 
 	public static MachineRecipeDefinition<NoRecipeData> getRecipeDefinition () {
 		return GenRecipes.COKE_OVEN;
+	}
+
+	/**
+	 * Logical recipe fields shared by the Coke Oven schema, storage, and datagen.
+	 */
+	public static final class RecipeSlots {
+
+		public static final MachineRecipeSlot.ItemInput   INPUT    = MachineRecipeSlots.ITEM_INPUT;
+		public static final MachineRecipeSlot.ItemOutput  OUTPUT   = MachineRecipeSlots.ITEM_OUTPUT;
+		public static final MachineRecipeSlot.FluidOutput CREOSOTE = MachineRecipeSlots.FLUID_OUTPUT;
+
+		private RecipeSlots () {
+		}
 	}
 
 }
