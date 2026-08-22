@@ -5,6 +5,7 @@ import net.neoforged.neoforge.transfer.IndexModifier;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Objects;
 import java.util.function.BooleanSupplier;
@@ -46,7 +47,7 @@ public class MachineItemSlot extends ResourceHandlerSlot implements ILockableSlo
 	}
 
 	@Override
-	public boolean mayPlace (ItemStack stack) {
+	public boolean mayPlace (@NonNull ItemStack stack) {
 		if (!super.mayPlace(stack)) return false;
 		if (!isLocked()) return true;
 		ItemStack ghost = getGhostStack();
