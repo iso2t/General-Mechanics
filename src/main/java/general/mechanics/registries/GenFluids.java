@@ -35,6 +35,7 @@ public class GenFluids {
 	private static final List<FluidDefinition> FLUIDS = new ArrayList<>();
 
 	public static final FluidDefinition CREOSOTE = registerFluid("Creosote", 0xFF281E15, new Vector3f(0.2F, 0.2F, 0.2F), 1000, 100, true);
+	public static final FluidDefinition RUBBER_TREE_SAP = registerFluid("Rubber Tree Sap", 0xFFFDFDFD, new Vector3f(0.2F, 0.2F, 0.2F), 30_000, 4, true);
 
 	public static List<FluidDefinition> getFluids () {
 		return Collections.unmodifiableList(FLUIDS);

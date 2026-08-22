@@ -48,6 +48,7 @@ public class GenBlockTagGenerator extends BlockTagsProvider {
 			if (block.get() instanceof LeavesBlock) {
 				this.tag(BlockTags.LEAVES).add(block.get());
 			}
+
 		}
 	}
 }

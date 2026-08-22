@@ -35,7 +35,7 @@ public class BaseFluid extends FluidType {
 	private final float fogEnd;
 
 	public BaseFluid (String englishName, Properties properties, Identifier stillTexture, Identifier flowingTexture, Identifier overlayTexture, int tintColor, Vector3f fogColor, boolean opaque, float fogStart, float fogEnd) {
-		super(properties);
+		super(properties.canConvertToSource(false));
 		this.englishName = englishName;
 		this.stillTexture = stillTexture;
 		this.flowingTexture = flowingTexture;
