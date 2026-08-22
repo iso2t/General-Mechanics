@@ -1,5 +1,6 @@
 package general.mechanics.registries;
 
+import general.api.block.DecorativeBlock;
 import general.api.block.IOBlock;
 import general.api.block.RecipeProviderBlock;
 import general.api.crafting.RecipeGenerationContext;
@@ -51,6 +52,12 @@ public class GenBlocks extends BlockRegistry {
 	public static final BlockDefinition<IOPowerHatch>              POWER_HATCH           = registerBlock("Power Hatch", IOPowerHatch::new);
 	public static final BlockDefinition<IONetworkHatch>            NETWORK_HATCH         = registerBlock("Network Hatch", IONetworkHatch::new);
 
+	// Upgrade blocks
+	public static final BlockDefinition<DecorativeBlock> IRON_CORE_MATRIX     = registerBlock("Iron Core Matrix", DecorativeBlock::new);
+	public static final BlockDefinition<DecorativeBlock> STEEL_CORE_MATRIX    = registerBlock("Steel Core Matrix", DecorativeBlock::new);
+	public static final BlockDefinition<DecorativeBlock> TITANIUM_CORE_MATRIX = registerBlock("Titanium Core Matrix", DecorativeBlock::new);
+	public static final BlockDefinition<DecorativeBlock> TUNGSTEN_CORE_MATRIX = registerBlock("Tungsten Core Matrix", DecorativeBlock::new);
+	public static final BlockDefinition<DecorativeBlock> QUANTUM_CORE_MATRIX  = registerBlock("Quantum Core Matrix", DecorativeBlock::new);
 
 	public static final BlockDefinition<RecipeProviderBlock> COKE_OVEN_BRICKS     = registerBlock("Coke Oven Bricks", props -> new RecipeProviderBlock(props) {
 		@Override
