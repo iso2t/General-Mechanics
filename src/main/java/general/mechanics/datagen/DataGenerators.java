@@ -9,6 +9,7 @@ import general.mechanics.datagen.model.ItemModelProvider;
 import general.mechanics.datagen.recipe.GenRecipeProvider;
 import general.mechanics.datagen.tags.GenBlockTagGenerator;
 import general.mechanics.datagen.tags.GenItemTagGenerator;
+import general.mechanics.datagen.world.WorldGenProvider;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
@@ -32,9 +33,13 @@ public class DataGenerators {
 		var localization = new GenMechEnLangProvider(generator);
 		var packOutput = generator.getPackOutput();
 
+		// World Gen
+		pack.addProvider(output -> new WorldGenProvider(output, registries));
+
 		// Sounds
 		pack.addProvider(SoundProvider::new);
 
+		// Loot tables
 		pack.addProvider(bindRegistries(GenLootTableProvider::new, registries));
 
 		// Tags
