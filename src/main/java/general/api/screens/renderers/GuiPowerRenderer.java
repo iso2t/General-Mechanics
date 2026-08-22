@@ -2,13 +2,19 @@ package general.api.screens.renderers;
 
 import lombok.Getter;
 import lombok.Setter;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.IntSupplier;
 
 public class GuiPowerRenderer extends AbstractBarRenderer {
+
+	@Getter
+	private static final NumberFormat format = NumberFormat.getIntegerInstance();
 
 	@Getter
 	private final IntSupplier energyStored;
@@ -18,7 +24,7 @@ public class GuiPowerRenderer extends AbstractBarRenderer {
 
 	@Getter
 	@Setter
-	private Color renderColor = Color.BRIGHT_GREEN;
+	private Color renderColor = Color.GREEN;
 
 	public GuiPowerRenderer (RenderLocation location, IntSupplier energyStored, IntSupplier energyCapacity) {
 		this(location, energyStored, energyCapacity, Size.getDefault());
@@ -26,14 +32,14 @@ public class GuiPowerRenderer extends AbstractBarRenderer {
 
 	public GuiPowerRenderer (RenderLocation location, IntSupplier energyStored, IntSupplier energyCapacity, Size size) {
 		super(location.left(), location.top(), size.width(), size.maxHeight());
-		this.energyStored = energyStored;
-		this.energyCapacity = energyCapacity;
+		this.energyStored = Objects.requireNonNull(energyStored, "energyStored");
+		this.energyCapacity = Objects.requireNonNull(energyCapacity, "energyCapacity");
 	}
 
 	public List<Component> getTooltips () {
 		int stored = getEnergyStored().getAsInt();
 		int cap = getEnergyCapacity().getAsInt();
-		return List.of(Component.literal(stored + " / " + cap + " %s".formatted("FE")));
+		return List.of(Component.literal(format.format(stored) + " / " + format.format(cap) + " %s".formatted("FE")));
 	}
 
 	@Override
@@ -44,8 +50,9 @@ public class GuiPowerRenderer extends AbstractBarRenderer {
 	public void render (GuiGraphicsExtractor guiGraphics, int x, int y) {
 		int cap = getEnergyCapacity().getAsInt();
 		if (cap <= 0) return;
-		int storedPx = (int) (getHeight() * (getEnergyStored().getAsInt() / (float) cap));
-		guiGraphics.fillGradient(x, y + (getHeight() - storedPx), x + getWidth(), y + getHeight(), Color.BRIGHT_RED.getArgb(), getRenderColor().getArgb());
+		int stored = Math.clamp(getEnergyStored().getAsInt(), 0, cap);
+		int storedPx = (int) (getHeight() * (stored / (float) cap));
+		guiGraphics.fillGradient(x, y + (getHeight() - storedPx), x + getWidth(), y + getHeight(), getRenderColor().getArgb(), getRenderColor().getArgb());
 	}
 
 	/**
@@ -53,6 +60,15 @@ public class GuiPowerRenderer extends AbstractBarRenderer {
 	 */
 	public void renderRelative (GuiGraphicsExtractor guiGraphics, int screenX, int screenY) {
 		render(guiGraphics, screenX + getXPos(), screenY + getYPos());
+	}
+
+	public void renderRelative (GuiGraphicsExtractor guiGraphics, int screenX, int screenY, int mouseX, int mouseY) {
+		int x = screenX + getXPos();
+		int y = screenY + getYPos();
+		render(guiGraphics, x, y);
+		if (mouseX >= x && mouseX < x + getWidth() && mouseY >= y && mouseY < y + getHeight()) {
+			guiGraphics.setComponentTooltipForNextFrame(Minecraft.getInstance().font, getTooltips(), mouseX, mouseY);
+		}
 	}
 
 	public record Size(int width, int maxHeight) {

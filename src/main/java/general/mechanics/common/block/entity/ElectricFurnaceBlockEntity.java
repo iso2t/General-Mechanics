@@ -1,15 +1,16 @@
 package general.mechanics.common.block.entity;
 
 import general.api.block.entity.BaseBlockEntity;
+import general.api.block.util.ILitProvider;
 import general.api.capabilities.GeneralCapabilities;
 import general.api.crafting.MachineEnergyWorkRequirement;
 import general.api.crafting.MachineRecipeProcessor;
-import general.api.crafting.MachineRecipeSources;
 import general.api.machine.config.MachineFace;
 import general.api.machine.config.MachineSideConfiguration;
 import general.api.machine.config.MachineSideConfigurationDefinition;
 import general.api.machine.config.MachineSideMode;
 import general.api.machine.power.MachinePowerProfile;
+import general.api.model.ConfigurableMachineModelData;
 import general.api.network.INetworkInterface;
 import general.api.network.NetworkNode;
 import general.api.network.NetworkServices;
@@ -24,16 +25,27 @@ import general.api.transfer.item.ItemInventoryDefinition;
 import general.api.transfer.item.LockableItemResourceHandler;
 import general.api.transfer.item.SidedItemResourceProvider;
 import general.mechanics.common.block.machine.ElectricFurnaceBlock;
+import general.mechanics.common.menus.ElectricFurnaceMenu;
 import general.mechanics.common.network.NetworkConnectorServices;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import net.minecraft.world.item.crafting.RecipeType;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.transfer.ResourceHandler;
@@ -41,16 +53,15 @@ import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 import net.neoforged.neoforge.transfer.energy.LimitingEnergyHandler;
 import net.neoforged.neoforge.transfer.energy.SimpleEnergyHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.model.data.ModelData;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-
-import java.util.List;
 
 /**
  * Persistent storage and dynamically configured external services for the
  * standalone Electric Furnace.
  */
-public class ElectricFurnaceBlockEntity extends BaseBlockEntity implements SidedItemResourceProvider, SidedEnergyResourceProvider, INetworkInterface {
+public class ElectricFurnaceBlockEntity extends BaseBlockEntity implements SidedItemResourceProvider, SidedEnergyResourceProvider, INetworkInterface, MenuProvider {
 
 	private static final String ITEMS_TAG              = "items";
 	private static final String ITEM_LOCK_TAG          = "item_lock";
@@ -139,10 +150,7 @@ public class ElectricFurnaceBlockEntity extends BaseBlockEntity implements Sided
 		this.sidedEnergy = energyViews.build();
 
 		var energyWork = MachineEnergyWorkRequirement.fromProfile(energy, this::getPowerProfile);
-		this.recipeProcessor = ElectricFurnaceBlock.getRecipeDefinition().bind(items).processor(List.of(
-				MachineRecipeSources.registered(ElectricFurnaceBlock.getRecipeDefinition()),
-				MachineRecipeSources.cooking(ElectricFurnaceBlock.getRecipeDefinition(), RecipeType.SMELTING, ElectricFurnaceBlock.RecipeSlots.INPUT, ElectricFurnaceBlock.RecipeSlots.OUTPUT_1, input -> input.item(ElectricFurnaceBlock.RecipeSlots.CATALYST).isEmpty())
-		), energyWork, this::setChanged);
+		this.recipeProcessor = ElectricFurnaceBlock.getRecipeDefinition().bind(items).processor(energyWork, this::setChanged);
 
 		this.networkNode = new NetworkNode("ElectricFurnace");
 		registerNetworkServices();
@@ -167,7 +175,7 @@ public class ElectricFurnaceBlockEntity extends BaseBlockEntity implements Sided
 	}
 
 	/**
-	 * Server-authoritative side mutation used by the future configuration menu.
+	 * Server-authoritative side mutation used by the shared configuration menu.
 	 */
 	public boolean setSideMode (MachineFace face, MachineSideMode mode) {
 		if (level != null && level.isClientSide()) return false;
@@ -184,6 +192,45 @@ public class ElectricFurnaceBlockEntity extends BaseBlockEntity implements Sided
 
 	public MachineRecipeProcessor getRecipeProcessor () {
 		return recipeProcessor;
+	}
+
+	public int getProgress () {
+		return recipeProcessor.progress();
+	}
+
+	public int getMaxProgress () {
+		return recipeProcessor.maxProgress();
+	}
+
+	public MachineRecipeProcessor.Status getProcessingStatus () {
+		return recipeProcessor.status();
+	}
+
+	public int getEnergyStored () {
+		return energy.getAmountAsInt();
+	}
+
+	public int getEnergyCapacity () {
+		return energy.getCapacityAsInt();
+	}
+
+	public ItemStack getInputStack () {
+		return stackInSlot(INPUT_SLOT);
+	}
+
+	public ItemStack getCatalystStack () {
+		return stackInSlot(CATALYST_SLOT);
+	}
+
+	public MachineRecipeProcessor.TickResult serverTick (ServerLevel level) {
+		MachineRecipeProcessor.TickResult result = recipeProcessor.tick(level);
+		setLit(level, result.status() == MachineRecipeProcessor.Status.RUNNING || result.crafted());
+		return result;
+	}
+
+	public void resetProcessing () {
+		recipeProcessor.reset();
+		if (level instanceof ServerLevel serverLevel) setLit(serverLevel, false);
 	}
 
 	public @Nullable ResourceHandler<ItemResource> getItemCapability (@Nullable Direction side) {
@@ -254,6 +301,33 @@ public class ElectricFurnaceBlockEntity extends BaseBlockEntity implements Sided
 	}
 
 	@Override
+	public ClientboundBlockEntityDataPacket getUpdatePacket () {
+		return ClientboundBlockEntityDataPacket.create(this);
+	}
+
+	@Override
+	public @NonNull CompoundTag getUpdateTag (HolderLookup.@NonNull Provider registries) {
+		return saveCustomOnly(registries);
+	}
+
+	@Override
+	public @NonNull ModelData getModelData () {
+		return ConfigurableMachineModelData.create(sideConfiguration);
+	}
+
+	@Override
+	public void onDataPacket (@NonNull Connection connection, @NonNull ValueInput input) {
+		loadWithComponents(input);
+		requestModelDataUpdate();
+	}
+
+	@Override
+	public void handleUpdateTag (@NonNull ValueInput input) {
+		loadWithComponents(input);
+		requestModelDataUpdate();
+	}
+
+	@Override
 	protected void saveAdditional (@NonNull ValueOutput output) {
 		super.saveAdditional(output);
 		items.serialize(output.child(ITEMS_TAG));
@@ -273,12 +347,32 @@ public class ElectricFurnaceBlockEntity extends BaseBlockEntity implements Sided
 		sideConfiguration.load(input.childOrEmpty(SIDE_CONFIGURATION_TAG));
 	}
 
+	@Override
+	public @NonNull Component getDisplayName () {
+		return Component.translatable(getBlockState().getBlock().getDescriptionId());
+	}
+
+	@Override
+	public @Nullable AbstractContainerMenu createMenu (int containerId, @NonNull Inventory inventory, @NonNull Player player) {
+		return new ElectricFurnaceMenu(containerId, inventory, this);
+	}
+
 	private ResourceIoMode itemIoMode (Direction side) {
 		return switch (getSideMode(side)) {
 			case ITEM_INPUT -> ResourceIoMode.INSERT;
 			case ITEM_OUTPUT -> ResourceIoMode.EXTRACT;
 			default -> ResourceIoMode.NONE;
 		};
+	}
+
+	private ItemStack stackInSlot (int slot) {
+		return items.getResource(slot).toStack(items.getAmountAsInt(slot));
+	}
+
+	private void setLit (ServerLevel level, boolean lit) {
+		BlockState state = getBlockState();
+		if (!state.hasProperty(ILitProvider.LIT) || state.getValue(ILitProvider.LIT) == lit) return;
+		level.setBlock(worldPosition, state.setValue(ILitProvider.LIT, lit), Block.UPDATE_CLIENTS);
 	}
 
 	private ResourceIoMode energyIoMode (Direction side) {
@@ -288,6 +382,8 @@ public class ElectricFurnaceBlockEntity extends BaseBlockEntity implements Sided
 	private void onSideConfigurationChanged (MachineFace face, MachineSideMode previous, MachineSideMode current) {
 		setChanged();
 		if (level == null) return;
+		requestModelDataUpdate();
+		if (level.isClientSide()) return;
 
 		level.invalidateCapabilities(worldPosition);
 		level.updateNeighborsAt(worldPosition, getBlockState().getBlock());

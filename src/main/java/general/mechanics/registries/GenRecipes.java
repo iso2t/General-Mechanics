@@ -7,6 +7,7 @@ import general.api.crafting.NoRecipeData;
 import general.api.mod.GenAPI;
 import general.mechanics.common.block.machine.CokeOvenController;
 import general.mechanics.common.block.machine.ElectricFurnaceBlock;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.neoforged.bus.api.IEventBus;
 
 /**
@@ -26,7 +27,15 @@ public final class GenRecipes {
 			.optionalItemOutput(ElectricFurnaceBlock.RecipeSlots.OUTPUT_2)
 			.optionalItemOutput(ElectricFurnaceBlock.RecipeSlots.OUTPUT_3)
 			.optionalItemOutput(ElectricFurnaceBlock.RecipeSlots.OUTPUT_4)
-			.build()).craftingStation(() -> GenBlocks.ELECTRIC_FURNACE);
+			.build())
+			.craftingStation(() -> GenBlocks.ELECTRIC_FURNACE)
+			.interchangeableItemOutputs(
+					ElectricFurnaceBlock.RecipeSlots.OUTPUT_1,
+					ElectricFurnaceBlock.RecipeSlots.OUTPUT_2,
+					ElectricFurnaceBlock.RecipeSlots.OUTPUT_3,
+					ElectricFurnaceBlock.RecipeSlots.OUTPUT_4
+			)
+			.cookingRecipes(RecipeType.SMELTING, ElectricFurnaceBlock.RecipeSlots.INPUT, ElectricFurnaceBlock.RecipeSlots.OUTPUT_1, input -> input.item(ElectricFurnaceBlock.RecipeSlots.CATALYST).isEmpty());
 
 	private GenRecipes () {
 	}

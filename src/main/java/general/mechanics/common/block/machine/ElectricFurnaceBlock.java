@@ -11,7 +11,8 @@ import general.api.crafting.MachineRecipeDefinition;
 import general.api.crafting.NoRecipeData;
 import general.api.crafting.RecipeDataProvider;
 import general.api.crafting.RecipeGenerationContext;
-import general.api.model.IMachineModel;
+import general.api.machine.config.MachineSideConfigurationDefinition;
+import general.api.model.IConfigurableMachineModel;
 import general.api.resources.Resource;
 import general.api.rotation.BlockRotationStrategies;
 import general.api.rotation.BlockRotationStrategy;
@@ -20,17 +21,24 @@ import general.mechanics.common.block.entity.ElectricFurnaceBlockEntity;
 import general.mechanics.registries.GenRecipes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-public class ElectricFurnaceBlock extends BaseBlock implements EntityBlock, BlockEntityTypeOwner<ElectricFurnaceBlockEntity>, IWrenchable, IMachineModel, IRotatableBlock, RecipeDataProvider, ILitProvider, IPickaxe {
+public class ElectricFurnaceBlock extends BaseBlock implements EntityBlock, BlockEntityTypeOwner<ElectricFurnaceBlockEntity>, IWrenchable, IConfigurableMachineModel, IRotatableBlock, RecipeDataProvider, ILitProvider, IPickaxe {
 
 	private BlockEntityType<ElectricFurnaceBlockEntity> blockEntityType;
 
@@ -68,6 +76,28 @@ public class ElectricFurnaceBlock extends BaseBlock implements EntityBlock, Bloc
 	public @Nullable BlockEntity newBlockEntity (@NonNull BlockPos blockPos, @NonNull BlockState blockState) {
 		if (blockEntityType == null) throw new IllegalStateException("Electric Furnace block entity type has not been bound yet");
 		return blockEntityType.create(blockPos, blockState);
+	}
+
+	@Override
+	public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker (Level level, @NonNull BlockState state, @NonNull BlockEntityType<T> type) {
+		if (level.isClientSide() || type != blockEntityType) return null;
+		return (tickLevel, pos, tickState, blockEntity) -> {
+			if (tickLevel instanceof ServerLevel serverLevel && blockEntity instanceof ElectricFurnaceBlockEntity furnace) {
+				furnace.serverTick(serverLevel);
+			}
+		};
+	}
+
+	@Override
+	public MachineSideConfigurationDefinition getSideConfigurationDefinition () {
+		return ElectricFurnaceBlockEntity.SIDES;
+	}
+
+	@Override
+	protected @NonNull InteractionResult useWithoutItem (@NonNull BlockState state, @NonNull Level level, @NonNull BlockPos pos, @NonNull Player player, @NonNull BlockHitResult hitResult) {
+		if (!(level.getBlockEntity(pos) instanceof ElectricFurnaceBlockEntity furnace)) return InteractionResult.PASS;
+		if (player instanceof ServerPlayer serverPlayer) serverPlayer.openMenu(furnace, pos);
+		return InteractionResult.SUCCESS;
 	}
 
 	public static MachineRecipeDefinition<NoRecipeData> getRecipeDefinition () {

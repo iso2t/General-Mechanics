@@ -2,6 +2,8 @@ package general.mechanics.datagen.lang;
 
 import general.api.crafting.MachineRecipeCatalog;
 import general.api.mod.GenAPI;
+import general.api.machine.config.MachineFace;
+import general.api.machine.config.MachineSideMode;
 import general.mechanics.registries.GenBlocks;
 import general.mechanics.registries.GenFluids;
 import general.mechanics.registries.GenItems;
@@ -49,7 +51,47 @@ public class GenMechEnLangProvider extends LanguageProvider {
 		add("gui.generalmechanics.machine_recipe.time.minutes_seconds", "%sm %ss");
 		add("gui.generalmechanics.machine.item_lock.locked", "Input Lock: Locked");
 		add("gui.generalmechanics.machine.item_lock.unlocked", "Input Lock: Unlocked");
+		add("gui.generalmechanics.machine.side_config.open", "Configure Sides");
+		add("gui.generalmechanics.machine.side_config.close", "Close Side Configuration");
+		add("gui.generalmechanics.machine.side_config.locked", "Locked");
+		add("gui.generalmechanics.machine.side_config.face_mode", "%s: %s");
+		//add("gui.generalmechanics.machine.side_config.controls", "Left: next, Right: previous; drag the block to rotate");
+		for (MachineFace face : MachineFace.values()) {
+			add("gui.generalmechanics.machine.side_config.face." + face.getSerializedName(), titleCase(face.getSerializedName()));
+		}
+		for (MachineSideMode mode : MachineSideMode.values()) {
+			add("gui.generalmechanics.machine.side_config.mode." + mode.getSerializedName(), modeName(mode));
+			add("gui.generalmechanics.machine.side_config.mode_short." + mode.getSerializedName(), shortModeName(mode));
+		}
 		add("guide.generalmechanics.machine_recipe.duration", "Time: %s s");
+	}
+
+	private static String titleCase (String value) {
+		return Character.toUpperCase(value.charAt(0)) + value.substring(1).replace('_', ' ');
+	}
+
+	private static String modeName (MachineSideMode mode) {
+		return switch (mode) {
+			case NONE -> "Disabled";
+			case ITEM_INPUT -> "Item Input";
+			case ITEM_OUTPUT -> "Item Output";
+			case FLUID_INPUT -> "Fluid Input";
+			case FLUID_OUTPUT -> "Fluid Output";
+			case ENERGY_INPUT -> "Energy Input";
+			case NETWORK -> "Network";
+		};
+	}
+
+	private static String shortModeName (MachineSideMode mode) {
+		return switch (mode) {
+			case NONE -> "Disabled";
+			case ITEM_INPUT -> "Item In";
+			case ITEM_OUTPUT -> "Item Out";
+			case FLUID_INPUT -> "Fluid In";
+			case FLUID_OUTPUT -> "Fluid Out";
+			case ENERGY_INPUT -> "Energy";
+			case NETWORK -> "Network";
+		};
 	}
 
 	protected void addSubtitles () {

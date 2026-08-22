@@ -59,7 +59,7 @@ public final class MachineRecipeProcessor {
 	}
 
 	MachineRecipeProcessor (MachineRecipeBinding binding, MachineWorkRequirement workRequirement, Runnable changeCallback) {
-		this(binding, List.of(MachineRecipeSources.registered(binding.definition())), workRequirement, changeCallback);
+		this(binding, binding.definition().createRecipeSources(), workRequirement, changeCallback);
 	}
 
 	MachineRecipeProcessor (MachineRecipeBinding binding, List<MachineRecipeSource> sources, MachineWorkRequirement workRequirement, Runnable changeCallback) {

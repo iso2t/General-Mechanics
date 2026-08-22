@@ -8,12 +8,14 @@ import general.api.definitions.FluidDefinition;
 import general.api.fluid.BaseFluid;
 import general.api.mod.GenAPI;
 import general.api.model.IBasicModel;
+import general.api.model.IConfigurableMachineModel;
 import general.api.model.IMachineModel;
 import general.api.resources.Resource;
 import general.api.rotation.BlockRotationStrategies;
 import general.api.rotation.BlockRotationStrategy;
 import general.api.rotation.IRotatableBlock;
 import general.mechanics.client.model.CableModelLoader;
+import general.mechanics.client.model.ConfigurableMachineModelLoader;
 import general.mechanics.common.block.misc.RubberWood;
 import general.mechanics.registries.GenBlocks;
 import general.mechanics.registries.GenFluids;
@@ -82,6 +84,8 @@ public final class BlockModelProvider extends ModelProviders {
 		for (var block : GenBlocks.INSTANCE.getBlocks()) {
 			if (block.get() instanceof DecorativeBlock || block.get() instanceof IBasicModel) {
 				blockWithItem(block);
+			} else if (block.get() instanceof IConfigurableMachineModel machine) {
+				registerConfigurableMachine(block, machine);
 			} else if (block.get() instanceof IMachineModel machine) {
 				registerMachine(block, machine);
 			}/*else if (block.get() instanceof MachineFrameBlock) {
@@ -144,6 +148,23 @@ public final class BlockModelProvider extends ModelProviders {
 		}
 
 		generators.registerSimpleItemModel(block.get(), model);
+	}
+
+	private void registerConfigurableMachine (BlockDefinition<?> block, IConfigurableMachineModel machine) {
+		var path = block.getId().getPath();
+		var itemModel = ModelTemplates.CUBE.create(Resource.get("block/machine/" + path), machineMapping(machine), generators.modelOutput);
+		generators.blockStateOutput.accept(new BlockModelDefinitionGenerator() {
+			@Override
+			public @NonNull Block block () {
+				return block.get();
+			}
+
+			@Override
+			public @NonNull BlockStateModelDispatcher create () {
+				return new BlockStateModelDispatcher(ConfigurableMachineModelLoader.INSTANCE);
+			}
+		});
+		generators.registerSimpleItemModel(block.get(), itemModel);
 	}
 
 	private void blockWithItem (BlockDefinition<?> block) {

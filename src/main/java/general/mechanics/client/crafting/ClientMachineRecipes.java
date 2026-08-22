@@ -7,6 +7,7 @@ import net.minecraft.world.item.crafting.RecipeMap;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.RecipesReceivedEvent;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -28,6 +29,9 @@ public final class ClientMachineRecipes {
 	}
 
 	public static List<RecipeHolder<MachineRecipe>> get (MachineRecipeDefinition<?> definition) {
-		return List.copyOf(recipes.byType(definition.type()));
+		var result = new ArrayList<RecipeHolder<MachineRecipe>>();
+		result.addAll(recipes.byType(definition.type()));
+		result.addAll(definition.importedRecipes(recipes));
+		return List.copyOf(result);
 	}
 }

@@ -9,6 +9,7 @@ import general.api.screens.renderers.GuiProgressBarRenderer;
 import general.api.screens.screen.widget.AbstractWidget;
 import general.api.screens.screen.widget.WidgetInfoArea;
 import general.api.screens.screen.widget.WidgetItemLockButton;
+import general.api.screens.screen.widget.WidgetMachineSideConfiguration;
 import general.api.screens.screen.widget.WidgetRecipeViewerButton;
 import general.api.screens.slot.ILockableSlot;
 import lombok.Getter;
@@ -25,6 +26,9 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class AbstractScreen<T extends AbstractMenu<?, ?>> extends AbstractContainerScreen<T> {
 
@@ -79,12 +83,17 @@ public abstract class AbstractScreen<T extends AbstractMenu<?, ?>> extends Abstr
 	public static final Identifier STATUS_ERROR    = Resource.getMainMod("textures/gui/elements/status_error.png");
 
 	private final WidgetInfoArea infoArea;
+	private final List<AbstractWidget> overlayWidgets = new ArrayList<>();
 
 	@Nullable
 	private final WidgetRecipeViewerButton recipeViewerButton;
 
 	@Nullable
 	private final WidgetItemLockButton itemLockButton;
+
+	@Nullable
+	@Getter
+	private final WidgetMachineSideConfiguration machineSideConfigurationWidget;
 
 	@Nullable
 	@Getter
@@ -107,6 +116,16 @@ public abstract class AbstractScreen<T extends AbstractMenu<?, ?>> extends Abstr
 			minecraft.gameMode.handleInventoryButtonClick(menu.containerId, AbstractMenu.TOGGLE_ITEM_LOCK_BUTTON);
 			return true;
 		})) : null;
+		machineSideConfigurationWidget = menu.hasMachineSideConfiguration() ? addOverlayWidget(new WidgetMachineSideConfiguration(
+				() -> menu.getBlockEntity().getBlockState(),
+				menu.getMachineSideConfigurationDefinition(),
+				menu::getMachineSideMode,
+				(face, mode) -> {
+					if (minecraft.gameMode == null) return false;
+					minecraft.gameMode.handleInventoryButtonClick(menu.containerId, AbstractMenu.machineSideConfigurationButton(face, mode));
+					return true;
+				}
+		)) : null;
 	}
 
 	public AbstractScreen (T menu, Inventory inventory, String title) {
@@ -132,19 +151,38 @@ public abstract class AbstractScreen<T extends AbstractMenu<?, ?>> extends Abstr
 		return infoArea.addWidget(widget);
 	}
 
+	/**
+	 * Adds a GUI-relative overlay rendered above container labels and slots.
+	 */
+	protected final <W extends AbstractWidget> W addOverlayWidget (W widget) {
+		overlayWidgets.add(java.util.Objects.requireNonNull(widget, "widget"));
+		return widget;
+	}
+
 	@Override
 	public void extractBackground (@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
 		super.extractBackground(graphics, mouseX, mouseY, a);
 		graphics.blit(RenderPipelines.GUI_TEXTURED, getTexture(), leftPos, topPos, 0.f, 0.f, imageWidth, imageHeight, 256, 256);
 		infoArea.render(graphics, mouseX, mouseY, leftPos, topPos + 1); // Move down one to align tops
 
-		if (getPowerRenderer() != null) getPowerRenderer().renderRelative(graphics, leftPos, topPos);
+		if (getPowerRenderer() != null) getPowerRenderer().renderRelative(graphics, leftPos, topPos, mouseX, mouseY);
 		if (getProgressBarRenderer() != null) getProgressBarRenderer().render(graphics, leftPos, topPos, mouseX, mouseY);
 		if (getFluidRenderer() != null) getFluidRenderer().render(graphics, leftPos, topPos, mouseX, mouseY);
 	}
 
 	@Override
+	public void extractContents (@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+		super.extractContents(graphics, mouseX, mouseY, partialTick);
+		if (overlayWidgets.isEmpty()) return;
+		graphics.nextStratum();
+		for (AbstractWidget widget : overlayWidgets) widget.render(graphics, mouseX, mouseY, leftPos, topPos);
+	}
+
+	@Override
 	public boolean mouseClicked (@NonNull MouseButtonEvent event, boolean doubleClick) {
+		for (int index = overlayWidgets.size() - 1; index >= 0; index--) {
+			if (overlayWidgets.get(index).mouseClicked(event, leftPos, topPos)) return true;
+		}
 		if (infoArea.mouseClicked(event, leftPos, topPos)) return true;
 		GuiFluidRenderer renderer = getFluidRenderer();
 		if (event.button() == 0 && renderer != null && menu.hasFluidContainerSource() && !menu.getCarried().isEmpty() && renderer.isMouseOver(event.x(), event.y(), leftPos, topPos)) {
@@ -154,6 +192,22 @@ public abstract class AbstractScreen<T extends AbstractMenu<?, ?>> extends Abstr
 			return true;
 		}
 		return super.mouseClicked(event, doubleClick);
+	}
+
+	@Override
+	public boolean mouseDragged (@NonNull MouseButtonEvent event, double dragX, double dragY) {
+		for (int index = overlayWidgets.size() - 1; index >= 0; index--) {
+			if (overlayWidgets.get(index).mouseDragged(event, dragX, dragY, leftPos, topPos)) return true;
+		}
+		return super.mouseDragged(event, dragX, dragY);
+	}
+
+	@Override
+	public boolean mouseReleased (@NonNull MouseButtonEvent event) {
+		for (int index = overlayWidgets.size() - 1; index >= 0; index--) {
+			if (overlayWidgets.get(index).mouseReleased(event, leftPos, topPos)) return true;
+		}
+		return super.mouseReleased(event);
 	}
 
 	@Override
@@ -171,6 +225,9 @@ public abstract class AbstractScreen<T extends AbstractMenu<?, ?>> extends Abstr
 
 	@Override
 	protected void extractTooltip (@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+		for (int index = overlayWidgets.size() - 1; index >= 0; index--) {
+			if (overlayWidgets.get(index).isMouseOver(mouseX, mouseY, leftPos, topPos)) return;
+		}
 		super.extractTooltip(graphics, mouseX, mouseY);
 		if (hoveredSlot instanceof ILockableSlot lockableSlot && !hoveredSlot.hasItem() && lockableSlot.isLocked() && menu.getCarried().isEmpty()) {
 			ItemStack ghost = lockableSlot.getGhostStack();

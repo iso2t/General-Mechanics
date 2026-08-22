@@ -4,6 +4,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeMap;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
 import org.jspecify.annotations.Nullable;
@@ -54,6 +55,10 @@ public final class MachineRecipeSources {
 	 * native recipe.
 	 */
 	public static <D, T extends AbstractCookingRecipe> MachineRecipeSource cooking (MachineRecipeDefinition<D> definition, RecipeType<T> type, MachineRecipeSlot.ItemInput inputSlot, MachineRecipeSlot.ItemOutput outputSlot, Predicate<MachineRecipeInput> predicate, Function<? super T, ? extends D> dataFactory) {
+		return cookingSpec(definition, type, inputSlot, outputSlot, predicate, dataFactory).create();
+	}
+
+	static <D, T extends AbstractCookingRecipe> SourceSpec cookingSpec (MachineRecipeDefinition<D> definition, RecipeType<T> type, MachineRecipeSlot.ItemInput inputSlot, MachineRecipeSlot.ItemOutput outputSlot, Predicate<MachineRecipeInput> predicate, Function<? super T, ? extends D> dataFactory) {
 		Objects.requireNonNull(definition, "definition");
 		Objects.requireNonNull(type, "type");
 		Objects.requireNonNull(inputSlot, "inputSlot");
@@ -63,10 +68,19 @@ public final class MachineRecipeSources {
 		if (!definition.schema().hasItemSlot(inputSlot)) throw new IllegalArgumentException("Cooking input slot '" + inputSlot.name() + "' is not declared by " + definition.id());
 		if (!definition.schema().hasItemSlot(outputSlot)) throw new IllegalArgumentException("Cooking output slot '" + outputSlot.name() + "' is not declared by " + definition.id());
 
-		return new CookingSource<>(definition, type, inputSlot, outputSlot, predicate, dataFactory);
+		return new CookingSpec<>(definition, type, inputSlot, outputSlot, predicate, dataFactory);
 	}
 
-	private static final class CookingSource<D, T extends AbstractCookingRecipe> implements MachineRecipeSource {
+	interface SourceSpec {
+
+		MachineRecipeSource create ();
+
+		RecipeType<?> nativeType ();
+
+		List<RecipeHolder<MachineRecipe>> recipes (RecipeMap recipes);
+	}
+
+	private static final class CookingSpec<D, T extends AbstractCookingRecipe> implements SourceSpec {
 
 		private final MachineRecipeDefinition<D>             definition;
 		private final RecipeType<T>                          type;
@@ -75,11 +89,7 @@ public final class MachineRecipeSources {
 		private final Predicate<MachineRecipeInput>          predicate;
 		private final Function<? super T, ? extends D>       dataFactory;
 
-		private @Nullable Object                              cachedRecipeMap;
-		private           ItemStack                          cachedInput   = ItemStack.EMPTY;
-		private           List<RecipeHolder<MachineRecipe>> cachedResult  = List.of();
-
-		private CookingSource (MachineRecipeDefinition<D> definition, RecipeType<T> type, MachineRecipeSlot.ItemInput inputSlot, MachineRecipeSlot.ItemOutput outputSlot, Predicate<MachineRecipeInput> predicate, Function<? super T, ? extends D> dataFactory) {
+		private CookingSpec (MachineRecipeDefinition<D> definition, RecipeType<T> type, MachineRecipeSlot.ItemInput inputSlot, MachineRecipeSlot.ItemOutput outputSlot, Predicate<MachineRecipeInput> predicate, Function<? super T, ? extends D> dataFactory) {
 			this.definition = definition;
 			this.type = type;
 			this.inputSlot = inputSlot;
@@ -89,27 +99,30 @@ public final class MachineRecipeSources {
 		}
 
 		@Override
-		public List<RecipeHolder<MachineRecipe>> findMatching (MachineRecipeInput input, ServerLevel level) {
-			if (input.definition() != definition || !predicate.test(input)) return List.of();
-			ItemStack inputStack = input.item(inputSlot);
-			if (inputStack.isEmpty()) return List.of();
+		public MachineRecipeSource create () {
+			return new CookingSource<>(this);
+		}
 
-			Object recipeMap = level.recipeAccess().recipeMap();
-			if (recipeMap == cachedRecipeMap && ItemStack.matches(inputStack, cachedInput)) return cachedResult;
+		@Override
+		public RecipeType<?> nativeType () {
+			return type;
+		}
 
-			var nativeInput = new SingleRecipeInput(inputStack);
-			var nativeHolder = level.recipeAccess().getRecipeFor(type, nativeInput, level).orElse(null);
-			if (nativeHolder == null) {
-				cache(recipeMap, inputStack, List.of());
-				return List.of();
+		@Override
+		public List<RecipeHolder<MachineRecipe>> recipes (RecipeMap recipes) {
+			var result = new ArrayList<RecipeHolder<MachineRecipe>>();
+			for (RecipeHolder<T> holder : recipes.byType(type)) {
+				ItemStack sampleInput = holder.value().input().items().findFirst().map(ItemStack::new).orElse(ItemStack.EMPTY);
+				RecipeHolder<MachineRecipe> adapted = sampleInput.isEmpty() ? null : adapt(holder, sampleInput);
+				if (adapted != null) result.add(adapted);
 			}
+			return List.copyOf(result);
+		}
 
-			T recipe = nativeHolder.value();
-			ItemStack result = recipe.assemble(nativeInput);
-			if (result.isEmpty()) {
-				cache(recipeMap, inputStack, List.of());
-				return List.of();
-			}
+		private @Nullable RecipeHolder<MachineRecipe> adapt (RecipeHolder<T> holder, ItemStack input) {
+			T recipe = holder.value();
+			ItemStack result = recipe.assemble(new SingleRecipeInput(input));
+			if (result.isEmpty()) return null;
 
 			MachineRecipe adapted = definition.recipeBuilder()
 					.itemInput(inputSlot, recipe.input(), 1)
@@ -117,9 +130,37 @@ public final class MachineRecipeSources {
 					.duration(recipe.cookingTime())
 					.data(Objects.requireNonNull(dataFactory.apply(recipe), "Cooking recipe data factory returned null"))
 					.build();
-			List<RecipeHolder<MachineRecipe>> adaptedResult = List.of(new RecipeHolder<>(nativeHolder.id(), adapted));
-			cache(recipeMap, inputStack, adaptedResult);
-			return adaptedResult;
+			return new RecipeHolder<>(holder.id(), adapted);
+		}
+	}
+
+	private static final class CookingSource<D, T extends AbstractCookingRecipe> implements MachineRecipeSource {
+
+		private final CookingSpec<D, T> spec;
+
+		private @Nullable Object                             cachedRecipeMap;
+		private           ItemStack                         cachedInput  = ItemStack.EMPTY;
+		private           List<RecipeHolder<MachineRecipe>> cachedResult = List.of();
+
+		private CookingSource (CookingSpec<D, T> spec) {
+			this.spec = spec;
+		}
+
+		@Override
+		public List<RecipeHolder<MachineRecipe>> findMatching (MachineRecipeInput input, ServerLevel level) {
+			if (input.definition() != spec.definition || !spec.predicate.test(input)) return List.of();
+			ItemStack inputStack = input.item(spec.inputSlot);
+			if (inputStack.isEmpty()) return List.of();
+
+			Object recipeMap = level.recipeAccess().recipeMap();
+			if (recipeMap == cachedRecipeMap && ItemStack.matches(inputStack, cachedInput)) return cachedResult;
+
+			var nativeInput = new SingleRecipeInput(inputStack);
+			var nativeHolder = level.recipeAccess().getRecipeFor(spec.type, nativeInput, level).orElse(null);
+			RecipeHolder<MachineRecipe> adapted = nativeHolder == null ? null : spec.adapt(nativeHolder, inputStack);
+			List<RecipeHolder<MachineRecipe>> result = adapted == null ? List.of() : List.of(adapted);
+			cache(recipeMap, inputStack, result);
+			return result;
 		}
 
 		private void cache (Object recipeMap, ItemStack input, List<RecipeHolder<MachineRecipe>> result) {

@@ -46,7 +46,10 @@ public final class MachineRecipeCatalog {
 	 */
 	public static void syncRecipes (OnDatapackSyncEvent event) {
 		Objects.requireNonNull(event, "event");
-		for (MachineRecipeDefinition<?> definition : definitions()) event.sendRecipes(definition.type());
+		for (MachineRecipeDefinition<?> definition : definitions()) {
+			event.sendRecipes(definition.type());
+			event.sendRecipes(definition.importedRecipeTypes());
+		}
 	}
 
 	static void add (MachineRecipeDefinition<?> definition) {

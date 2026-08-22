@@ -12,6 +12,9 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.Util;
 import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.item.crafting.AbstractCookingRecipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeMap;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.ItemLike;
@@ -22,6 +25,8 @@ import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
 import net.neoforged.neoforge.registries.DeferredHolder;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /**
@@ -54,6 +59,9 @@ public final class MachineRecipeDefinition<D> {
 	private final MapCodec<MachineRecipe>                                              recipeCodec;
 	private final StreamCodec<RegistryFriendlyByteBuf, MachineRecipe>                  recipeStreamCodec;
 	private final List<Supplier<? extends ItemLike>>                                   craftingStations = new ArrayList<>();
+	private final List<MachineRecipeSources.SourceSpec>                                additionalSources = new ArrayList<>();
+	private final List<List<String>>                                                    interchangeableItemOutputGroups = new ArrayList<>();
+	private final Set<String>                                                          interchangeableItemOutputNames = new HashSet<>();
 
 	MachineRecipeDefinition (Identifier id, MachineRecipeSchema schema, DeferredHolder<RecipeType<?>, RecipeType<MachineRecipe>> type, DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MachineRecipe>> serializer, MapCodec<D> dataCodec, StreamCodec<RegistryFriendlyByteBuf, D> dataStreamCodec, D defaultData, MachineRecipeMatcher<D> additionalMatcher) {
 		this.id = Objects.requireNonNull(id, "id");
@@ -123,6 +131,89 @@ public final class MachineRecipeDefinition<D> {
 			result.add(Objects.requireNonNull(supplier.get(), "Machine recipe crafting station supplier returned null for " + id));
 		}
 		return List.copyOf(result);
+	}
+
+	/**
+	 * Imports a native cooking recipe type as a lower-priority machine recipe
+	 * source. Registered recipes for this definition remain authoritative; the
+	 * cooking source is considered only when none of them match.
+	 *
+	 * <p>The predicate is evaluated against the live machine input and can reserve
+	 * optional slots, such as requiring an empty catalyst for a vanilla smelting
+	 * fallback. The definition must have a default payload value.</p>
+	 */
+	public <T extends AbstractCookingRecipe> MachineRecipeDefinition<D> cookingRecipes (RecipeType<T> type, MachineRecipeSlot.ItemInput inputSlot, MachineRecipeSlot.ItemOutput outputSlot, Predicate<MachineRecipeInput> predicate) {
+		if (defaultData == null) throw new IllegalStateException("Machine recipe type " + id + " requires a cooking recipe data factory");
+		return cookingRecipes(type, inputSlot, outputSlot, predicate, recipe -> defaultData);
+	}
+
+	/**
+	 * Imports a native cooking recipe type without an additional machine-input
+	 * condition.
+	 */
+	public <T extends AbstractCookingRecipe> MachineRecipeDefinition<D> cookingRecipes (RecipeType<T> type, MachineRecipeSlot.ItemInput inputSlot, MachineRecipeSlot.ItemOutput outputSlot) {
+		return cookingRecipes(type, inputSlot, outputSlot, input -> true);
+	}
+
+	/**
+	 * Custom-data variant of {@link #cookingRecipes(RecipeType, MachineRecipeSlot.ItemInput, MachineRecipeSlot.ItemOutput, Predicate)}.
+	 */
+	public <T extends AbstractCookingRecipe> MachineRecipeDefinition<D> cookingRecipes (RecipeType<T> type, MachineRecipeSlot.ItemInput inputSlot, MachineRecipeSlot.ItemOutput outputSlot, Predicate<MachineRecipeInput> predicate, Function<? super T, ? extends D> dataFactory) {
+		additionalSources.add(MachineRecipeSources.cookingSpec(this, type, inputSlot, outputSlot, predicate, dataFactory));
+		return this;
+	}
+
+	/**
+	 * Declares logical item-output slots whose bound physical slots may accept any
+	 * recipe output in the group. Placement is ordered but backtracks when
+	 * necessary, and remains part of the recipe's atomic transfer transaction.
+	 */
+	public MachineRecipeDefinition<D> interchangeableItemOutputs (MachineRecipeSlot.ItemOutput first, MachineRecipeSlot.ItemOutput... remaining) {
+		Objects.requireNonNull(first, "first");
+		Objects.requireNonNull(remaining, "remaining");
+		var group = new ArrayList<String>(remaining.length + 1);
+		group.add(requireInterchangeableItemOutput(first));
+		for (MachineRecipeSlot.ItemOutput output : remaining) group.add(requireInterchangeableItemOutput(output));
+		if (group.size() < 2) throw new IllegalArgumentException("An interchangeable item output group requires at least two slots");
+		if (new HashSet<>(group).size() != group.size()) throw new IllegalArgumentException("An interchangeable item output group cannot contain duplicate slots");
+		for (String name : group) {
+			if (interchangeableItemOutputNames.contains(name)) throw new IllegalArgumentException("Interchangeable item output slot '" + name + "' is already assigned to a group");
+		}
+		interchangeableItemOutputNames.addAll(group);
+		interchangeableItemOutputGroups.add(List.copyOf(group));
+		return this;
+	}
+
+	/**
+	 * Creates fresh ordered recipe sources for one processor. Native imports are
+	 * kept here so machine execution and recipe-viewer discovery cannot drift.
+	 */
+	public List<MachineRecipeSource> createRecipeSources () {
+		var result = new ArrayList<MachineRecipeSource>(additionalSources.size() + 1);
+		result.add(MachineRecipeSources.registered(this));
+		for (MachineRecipeSources.SourceSpec source : additionalSources) result.add(source.create());
+		return List.copyOf(result);
+	}
+
+	/**
+	 * Adapts every synchronized native recipe imported by this definition for
+	 * recipe viewers.
+	 */
+	public List<RecipeHolder<MachineRecipe>> importedRecipes (RecipeMap recipes) {
+		Objects.requireNonNull(recipes, "recipes");
+		var result = new ArrayList<RecipeHolder<MachineRecipe>>();
+		for (MachineRecipeSources.SourceSpec source : additionalSources) result.addAll(source.recipes(recipes));
+		return List.copyOf(result);
+	}
+
+	Set<RecipeType<?>> importedRecipeTypes () {
+		var result = Collections.newSetFromMap(new IdentityHashMap<RecipeType<?>, Boolean>());
+		for (MachineRecipeSources.SourceSpec source : additionalSources) result.add(source.nativeType());
+		return Set.copyOf(result);
+	}
+
+	List<List<String>> interchangeableItemOutputGroups () {
+		return List.copyOf(interchangeableItemOutputGroups);
 	}
 
 	public RecipeType<MachineRecipe> type () {
@@ -309,6 +400,15 @@ public final class MachineRecipeDefinition<D> {
 		if (recipe.definition() != this) {
 			throw new IllegalArgumentException("Recipe belongs to " + recipe.definition().id() + ", not " + id);
 		}
+	}
+
+	private String requireInterchangeableItemOutput (MachineRecipeSlot.ItemOutput output) {
+		Objects.requireNonNull(output, "output");
+		String name = output.name();
+		if (schema.itemOutputs().stream().noneMatch(slot -> slot.name().equals(name))) {
+			throw new IllegalArgumentException("Interchangeable item output slot '" + name + "' is not declared as an item output by " + id);
+		}
+		return name;
 	}
 
 	@SuppressWarnings("unchecked")

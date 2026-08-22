@@ -59,10 +59,27 @@ public abstract class AbstractWidget {
 		return onClick(event, originX + x, originY + y);
 	}
 
+	/**
+	 * Dispatches an in-progress drag. Unlike a click, the pointer may leave the
+	 * widget after the drag begins, so subclasses decide whether they own it.
+	 */
+	public final boolean mouseDragged (MouseButtonEvent event, double dragX, double dragY, int originX, int originY) {
+		if (!isVisible() || !active) return false;
+		return onDrag(event, dragX, dragY, originX + x, originY + y);
+	}
+
+	/**
+	 * Dispatches a mouse release so stateful widgets can complete a click or drag.
+	 */
+	public final boolean mouseReleased (MouseButtonEvent event, int originX, int originY) {
+		if (!isVisible() || !active) return false;
+		return onRelease(event, originX + x, originY + y);
+	}
+
 	public final boolean isMouseOver (double mouseX, double mouseY, int originX, int originY) {
 		int absoluteX = originX + x;
 		int absoluteY = originY + y;
-		return mouseX >= absoluteX && mouseX < absoluteX + width && mouseY >= absoluteY && mouseY < absoluteY + getHeight();
+		return isMouseOverWidget(mouseX - absoluteX, mouseY - absoluteY);
 	}
 
 	/**
@@ -90,6 +107,21 @@ public abstract class AbstractWidget {
 	 * the widget's absolute top-left corner.
 	 */
 	protected boolean onClick (MouseButtonEvent event, int x, int y) {
+		return false;
+	}
+
+	/**
+	 * Custom local-space hit testing for non-rectangular or stateful widgets.
+	 */
+	protected boolean isMouseOverWidget (double mouseX, double mouseY) {
+		return mouseX >= 0 && mouseX < width && mouseY >= 0 && mouseY < getHeight();
+	}
+
+	protected boolean onDrag (MouseButtonEvent event, double dragX, double dragY, int x, int y) {
+		return false;
+	}
+
+	protected boolean onRelease (MouseButtonEvent event, int x, int y) {
 		return false;
 	}
 

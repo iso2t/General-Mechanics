@@ -17,10 +17,13 @@ import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Validated mapping from a logical recipe schema to a machine's physical item
@@ -38,6 +41,8 @@ public final class MachineRecipeBinding {
 	private final @Nullable ResourceHandler<FluidResource> fluids;
 	private final           Map<String, Integer>           itemSlots;
 	private final           Map<String, Integer>           fluidSlots;
+	private final           List<ItemOutputGroup>          interchangeableItemOutputGroups;
+	private final           Set<String>                    interchangeableItemOutputNames;
 	private final @Nullable VersionedResourceHandler<?>    itemRevisionSource;
 	private final @Nullable VersionedResourceHandler<?>    fluidRevisionSource;
 	private final           boolean                        tracksContentRevisions;
@@ -48,6 +53,8 @@ public final class MachineRecipeBinding {
 		this.fluids = builder.fluids;
 		this.itemSlots = resolve("item", definition.schema().itemSlots(), builder.itemMappings, builder.itemDefinition, items);
 		this.fluidSlots = resolve("fluid", definition.schema().fluidSlots(), builder.fluidMappings, builder.fluidDefinition, fluids);
+		this.interchangeableItemOutputGroups = resolveInterchangeableItemOutputGroups();
+		this.interchangeableItemOutputNames = interchangeableItemOutputGroups.stream().flatMap(group -> group.recipeSlots().stream()).collect(Collectors.toUnmodifiableSet());
 		this.itemRevisionSource = items instanceof VersionedResourceHandler<?> handler ? handler : null;
 		this.fluidRevisionSource = fluids instanceof VersionedResourceHandler<?> handler ? handler : null;
 		this.tracksContentRevisions = (items == null || itemRevisionSource != null) && (fluids == null || fluidRevisionSource != null);
@@ -214,7 +221,16 @@ public final class MachineRecipeBinding {
 			}
 		}
 		if (items != null) {
+			for (ItemOutputGroup group : interchangeableItemOutputGroups) {
+				var outputs = new ArrayList<ItemStack>();
+				for (String recipeSlot : group.recipeSlots()) {
+					ItemStack stack = recipe.internalItemOutput(recipeSlot);
+					if (stack != null) outputs.add(stack);
+				}
+				if (!insertInterchangeableItemOutputs(outputs, 0, group.handlerSlots(), transaction)) return false;
+			}
 			for (MachineRecipeSchema.Slot slot : definition.schema().itemOutputs()) {
+				if (interchangeableItemOutputNames.contains(slot.name())) continue;
 				ItemStack stack = recipe.internalItemOutput(slot.name());
 				if (stack == null) continue;
 				int index = itemSlots.get(slot.name());
@@ -232,11 +248,43 @@ public final class MachineRecipeBinding {
 		return true;
 	}
 
+	private boolean insertInterchangeableItemOutputs (List<ItemStack> outputs, int outputIndex, List<Integer> handlerSlots, TransactionContext transaction) {
+		if (outputIndex >= outputs.size()) return true;
+		ItemStack stack = outputs.get(outputIndex);
+		ItemResource resource = ItemResource.of(stack);
+		for (int handlerSlot : handlerSlots) {
+			try (Transaction candidate = Transaction.open(transaction)) {
+				if (items.insert(handlerSlot, resource, stack.getCount(), candidate) != stack.getCount()) continue;
+				if (!insertInterchangeableItemOutputs(outputs, outputIndex + 1, handlerSlots, candidate)) continue;
+				candidate.commit();
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private List<ItemOutputGroup> resolveInterchangeableItemOutputGroups () {
+		if (items == null) return List.of();
+		var groups = new ArrayList<ItemOutputGroup>();
+		for (List<String> recipeSlots : definition.interchangeableItemOutputGroups()) {
+			var handlerSlots = new ArrayList<Integer>();
+			for (String recipeSlot : recipeSlots) {
+				int handlerSlot = itemSlots.get(recipeSlot);
+				if (!handlerSlots.contains(handlerSlot)) handlerSlots.add(handlerSlot);
+			}
+			groups.add(new ItemOutputGroup(recipeSlots, List.copyOf(handlerSlots)));
+		}
+		return List.copyOf(groups);
+	}
+
 	private void requireRecipe (MachineRecipe recipe) {
 		Objects.requireNonNull(recipe, "recipe");
 		if (recipe.definition() != definition) {
 			throw new IllegalArgumentException("Recipe belongs to " + recipe.definition().id() + ", not binding " + definition.id());
 		}
+	}
+
+	private record ItemOutputGroup(List<String> recipeSlots, List<Integer> handlerSlots) {
 	}
 
 	private static <R extends net.neoforged.neoforge.transfer.resource.Resource> Map<String, Integer> resolve (String resourceName, java.util.List<String> logicalSlots, Map<String, String> mappings, @Nullable ResourceInventoryDefinition<R> physicalDefinition, @Nullable ResourceHandler<R> handler) {

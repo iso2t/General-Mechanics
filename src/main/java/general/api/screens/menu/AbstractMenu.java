@@ -1,6 +1,9 @@
 package general.api.screens.menu;
 
 import general.api.crafting.MachineRecipeDefinition;
+import general.api.machine.config.MachineFace;
+import general.api.machine.config.MachineSideConfigurationDefinition;
+import general.api.machine.config.MachineSideMode;
 import general.api.screens.screen.AbstractScreen;
 import general.api.screens.slot.MachineItemSlot;
 import general.api.transfer.item.LockableItemResourceHandler;
@@ -26,6 +29,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.BiPredicate;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public abstract class AbstractMenu<B extends EntityBlock, T extends BlockEntity> extends AbstractContainerMenu {
@@ -34,6 +39,8 @@ public abstract class AbstractMenu<B extends EntityBlock, T extends BlockEntity>
 	 */
 	public static final int FILL_FLUID_CONTAINER_BUTTON = 0x47464C44; // "GFLD"
 	public static final int TOGGLE_ITEM_LOCK_BUTTON     = 0x474C4F43; // "GLOC"
+	private static final int CONFIGURE_SIDE_BUTTON_PREFIX = 0x47530000; // "GS"
+	private static final int CONFIGURE_SIDE_BUTTON_MASK   = 0xFFFF0000;
 
 	@Getter
 	private final B block;
@@ -51,6 +58,9 @@ public abstract class AbstractMenu<B extends EntityBlock, T extends BlockEntity>
 
 	@Nullable
 	private LockableItemResourceHandler lockableItemHandler;
+
+	@Nullable
+	private MachineSideConfigurationSource sideConfigurationSource;
 
 	private boolean itemSlotsLocked;
 
@@ -219,6 +229,42 @@ public abstract class AbstractMenu<B extends EntityBlock, T extends BlockEntity>
 	}
 
 	/**
+	 * Enables the shared machine-side configuration UI and server action protocol.
+	 * The mode provider should expose synchronized menu state; the setter is only
+	 * invoked after the server validates the requested face and mode.
+	 */
+	protected final void enableMachineSideConfiguration (MachineSideConfigurationDefinition definition, Function<MachineFace, MachineSideMode> modeProvider, BiPredicate<MachineFace, MachineSideMode> modeSetter) {
+		if (sideConfigurationSource != null) throw new IllegalStateException("Machine side configuration is already enabled for this menu");
+		this.sideConfigurationSource = new MachineSideConfigurationSource(
+				Objects.requireNonNull(definition, "definition"),
+				Objects.requireNonNull(modeProvider, "modeProvider"),
+				Objects.requireNonNull(modeSetter, "modeSetter")
+		);
+	}
+
+	public final boolean hasMachineSideConfiguration () {
+		return sideConfigurationSource != null;
+	}
+
+	public final MachineSideConfigurationDefinition getMachineSideConfigurationDefinition () {
+		MachineSideConfigurationSource source = sideConfigurationSource;
+		if (source == null) throw new IllegalStateException("Machine side configuration is not enabled for this menu");
+		return source.definition();
+	}
+
+	public final MachineSideMode getMachineSideMode (MachineFace face) {
+		MachineSideConfigurationSource source = sideConfigurationSource;
+		if (source == null) throw new IllegalStateException("Machine side configuration is not enabled for this menu");
+		return Objects.requireNonNull(source.modeProvider().apply(Objects.requireNonNull(face, "face")), "Machine side mode provider returned null");
+	}
+
+	public static int machineSideConfigurationButton (MachineFace face, MachineSideMode mode) {
+		Objects.requireNonNull(face, "face");
+		Objects.requireNonNull(mode, "mode");
+		return CONFIGURE_SIDE_BUTTON_PREFIX | face.id() << Byte.SIZE | mode.id();
+	}
+
+	/**
 	 * @return whether this menu has opted into fluid-renderer container filling.
 	 */
 	public final boolean hasFluidContainerSource () {
@@ -229,7 +275,18 @@ public abstract class AbstractMenu<B extends EntityBlock, T extends BlockEntity>
 	public boolean clickMenuButton (@NonNull Player player, int buttonId) {
 		if (buttonId == FILL_FLUID_CONTAINER_BUTTON) return fillCarriedFluidContainer(player);
 		if (buttonId == TOGGLE_ITEM_LOCK_BUTTON) return toggleItemSlotLock(player);
+		if ((buttonId & CONFIGURE_SIDE_BUTTON_MASK) == CONFIGURE_SIDE_BUTTON_PREFIX) return configureMachineSide(player, buttonId);
 		return super.clickMenuButton(player, buttonId);
+	}
+
+	private boolean configureMachineSide (Player player, int buttonId) {
+		MachineSideConfigurationSource source = sideConfigurationSource;
+		if (source == null || player.level().isClientSide() || !stillValid(player)) return false;
+		MachineFace face = MachineFace.byId(buttonId >>> Byte.SIZE & 0xFF).orElse(null);
+		MachineSideMode mode = MachineSideMode.byId(buttonId & 0xFF).orElse(null);
+		if (face == null || mode == null || !source.definition().isConfigurable(face) || !source.definition().supports(face, mode)) return false;
+		source.modeSetter().test(face, mode);
+		return true;
 	}
 
 	private boolean toggleItemSlotLock (Player player) {
@@ -298,6 +355,13 @@ public abstract class AbstractMenu<B extends EntityBlock, T extends BlockEntity>
 	}
 
 	private record FluidContainerSource(ResourceHandler<FluidResource> handler, int tank, int transferLimit) {
+	}
+
+	private record MachineSideConfigurationSource(
+			MachineSideConfigurationDefinition definition,
+			Function<MachineFace, MachineSideMode> modeProvider,
+			BiPredicate<MachineFace, MachineSideMode> modeSetter
+	) {
 	}
 
 	/**
