@@ -5,6 +5,7 @@ import general.api.mod.GenAPI;
 import general.mechanics.registries.GenBlocks;
 import general.mechanics.registries.GenFluids;
 import general.mechanics.registries.GenItems;
+import general.mechanics.registries.GenMultiblocks;
 import net.minecraft.data.DataGenerator;
 import net.neoforged.neoforge.common.data.LanguageProvider;
 
@@ -30,6 +31,10 @@ public class GenMechEnLangProvider extends LanguageProvider {
 
 		for (var definition : MachineRecipeCatalog.definitions(GenAPI.getModId())) {
 			add(definition.descriptionId(), definition.defaultEnglishName());
+		}
+
+		for (var multiblock : GenMultiblocks.getMultiblocks()) {
+			add(multiblock.toString(), multiblock.localizedName().getRawString());
 		}
 
 		addManualTranslations();

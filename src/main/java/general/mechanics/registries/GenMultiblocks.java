@@ -10,13 +10,19 @@ import net.minecraft.core.Registry;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public class GenMultiblocks {
 
 	public static final DeferredRegister<Multiblock> REGISTRY    = DeferredRegister.create(GenRegistries.MULTIBLOCKS, GenAPI.getModId());
-	public static final Registry<Multiblock>         MULTIBLOCKS = REGISTRY.makeRegistry(builder -> {
+	public static final Registry<Multiblock>         MULTIBLOCKS_REGISTRY = REGISTRY.makeRegistry(builder -> {
 	});
 
-	public static final MultiblockDefinition COKE_OVEN = register("coke_oven", Multiblock.builder(MultiblockPattern.builder().whereHatchable('F', MultiblockElement.block(GenBlocks.COKE_OVEN_BRICKS)).where('C', MultiblockElement.block(GenBlocks.COKE_OVEN_CONTROLLER)).where('.', MultiblockElement.air()).where('#', MultiblockElement.any()).where('L', MultiblockElement.block(Blocks.LAVA))
+	private static final List<MultiblockDefinition> MULTIBLOCKS = new ArrayList<>();
+
+	public static final MultiblockDefinition COKE_OVEN = register("Primitive Coke Oven", Multiblock.builder(MultiblockPattern.builder().whereHatchable('F', MultiblockElement.block(GenBlocks.COKE_OVEN_BRICKS)).where('C', MultiblockElement.block(GenBlocks.COKE_OVEN_CONTROLLER)).where('.', MultiblockElement.air()).where('#', MultiblockElement.any()).where('L', MultiblockElement.block(Blocks.LAVA))
 
 					.anchor('C')
 
@@ -30,12 +36,18 @@ public class GenMultiblocks {
 
 			.hatch(MultiblockHatchDefinition.builder("item_input", GenBlocks.ITEM_INPUT_HATCH).count(HatchCount.atMost(1)).itemInsert(CokeOvenController.RecipeSlots.INPUT).build()).hatch(MultiblockHatchDefinition.builder("item_output", GenBlocks.ITEM_OUTPUT_HATCH).count(HatchCount.atMost(1)).itemExtract(CokeOvenController.RecipeSlots.OUTPUT).build()).hatch(MultiblockHatchDefinition.builder("fluid_output", GenBlocks.FLUID_OUTPUT_HATCH).count(HatchCount.atMost(1)).fluidExtract(CokeOvenController.RecipeSlots.CREOSOTE).build()).hatch(MultiblockHatchDefinition.builder("network", GenBlocks.NETWORK_HATCH).count(HatchCount.atMost(1)).itemInsert(CokeOvenController.RecipeSlots.INPUT).itemExtract(CokeOvenController.RecipeSlots.OUTPUT).fluidExtract(CokeOvenController.RecipeSlots.CREOSOTE).network(NetworkServices.ITEM, NetworkServices.FLUID).build()).build());
 
+	public static List<MultiblockDefinition> getMultiblocks () {
+		return Collections.unmodifiableList(MULTIBLOCKS);
+	}
+
 	public static MultiblockDefinition register (String name, MultiblockPattern pattern) {
 		return register(name, new Multiblock(pattern));
 	}
 
 	public static MultiblockDefinition register (String name, Multiblock multiblock) {
-		return new MultiblockDefinition(name, REGISTRY.register(name, () -> multiblock));
+		var definition = new MultiblockDefinition(name, REGISTRY.register(name.toLowerCase().replace(" ", ""), () -> multiblock));
+		MULTIBLOCKS.add(definition);
+		return definition;
 	}
 
 }

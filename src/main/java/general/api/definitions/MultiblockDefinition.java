@@ -1,10 +1,12 @@
 package general.api.definitions;
 
+import general.api.mod.GenAPI;
 import general.api.multiblock.Multiblock;
 import general.api.registry.IRegistryNameProvider;
 import general.api.registry.RegistryString;
 import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.registries.DeferredHolder;
+import org.jspecify.annotations.NonNull;
 
 import java.util.function.Supplier;
 
@@ -27,4 +29,10 @@ public record MultiblockDefinition(RegistryString localizedName, DeferredHolder<
 	public RegistryString getRegistryString () {
 		return localizedName;
 	}
+
+	@Override
+	public @NonNull String toString () {
+		return "multiblock." + GenAPI.getModId() + "." + localizedName.getRegistryName();
+	}
+
 }

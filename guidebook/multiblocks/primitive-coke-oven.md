@@ -1,7 +1,7 @@
 ---
 navigation:
     parent: multiblocks/multiblocks-index.md
-    title: Coke Oven
+    title: Primitive Coke Oven
     icon: coke_oven_controller
     position: 210
 item_ids:
@@ -18,8 +18,8 @@ item_ids:
     </GameScene>
 </Column>
 
-# Coke Oven
-The Coke Oven is one of the earliest multiblocks you will create. It turns normal coal/coal blocks into coal coke. As a 
+# Primitive Coke Oven
+The Primitive Coke Oven is one of the earliest multiblocks you will create. It turns normal coal/coal blocks into coal coke. As a 
 side effect of the recipe, it will also create [Creosote Oil](../fluids/creosote-oil.md). Creosote Oil is used to make treated wood.
 
 It is made with 20 Coke Oven Bricks, 1 bucket of lava, and 1 Coke Oven Controller.

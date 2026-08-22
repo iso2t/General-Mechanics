@@ -225,7 +225,7 @@ public class CokeOvenControllerBlockEntity extends BlockEntity implements Multib
 
 	@Override
 	public @NonNull Component getDisplayName () {
-		return Component.translatable(getBlockState().getBlock().getDescriptionId());
+		return Component.translatable(getMultiblockDefinition().toString());
 	}
 
 	@Override
