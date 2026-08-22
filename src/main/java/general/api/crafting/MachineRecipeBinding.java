@@ -18,6 +18,7 @@ import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jspecify.annotations.Nullable;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -176,7 +177,23 @@ public final class MachineRecipeBinding {
 		return new MachineRecipeProcessor(this, changeCallback);
 	}
 
-	private boolean transfer (MachineRecipe recipe, TransactionContext transaction) {
+	/**
+	 * Creates a processor with a transactional per-tick work requirement such as
+	 * machine energy.
+	 */
+	public MachineRecipeProcessor processor (MachineWorkRequirement workRequirement, Runnable changeCallback) {
+		return new MachineRecipeProcessor(this, workRequirement, changeCallback);
+	}
+
+	/**
+	 * Creates a processor whose recipe sources are evaluated in strict declaration
+	 * order.
+	 */
+	public MachineRecipeProcessor processor (List<MachineRecipeSource> sources, MachineWorkRequirement workRequirement, Runnable changeCallback) {
+		return new MachineRecipeProcessor(this, sources, workRequirement, changeCallback);
+	}
+
+	boolean transfer (MachineRecipe recipe, TransactionContext transaction) {
 		requireRecipe(recipe);
 		if (items != null) {
 			for (MachineRecipeSchema.Slot slot : definition.schema().itemInputs()) {

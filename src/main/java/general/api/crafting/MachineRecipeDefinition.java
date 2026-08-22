@@ -168,12 +168,24 @@ public final class MachineRecipeDefinition<D> {
 		return bind(items, fluids).processor(changeCallback);
 	}
 
+	public MachineRecipeProcessor processor (ItemResourceHandler items, FluidResourceHandler fluids, MachineWorkRequirement workRequirement, Runnable changeCallback) {
+		return bind(items, fluids).processor(workRequirement, changeCallback);
+	}
+
 	public MachineRecipeProcessor processor (ItemResourceHandler items, Runnable changeCallback) {
 		return bind(items).processor(changeCallback);
 	}
 
+	public MachineRecipeProcessor processor (ItemResourceHandler items, MachineWorkRequirement workRequirement, Runnable changeCallback) {
+		return bind(items).processor(workRequirement, changeCallback);
+	}
+
 	public MachineRecipeProcessor processor (FluidResourceHandler fluids, Runnable changeCallback) {
 		return bind(fluids).processor(changeCallback);
+	}
+
+	public MachineRecipeProcessor processor (FluidResourceHandler fluids, MachineWorkRequirement workRequirement, Runnable changeCallback) {
+		return bind(fluids).processor(workRequirement, changeCallback);
 	}
 
 	/**

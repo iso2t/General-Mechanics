@@ -6,6 +6,7 @@ import general.api.crafting.MachineRecipeSchema;
 import general.api.crafting.NoRecipeData;
 import general.api.mod.GenAPI;
 import general.mechanics.common.block.machine.CokeOvenController;
+import general.mechanics.common.block.machine.ElectricFurnaceBlock;
 import net.neoforged.bus.api.IEventBus;
 
 /**
@@ -18,6 +19,14 @@ public final class GenRecipes {
 	public static final MachineRecipeRegistry REGISTRY = MachineRecipeRegistry.create(GenAPI.getModId());
 
 	public static final MachineRecipeDefinition<NoRecipeData> COKE_OVEN = REGISTRY.register("coke_oven", MachineRecipeSchema.builder().itemInput(CokeOvenController.RecipeSlots.INPUT).itemOutput(CokeOvenController.RecipeSlots.OUTPUT).fluidOutput(CokeOvenController.RecipeSlots.CREOSOTE).build()).craftingStation(() -> GenBlocks.COKE_OVEN_CONTROLLER);
+	public static final MachineRecipeDefinition<NoRecipeData> ELECTRIC_FURNACE = REGISTRY.register("electric_furnace", MachineRecipeSchema.builder()
+			.itemInput(ElectricFurnaceBlock.RecipeSlots.INPUT)
+			.optionalItemInput(ElectricFurnaceBlock.RecipeSlots.CATALYST)
+			.itemOutput(ElectricFurnaceBlock.RecipeSlots.OUTPUT_1)
+			.optionalItemOutput(ElectricFurnaceBlock.RecipeSlots.OUTPUT_2)
+			.optionalItemOutput(ElectricFurnaceBlock.RecipeSlots.OUTPUT_3)
+			.optionalItemOutput(ElectricFurnaceBlock.RecipeSlots.OUTPUT_4)
+			.build()).craftingStation(() -> GenBlocks.ELECTRIC_FURNACE);
 
 	private GenRecipes () {
 	}
