@@ -39,18 +39,18 @@ public final class WidgetMachineSideConfiguration extends AbstractWidget {
 	private static final int TEXTURE_SIZE = 256;
 	private static final int OPEN_HEIGHT  = 169;
 
-	private static final int TAB_X      = 175;
-	private static final int TAB_WIDTH  = 14;
-	private static final int PANEL_X    = 175;
+	private static final int TAB_X       = 175;
+	private static final int TAB_WIDTH   = 14;
+	private static final int PANEL_X     = 175;
 	private static final int PANEL_WIDTH = 80;
 
-	private static final int VIEWPORT_X      = 1;
-	private static final int VIEWPORT_Y      = 1;
-	private static final int VIEWPORT_WIDTH  = 174;
-	private static final int VIEWPORT_HEIGHT = 138;
-	private static final float MODEL_SCALE   = 44.0F;
-	private static final int CONFIG_WIDTH     = 176;
-	private static final int CONFIG_HEIGHT    = 140;
+	private static final int   VIEWPORT_X      = 1;
+	private static final int   VIEWPORT_Y      = 1;
+	private static final int   VIEWPORT_WIDTH  = 174;
+	private static final int   VIEWPORT_HEIGHT = 138;
+	private static final float MODEL_SCALE     = 44.0F;
+	private static final int   CONFIG_WIDTH    = 176;
+	private static final int   CONFIG_HEIGHT   = 140;
 
 	private static final int CLOSE_X    = 244;
 	private static final int CLOSE_Y    = 3;
@@ -67,29 +67,24 @@ public final class WidgetMachineSideConfiguration extends AbstractWidget {
 	private static final Identifier CONFIG_MENU  = Resource.getMainMod("textures/gui/config_menu.png");
 	private static final Identifier CLOSE        = Resource.getMainMod("textures/gui/elements/close_button.png");
 
-	private final Supplier<BlockState>                     blockState;
-	private final MachineSideConfigurationDefinition       definition;
-	private final Function<MachineFace, MachineSideMode>   modeProvider;
-	private final ChangeAction                              changeAction;
+	private final Supplier<BlockState>                   blockState;
+	private final MachineSideConfigurationDefinition     definition;
+	private final Function<MachineFace, MachineSideMode> modeProvider;
+	private final ChangeAction                           changeAction;
 
 	@Getter
-	private boolean open;
-	private boolean dragging;
+	private boolean     open;
+	private boolean     dragging;
 	private boolean     dragMoved;
 	private int         dragButton;
 	private int         consumedButton = -1;
 	private double      pressX;
 	private double      pressY;
-	private float       yaw          = 135.0F;
-	private float       pitch        = 25.0F;
-	private MachineFace selectedFace = MachineFace.LEFT;
+	private float       yaw            = 135.0F;
+	private float       pitch          = 25.0F;
+	private MachineFace selectedFace   = MachineFace.LEFT;
 
-	public WidgetMachineSideConfiguration (
-			Supplier<BlockState> blockState,
-			MachineSideConfigurationDefinition definition,
-			Function<MachineFace, MachineSideMode> modeProvider,
-			ChangeAction changeAction
-	) {
+	public WidgetMachineSideConfiguration (Supplier<BlockState> blockState, MachineSideConfigurationDefinition definition, Function<MachineFace, MachineSideMode> modeProvider, ChangeAction changeAction) {
 		super(TEXTURE_SIZE, OPEN_HEIGHT);
 		this.blockState = Objects.requireNonNull(blockState, "blockState");
 		this.definition = Objects.requireNonNull(definition, "definition");
@@ -116,18 +111,7 @@ public final class WidgetMachineSideConfiguration extends AbstractWidget {
 		graphics.blit(RenderPipelines.GUI_TEXTURED, CLOSE, x + CLOSE_X, y + CLOSE_Y, 0.0F, 0.0F, CLOSE_SIZE, CLOSE_SIZE, CLOSE_SIZE, CLOSE_SIZE);
 
 		BlockState previewState = normalizedPreviewState();
-		graphics.submitPictureInPictureRenderState(new MachineConfigurationRenderState(
-				previewState,
-				currentModes(),
-				yaw,
-				pitch,
-				x + VIEWPORT_X,
-				y + VIEWPORT_Y,
-				x + VIEWPORT_X + VIEWPORT_WIDTH,
-				y + VIEWPORT_Y + VIEWPORT_HEIGHT,
-				MODEL_SCALE,
-				graphics.peekScissorStack()
-		));
+		graphics.submitPictureInPictureRenderState(new MachineConfigurationRenderState(previewState, currentModes(), yaw, pitch, x + VIEWPORT_X, y + VIEWPORT_Y, x + VIEWPORT_X + VIEWPORT_WIDTH, y + VIEWPORT_Y + VIEWPORT_HEIGHT, MODEL_SCALE, graphics.peekScissorStack()));
 
 		MachineFace hoveredFace = faceAt(mouseX - x, mouseY - y);
 		renderRows(graphics, mouseX, mouseY, x, y, hoveredFace);
@@ -137,8 +121,7 @@ public final class WidgetMachineSideConfiguration extends AbstractWidget {
 	@Override
 	protected boolean isMouseOverWidget (double mouseX, double mouseY) {
 		if (!open) return contains(mouseX, mouseY, TAB_X, 0, TAB_WIDTH, OPEN_HEIGHT);
-		return contains(mouseX, mouseY, 0, 0, CONFIG_WIDTH, CONFIG_HEIGHT)
-				|| contains(mouseX, mouseY, PANEL_X, 0, PANEL_WIDTH, OPEN_HEIGHT);
+		return contains(mouseX, mouseY, 0, 0, CONFIG_WIDTH, CONFIG_HEIGHT) || contains(mouseX, mouseY, PANEL_X, 0, PANEL_WIDTH, OPEN_HEIGHT);
 	}
 
 	@Override
@@ -234,12 +217,7 @@ public final class WidgetMachineSideConfiguration extends AbstractWidget {
 		MachineFace rowFace = rowAt(mouseX - x, mouseY - y);
 		MachineFace face = rowFace != null ? rowFace : viewportFace;
 		if (face == null) return;
-		Component current = Component.translatableWithFallback(
-				"gui.generalmechanics.machine.side_config.face_mode",
-				"%s: %s",
-				faceName(face),
-				definition.isConfigurable(face) ? modeName(mode(face)) : Component.translatableWithFallback("gui.generalmechanics.machine.side_config.locked", "Locked")
-		);
+		Component current = Component.translatableWithFallback("gui.generalmechanics.machine.side_config.face_mode", "%s: %s", faceName(face), definition.isConfigurable(face) ? modeName(mode(face)) : Component.translatableWithFallback("gui.generalmechanics.machine.side_config.locked", "Locked"));
 		graphics.setComponentTooltipForNextFrame(Minecraft.getInstance().font, List.of(current), mouseX, mouseY);
 	}
 
@@ -253,14 +231,7 @@ public final class WidgetMachineSideConfiguration extends AbstractWidget {
 	}
 
 	private ConfigurableMachineModelData.Modes currentModes () {
-		return new ConfigurableMachineModelData.Modes(
-				mode(MachineFace.FRONT),
-				mode(MachineFace.BACK),
-				mode(MachineFace.LEFT),
-				mode(MachineFace.RIGHT),
-				mode(MachineFace.TOP),
-				mode(MachineFace.BOTTOM)
-		);
+		return new ConfigurableMachineModelData.Modes(mode(MachineFace.FRONT), mode(MachineFace.BACK), mode(MachineFace.LEFT), mode(MachineFace.RIGHT), mode(MachineFace.TOP), mode(MachineFace.BOTTOM));
 	}
 
 	private MachineSideMode mode (MachineFace face) {

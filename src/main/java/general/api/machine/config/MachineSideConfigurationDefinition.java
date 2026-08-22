@@ -1,10 +1,6 @@
 package general.api.machine.config;
 
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.EnumSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Immutable type-level rules used to create machine side configurations.

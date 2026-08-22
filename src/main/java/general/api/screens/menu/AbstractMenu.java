@@ -37,8 +37,8 @@ public abstract class AbstractMenu<B extends EntityBlock, T extends BlockEntity>
 	/**
 	 * Reserved menu-button id used by {@link AbstractScreen}.
 	 */
-	public static final int FILL_FLUID_CONTAINER_BUTTON = 0x47464C44; // "GFLD"
-	public static final int TOGGLE_ITEM_LOCK_BUTTON     = 0x474C4F43; // "GLOC"
+	public static final  int FILL_FLUID_CONTAINER_BUTTON  = 0x47464C44; // "GFLD"
+	public static final  int TOGGLE_ITEM_LOCK_BUTTON      = 0x474C4F43; // "GLOC"
 	private static final int CONFIGURE_SIDE_BUTTON_PREFIX = 0x47530000; // "GS"
 	private static final int CONFIGURE_SIDE_BUTTON_MASK   = 0xFFFF0000;
 
@@ -235,11 +235,7 @@ public abstract class AbstractMenu<B extends EntityBlock, T extends BlockEntity>
 	 */
 	protected final void enableMachineSideConfiguration (MachineSideConfigurationDefinition definition, Function<MachineFace, MachineSideMode> modeProvider, BiPredicate<MachineFace, MachineSideMode> modeSetter) {
 		if (sideConfigurationSource != null) throw new IllegalStateException("Machine side configuration is already enabled for this menu");
-		this.sideConfigurationSource = new MachineSideConfigurationSource(
-				Objects.requireNonNull(definition, "definition"),
-				Objects.requireNonNull(modeProvider, "modeProvider"),
-				Objects.requireNonNull(modeSetter, "modeSetter")
-		);
+		this.sideConfigurationSource = new MachineSideConfigurationSource(Objects.requireNonNull(definition, "definition"), Objects.requireNonNull(modeProvider, "modeProvider"), Objects.requireNonNull(modeSetter, "modeSetter"));
 	}
 
 	public final boolean hasMachineSideConfiguration () {
@@ -357,11 +353,7 @@ public abstract class AbstractMenu<B extends EntityBlock, T extends BlockEntity>
 	private record FluidContainerSource(ResourceHandler<FluidResource> handler, int tank, int transferLimit) {
 	}
 
-	private record MachineSideConfigurationSource(
-			MachineSideConfigurationDefinition definition,
-			Function<MachineFace, MachineSideMode> modeProvider,
-			BiPredicate<MachineFace, MachineSideMode> modeSetter
-	) {
+	private record MachineSideConfigurationSource(MachineSideConfigurationDefinition definition, Function<MachineFace, MachineSideMode> modeProvider, BiPredicate<MachineFace, MachineSideMode> modeSetter) {
 	}
 
 	/**

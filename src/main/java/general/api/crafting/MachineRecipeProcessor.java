@@ -11,11 +11,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Reusable server-side recipe subscription and progress state for one machine.
@@ -40,19 +36,19 @@ public final class MachineRecipeProcessor {
 	private static final TickResult STARVED_RESULT    = new TickResult(Status.STARVED, false);
 	private static final TickResult CRAFTED_RESULT    = new TickResult(Status.IDLE, true);
 
-	private final     MachineRecipeBinding        binding;
-	private final     List<MachineRecipeSource>   sources;
-	private final     MachineWorkRequirement      workRequirement;
-	private final     Runnable                    changeCallback;
+	private final     MachineRecipeBinding                 binding;
+	private final     List<MachineRecipeSource>            sources;
+	private final     MachineWorkRequirement               workRequirement;
+	private final     Runnable                             changeCallback;
 	private final     Map<ResourceKey<Recipe<?>>, Boolean> transferCache = new HashMap<>();
-	private @Nullable ResourceKey<Recipe<?>>      activeRecipe;
-	private @Nullable Object                      recipeMapIdentity;
-	private           int                         progress;
-	private           int                         maxProgress;
-	private           Status                      status        = Status.IDLE;
-	private           boolean                     revisionInitialized;
-	private           long                        itemRevision;
-	private           long                        fluidRevision;
+	private @Nullable ResourceKey<Recipe<?>>               activeRecipe;
+	private @Nullable Object                               recipeMapIdentity;
+	private           int                                  progress;
+	private           int                                  maxProgress;
+	private           Status                               status        = Status.IDLE;
+	private           boolean                              revisionInitialized;
+	private           long                                 itemRevision;
+	private           long                                 fluidRevision;
 
 	MachineRecipeProcessor (MachineRecipeBinding binding, Runnable changeCallback) {
 		this(binding, MachineWorkRequirement.free(), changeCallback);
@@ -282,13 +278,21 @@ public final class MachineRecipeProcessor {
 	}
 
 	public enum Status {
-		/** No matching recipe is active. */
+		/**
+		 * No matching recipe is active.
+		 */
 		IDLE,
-		/** Work advanced during the current tick. */
+		/**
+		 * Work advanced during the current tick.
+		 */
 		RUNNING,
-		/** A recipe matches, but its resource outputs cannot currently be transferred. */
+		/**
+		 * A recipe matches, but its resource outputs cannot currently be transferred.
+		 */
 		BLOCKED,
-		/** A recipe is executable, but its per-tick work requirement was unavailable. */
+		/**
+		 * A recipe is executable, but its per-tick work requirement was unavailable.
+		 */
 		STARVED
 	}
 

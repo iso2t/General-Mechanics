@@ -2,11 +2,7 @@ package general.api.crafting;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.AbstractCookingRecipe;
-import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.item.crafting.RecipeMap;
-import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.item.crafting.SingleRecipeInput;
+import net.minecraft.world.item.crafting.*;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -82,12 +78,12 @@ public final class MachineRecipeSources {
 
 	private static final class CookingSpec<D, T extends AbstractCookingRecipe> implements SourceSpec {
 
-		private final MachineRecipeDefinition<D>             definition;
-		private final RecipeType<T>                          type;
-		private final MachineRecipeSlot.ItemInput            inputSlot;
-		private final MachineRecipeSlot.ItemOutput           outputSlot;
-		private final Predicate<MachineRecipeInput>          predicate;
-		private final Function<? super T, ? extends D>       dataFactory;
+		private final MachineRecipeDefinition<D>       definition;
+		private final RecipeType<T>                    type;
+		private final MachineRecipeSlot.ItemInput      inputSlot;
+		private final MachineRecipeSlot.ItemOutput     outputSlot;
+		private final Predicate<MachineRecipeInput>    predicate;
+		private final Function<? super T, ? extends D> dataFactory;
 
 		private CookingSpec (MachineRecipeDefinition<D> definition, RecipeType<T> type, MachineRecipeSlot.ItemInput inputSlot, MachineRecipeSlot.ItemOutput outputSlot, Predicate<MachineRecipeInput> predicate, Function<? super T, ? extends D> dataFactory) {
 			this.definition = definition;
@@ -124,12 +120,7 @@ public final class MachineRecipeSources {
 			ItemStack result = recipe.assemble(new SingleRecipeInput(input));
 			if (result.isEmpty()) return null;
 
-			MachineRecipe adapted = definition.recipeBuilder()
-					.itemInput(inputSlot, recipe.input(), 1)
-					.itemOutput(outputSlot, result)
-					.duration(recipe.cookingTime())
-					.data(Objects.requireNonNull(dataFactory.apply(recipe), "Cooking recipe data factory returned null"))
-					.build();
+			MachineRecipe adapted = definition.recipeBuilder().itemInput(inputSlot, recipe.input(), 1).itemOutput(outputSlot, result).duration(recipe.cookingTime()).data(Objects.requireNonNull(dataFactory.apply(recipe), "Cooking recipe data factory returned null")).build();
 			return new RecipeHolder<>(holder.id(), adapted);
 		}
 	}
@@ -138,7 +129,7 @@ public final class MachineRecipeSources {
 
 		private final CookingSpec<D, T> spec;
 
-		private @Nullable Object                             cachedRecipeMap;
+		private @Nullable Object                            cachedRecipeMap;
 		private           ItemStack                         cachedInput  = ItemStack.EMPTY;
 		private           List<RecipeHolder<MachineRecipe>> cachedResult = List.of();
 

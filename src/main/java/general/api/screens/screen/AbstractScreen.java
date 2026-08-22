@@ -6,11 +6,7 @@ import general.api.screens.menu.AbstractMenu;
 import general.api.screens.renderers.GuiFluidRenderer;
 import general.api.screens.renderers.GuiPowerRenderer;
 import general.api.screens.renderers.GuiProgressBarRenderer;
-import general.api.screens.screen.widget.AbstractWidget;
-import general.api.screens.screen.widget.WidgetInfoArea;
-import general.api.screens.screen.widget.WidgetItemLockButton;
-import general.api.screens.screen.widget.WidgetMachineSideConfiguration;
-import general.api.screens.screen.widget.WidgetRecipeViewerButton;
+import general.api.screens.screen.widget.*;
 import general.api.screens.slot.ILockableSlot;
 import lombok.Getter;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -82,7 +78,7 @@ public abstract class AbstractScreen<T extends AbstractMenu<?, ?>> extends Abstr
 	public static final Identifier STATUS_INACTIVE = Resource.getMainMod("textures/gui/elements/status_inactive.png");
 	public static final Identifier STATUS_ERROR    = Resource.getMainMod("textures/gui/elements/status_error.png");
 
-	private final WidgetInfoArea infoArea;
+	private final WidgetInfoArea       infoArea;
 	private final List<AbstractWidget> overlayWidgets = new ArrayList<>();
 
 	@Nullable
@@ -116,16 +112,11 @@ public abstract class AbstractScreen<T extends AbstractMenu<?, ?>> extends Abstr
 			minecraft.gameMode.handleInventoryButtonClick(menu.containerId, AbstractMenu.TOGGLE_ITEM_LOCK_BUTTON);
 			return true;
 		})) : null;
-		machineSideConfigurationWidget = menu.hasMachineSideConfiguration() ? addOverlayWidget(new WidgetMachineSideConfiguration(
-				() -> menu.getBlockEntity().getBlockState(),
-				menu.getMachineSideConfigurationDefinition(),
-				menu::getMachineSideMode,
-				(face, mode) -> {
-					if (minecraft.gameMode == null) return false;
-					minecraft.gameMode.handleInventoryButtonClick(menu.containerId, AbstractMenu.machineSideConfigurationButton(face, mode));
-					return true;
-				}
-		)) : null;
+		machineSideConfigurationWidget = menu.hasMachineSideConfiguration() ? addOverlayWidget(new WidgetMachineSideConfiguration(() -> menu.getBlockEntity().getBlockState(), menu.getMachineSideConfigurationDefinition(), menu::getMachineSideMode, (face, mode) -> {
+			if (minecraft.gameMode == null) return false;
+			minecraft.gameMode.handleInventoryButtonClick(menu.containerId, AbstractMenu.machineSideConfigurationButton(face, mode));
+			return true;
+		})) : null;
 	}
 
 	public AbstractScreen (T menu, Inventory inventory, String title) {

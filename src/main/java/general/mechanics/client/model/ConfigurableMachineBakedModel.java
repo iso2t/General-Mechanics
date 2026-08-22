@@ -31,22 +31,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/** Dynamic cube model whose five configurable faces come from immutable model data. */
+/**
+ * Dynamic cube model whose five configurable faces come from immutable model data.
+ */
 final class ConfigurableMachineBakedModel implements DynamicBlockStateModel {
 
 	private static final Vector3f FROM = new Vector3f(0, 0, 0);
 	private static final Vector3f TO   = new Vector3f(16, 16, 16);
 
-	private final Direction                                              front;
-	private final OctahedralGroup                                        rotationGroup;
-	private final BlockModelRotation                                     rotation;
-	private final Material.Baked                                         particleMaterial;
-	private final BakedQuad                                              frontQuad;
-	private final Map<Direction, Map<MachineSideMode, BakedQuad>>        faceQuads = new EnumMap<>(Direction.class);
-	private final ConfigurableMachineModelData.Modes                     fallback;
-	private final Map<ConfigurableMachineModelData.Modes, BlockStateModelPart> parts = new ConcurrentHashMap<>();
-	private final BlockStateModelPart                                    fallbackPart;
-	private final Object                                                 geometryIdentity = new Object();
+	private final Direction                                                    front;
+	private final OctahedralGroup                                              rotationGroup;
+	private final BlockModelRotation                                           rotation;
+	private final Material.Baked                                               particleMaterial;
+	private final BakedQuad                                                    frontQuad;
+	private final Map<Direction, Map<MachineSideMode, BakedQuad>>              faceQuads        = new EnumMap<>(Direction.class);
+	private final ConfigurableMachineModelData.Modes                           fallback;
+	private final Map<ConfigurableMachineModelData.Modes, BlockStateModelPart> parts            = new ConcurrentHashMap<>();
+	private final BlockStateModelPart                                          fallbackPart;
+	private final Object                                                       geometryIdentity = new Object();
 
 	ConfigurableMachineBakedModel (ModelBaker baker, BlockState state, IConfigurableMachineModel machine) {
 		this.front = state.getValue(BlockStateProperties.HORIZONTAL_FACING);

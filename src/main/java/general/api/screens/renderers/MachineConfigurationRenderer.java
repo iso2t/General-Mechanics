@@ -12,8 +12,8 @@ import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.ColorResolver;
 import net.minecraft.world.level.CardinalLighting;
+import net.minecraft.world.level.ColorResolver;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -27,7 +27,9 @@ import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Renders a model-data-backed machine block inside a GUI viewport. */
+/**
+ * Renders a model-data-backed machine block inside a GUI viewport.
+ */
 public final class MachineConfigurationRenderer extends PictureInPictureRenderer<MachineConfigurationRenderState> {
 
 	private static final Direction[] DIRECTIONS = Direction.values();

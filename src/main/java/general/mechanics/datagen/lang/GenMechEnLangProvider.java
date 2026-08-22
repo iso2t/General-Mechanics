@@ -1,9 +1,9 @@
 package general.mechanics.datagen.lang;
 
 import general.api.crafting.MachineRecipeCatalog;
-import general.api.mod.GenAPI;
 import general.api.machine.config.MachineFace;
 import general.api.machine.config.MachineSideMode;
+import general.api.mod.GenAPI;
 import general.mechanics.registries.GenBlocks;
 import general.mechanics.registries.GenFluids;
 import general.mechanics.registries.GenItems;

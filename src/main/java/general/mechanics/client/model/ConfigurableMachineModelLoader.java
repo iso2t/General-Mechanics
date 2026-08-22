@@ -17,12 +17,14 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-/** Reusable blockstate definition for machines with model-data-backed sides. */
+/**
+ * Reusable blockstate definition for machines with model-data-backed sides.
+ */
 public final class ConfigurableMachineModelLoader implements CustomBlockModelDefinition {
 
-	public static final Identifier                             ID       = Resource.get("configurable_machine");
-	public static final ConfigurableMachineModelLoader         INSTANCE = new ConfigurableMachineModelLoader();
-	public static final MapCodec<ConfigurableMachineModelLoader> CODEC  = MapCodec.unit(INSTANCE);
+	public static final Identifier                               ID       = Resource.get("configurable_machine");
+	public static final ConfigurableMachineModelLoader           INSTANCE = new ConfigurableMachineModelLoader();
+	public static final MapCodec<ConfigurableMachineModelLoader> CODEC    = MapCodec.unit(INSTANCE);
 
 	private ConfigurableMachineModelLoader () {
 	}

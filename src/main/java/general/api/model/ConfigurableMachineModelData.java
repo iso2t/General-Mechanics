@@ -47,14 +47,7 @@ public final class ConfigurableMachineModelData {
 
 		public static Modes from (MachineSideConfiguration configuration) {
 			Objects.requireNonNull(configuration, "configuration");
-			return new Modes(
-					configuration.getMode(MachineFace.FRONT),
-					configuration.getMode(MachineFace.BACK),
-					configuration.getMode(MachineFace.LEFT),
-					configuration.getMode(MachineFace.RIGHT),
-					configuration.getMode(MachineFace.TOP),
-					configuration.getMode(MachineFace.BOTTOM)
-			);
+			return new Modes(configuration.getMode(MachineFace.FRONT), configuration.getMode(MachineFace.BACK), configuration.getMode(MachineFace.LEFT), configuration.getMode(MachineFace.RIGHT), configuration.getMode(MachineFace.TOP), configuration.getMode(MachineFace.BOTTOM));
 		}
 
 		public MachineSideMode get (MachineFace face) {

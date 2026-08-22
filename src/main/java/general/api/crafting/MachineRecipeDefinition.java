@@ -12,11 +12,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.Util;
 import net.minecraft.world.item.ItemStackTemplate;
-import net.minecraft.world.item.crafting.AbstractCookingRecipe;
-import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.item.crafting.RecipeMap;
-import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
@@ -58,10 +54,10 @@ public final class MachineRecipeDefinition<D> {
 	private final MachineRecipeMatcher<D>                                              additionalMatcher;
 	private final MapCodec<MachineRecipe>                                              recipeCodec;
 	private final StreamCodec<RegistryFriendlyByteBuf, MachineRecipe>                  recipeStreamCodec;
-	private final List<Supplier<? extends ItemLike>>                                   craftingStations = new ArrayList<>();
-	private final List<MachineRecipeSources.SourceSpec>                                additionalSources = new ArrayList<>();
-	private final List<List<String>>                                                    interchangeableItemOutputGroups = new ArrayList<>();
-	private final Set<String>                                                          interchangeableItemOutputNames = new HashSet<>();
+	private final List<Supplier<? extends ItemLike>>                                   craftingStations                = new ArrayList<>();
+	private final List<MachineRecipeSources.SourceSpec>                                additionalSources               = new ArrayList<>();
+	private final List<List<String>>                                                   interchangeableItemOutputGroups = new ArrayList<>();
+	private final Set<String>                                                          interchangeableItemOutputNames  = new HashSet<>();
 
 	MachineRecipeDefinition (Identifier id, MachineRecipeSchema schema, DeferredHolder<RecipeType<?>, RecipeType<MachineRecipe>> type, DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MachineRecipe>> serializer, MapCodec<D> dataCodec, StreamCodec<RegistryFriendlyByteBuf, D> dataStreamCodec, D defaultData, MachineRecipeMatcher<D> additionalMatcher) {
 		this.id = Objects.requireNonNull(id, "id");

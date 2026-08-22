@@ -5,12 +5,7 @@ import general.api.block.BlockEntityTypeOwner;
 import general.api.block.IWrenchable;
 import general.api.block.util.ILitProvider;
 import general.api.block.util.IPickaxe;
-import general.api.crafting.MachineRecipeSlot;
-import general.api.crafting.MachineRecipeSlots;
-import general.api.crafting.MachineRecipeDefinition;
-import general.api.crafting.NoRecipeData;
-import general.api.crafting.RecipeDataProvider;
-import general.api.crafting.RecipeGenerationContext;
+import general.api.crafting.*;
 import general.api.machine.config.MachineSideConfigurationDefinition;
 import general.api.model.IConfigurableMachineModel;
 import general.api.resources.Resource;
@@ -115,12 +110,12 @@ public class ElectricFurnaceBlock extends BaseBlock implements EntityBlock, Bloc
 	 */
 	public static final class RecipeSlots {
 
-		public static final MachineRecipeSlot.ItemInput  INPUT     = MachineRecipeSlots.ITEM_INPUT;
-		public static final MachineRecipeSlot.ItemInput  CATALYST  = MachineRecipeSlots.itemInput("catalyst");
-		public static final MachineRecipeSlot.ItemOutput OUTPUT_1  = MachineRecipeSlots.ITEM_OUTPUT;
-		public static final MachineRecipeSlot.ItemOutput OUTPUT_2  = MachineRecipeSlots.itemOutput(2);
-		public static final MachineRecipeSlot.ItemOutput OUTPUT_3  = MachineRecipeSlots.itemOutput(3);
-		public static final MachineRecipeSlot.ItemOutput OUTPUT_4  = MachineRecipeSlots.itemOutput(4);
+		public static final MachineRecipeSlot.ItemInput  INPUT    = MachineRecipeSlots.ITEM_INPUT;
+		public static final MachineRecipeSlot.ItemInput  CATALYST = MachineRecipeSlots.itemInput("catalyst");
+		public static final MachineRecipeSlot.ItemOutput OUTPUT_1 = MachineRecipeSlots.ITEM_OUTPUT;
+		public static final MachineRecipeSlot.ItemOutput OUTPUT_2 = MachineRecipeSlots.itemOutput(2);
+		public static final MachineRecipeSlot.ItemOutput OUTPUT_3 = MachineRecipeSlots.itemOutput(3);
+		public static final MachineRecipeSlot.ItemOutput OUTPUT_4 = MachineRecipeSlots.itemOutput(4);
 
 		private RecipeSlots () {
 		}

@@ -14,11 +14,7 @@ import general.api.model.ConfigurableMachineModelData;
 import general.api.network.INetworkInterface;
 import general.api.network.NetworkNode;
 import general.api.network.NetworkServices;
-import general.api.transfer.ResourceAccess;
-import general.api.transfer.ResourceAccessPolicy;
-import general.api.transfer.ResourceIoMode;
-import general.api.transfer.RestrictedResourceHandler;
-import general.api.transfer.SidedResourceHandlers;
+import general.api.transfer.*;
 import general.api.transfer.energy.SidedEnergyHandlers;
 import general.api.transfer.energy.SidedEnergyResourceProvider;
 import general.api.transfer.item.ItemInventoryDefinition;
@@ -48,12 +44,12 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.model.data.ModelData;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 import net.neoforged.neoforge.transfer.energy.LimitingEnergyHandler;
 import net.neoforged.neoforge.transfer.energy.SimpleEnergyHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
-import net.neoforged.neoforge.model.data.ModelData;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -71,14 +67,7 @@ public class ElectricFurnaceBlockEntity extends BaseBlockEntity implements Sided
 
 	public static final MachinePowerProfile POWER_PROFILE = MachinePowerProfile.base(100_000, 10_000, 20);
 
-	public static final ItemInventoryDefinition ITEMS = ItemInventoryDefinition.builder()
-			.input(ElectricFurnaceBlock.RecipeSlots.INPUT)
-			.input(ElectricFurnaceBlock.RecipeSlots.CATALYST)
-			.output(ElectricFurnaceBlock.RecipeSlots.OUTPUT_1)
-			.output(ElectricFurnaceBlock.RecipeSlots.OUTPUT_2)
-			.output(ElectricFurnaceBlock.RecipeSlots.OUTPUT_3)
-			.output(ElectricFurnaceBlock.RecipeSlots.OUTPUT_4)
-			.build();
+	public static final ItemInventoryDefinition ITEMS = ItemInventoryDefinition.builder().input(ElectricFurnaceBlock.RecipeSlots.INPUT).input(ElectricFurnaceBlock.RecipeSlots.CATALYST).output(ElectricFurnaceBlock.RecipeSlots.OUTPUT_1).output(ElectricFurnaceBlock.RecipeSlots.OUTPUT_2).output(ElectricFurnaceBlock.RecipeSlots.OUTPUT_3).output(ElectricFurnaceBlock.RecipeSlots.OUTPUT_4).build();
 
 	public static final int INPUT_SLOT    = ITEMS.index(ElectricFurnaceBlock.RecipeSlots.INPUT);
 	public static final int CATALYST_SLOT = ITEMS.index(ElectricFurnaceBlock.RecipeSlots.CATALYST);
@@ -91,27 +80,13 @@ public class ElectricFurnaceBlockEntity extends BaseBlockEntity implements Sided
 	 * Shared by every Electric Furnace. Only its relevant machine modes are supported,
 	 * and the machine front is permanently disabled.
 	 */
-	public static final MachineSideConfigurationDefinition SIDES = MachineSideConfigurationDefinition.builder()
-			.allow(MachineSideMode.ITEM_INPUT, MachineSideMode.ITEM_OUTPUT, MachineSideMode.ENERGY_INPUT, MachineSideMode.NETWORK)
-			.lock(MachineFace.FRONT)
-			.defaultMode(MachineFace.LEFT, MachineSideMode.ITEM_INPUT)
-			.defaultMode(MachineFace.RIGHT, MachineSideMode.ITEM_OUTPUT)
-			.defaultMode(MachineFace.BACK, MachineSideMode.ENERGY_INPUT)
-			.defaultMode(MachineFace.TOP, MachineSideMode.NETWORK)
-			.build();
+	public static final MachineSideConfigurationDefinition SIDES = MachineSideConfigurationDefinition.builder().allow(MachineSideMode.ITEM_INPUT, MachineSideMode.ITEM_OUTPUT, MachineSideMode.ENERGY_INPUT, MachineSideMode.NETWORK).lock(MachineFace.FRONT).defaultMode(MachineFace.LEFT, MachineSideMode.ITEM_INPUT).defaultMode(MachineFace.RIGHT, MachineSideMode.ITEM_OUTPUT).defaultMode(MachineFace.BACK, MachineSideMode.ENERGY_INPUT).defaultMode(MachineFace.TOP, MachineSideMode.NETWORK).build();
 
-	private static final ResourceAccessPolicy<ItemResource> ITEM_INPUT_ACCESS = ITEMS.access()
-			.insert(ElectricFurnaceBlock.RecipeSlots.INPUT, ElectricFurnaceBlock.RecipeSlots.CATALYST)
-			.build();
+	private static final ResourceAccessPolicy<ItemResource> ITEM_INPUT_ACCESS = ITEMS.access().insert(ElectricFurnaceBlock.RecipeSlots.INPUT, ElectricFurnaceBlock.RecipeSlots.CATALYST).build();
 
-	private static final ResourceAccessPolicy<ItemResource> ITEM_OUTPUT_ACCESS = ITEMS.access()
-			.extract(ElectricFurnaceBlock.RecipeSlots.OUTPUT_1, ElectricFurnaceBlock.RecipeSlots.OUTPUT_2, ElectricFurnaceBlock.RecipeSlots.OUTPUT_3, ElectricFurnaceBlock.RecipeSlots.OUTPUT_4)
-			.build();
+	private static final ResourceAccessPolicy<ItemResource> ITEM_OUTPUT_ACCESS = ITEMS.access().extract(ElectricFurnaceBlock.RecipeSlots.OUTPUT_1, ElectricFurnaceBlock.RecipeSlots.OUTPUT_2, ElectricFurnaceBlock.RecipeSlots.OUTPUT_3, ElectricFurnaceBlock.RecipeSlots.OUTPUT_4).build();
 
-	private static final ResourceAccessPolicy<ItemResource> NETWORK_ITEM_ACCESS = ITEMS.access()
-			.insert(ElectricFurnaceBlock.RecipeSlots.INPUT, ElectricFurnaceBlock.RecipeSlots.CATALYST)
-			.extract(ElectricFurnaceBlock.RecipeSlots.OUTPUT_1, ElectricFurnaceBlock.RecipeSlots.OUTPUT_2, ElectricFurnaceBlock.RecipeSlots.OUTPUT_3, ElectricFurnaceBlock.RecipeSlots.OUTPUT_4)
-			.build();
+	private static final ResourceAccessPolicy<ItemResource> NETWORK_ITEM_ACCESS = ITEMS.access().insert(ElectricFurnaceBlock.RecipeSlots.INPUT, ElectricFurnaceBlock.RecipeSlots.CATALYST).extract(ElectricFurnaceBlock.RecipeSlots.OUTPUT_1, ElectricFurnaceBlock.RecipeSlots.OUTPUT_2, ElectricFurnaceBlock.RecipeSlots.OUTPUT_3, ElectricFurnaceBlock.RecipeSlots.OUTPUT_4).build();
 
 	private final MachineSideConfiguration            sideConfiguration;
 	private final LockableItemResourceHandler         items;

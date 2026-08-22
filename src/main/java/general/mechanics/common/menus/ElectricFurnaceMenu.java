@@ -23,33 +23,37 @@ import java.util.Objects;
 
 public class ElectricFurnaceMenu extends AbstractMenu<ElectricFurnaceBlock, ElectricFurnaceBlockEntity> {
 
-	private static final int DATA_PROGRESS_LOW        = 0;
-	private static final int DATA_PROGRESS_HIGH       = 1;
-	private static final int DATA_MAX_PROGRESS_LOW    = 2;
-	private static final int DATA_MAX_PROGRESS_HIGH   = 3;
-	private static final int DATA_ENERGY_LOW          = 4;
-	private static final int DATA_ENERGY_HIGH         = 5;
-	private static final int DATA_ENERGY_CAPACITY_LOW = 6;
+	private static final int DATA_PROGRESS_LOW         = 0;
+	private static final int DATA_PROGRESS_HIGH        = 1;
+	private static final int DATA_MAX_PROGRESS_LOW     = 2;
+	private static final int DATA_MAX_PROGRESS_HIGH    = 3;
+	private static final int DATA_ENERGY_LOW           = 4;
+	private static final int DATA_ENERGY_HIGH          = 5;
+	private static final int DATA_ENERGY_CAPACITY_LOW  = 6;
 	private static final int DATA_ENERGY_CAPACITY_HIGH = 7;
 	private static final int DATA_SIDE_MODE_START      = 8;
-	private static final int DATA_COUNT           = DATA_SIDE_MODE_START + MachineFace.values().length;
+	private static final int DATA_COUNT                = DATA_SIDE_MODE_START + MachineFace.values().length;
 
 	private static final int INPUT_X    = 56;
 	private static final int INPUT_Y    = 35;
 	private static final int CATALYST_X = 38; // Bottom
 	private static final int CATALYST_Y = 53; // Bottom
 
-	private static final int OUTPUT_LEFT_X  = 104;
-	private static final int OUTPUT_RIGHT_X = 122;
-	private static final int OUTPUT_TOP_Y   = 26;
+	private static final int OUTPUT_LEFT_X   = 104;
+	private static final int OUTPUT_RIGHT_X  = 122;
+	private static final int OUTPUT_TOP_Y    = 26;
 	private static final int OUTPUT_BOTTOM_Y = 44;
 
-	/** Client-side construction from the block position sent by the menu provider. */
+	/**
+	 * Client-side construction from the block position sent by the menu provider.
+	 */
 	public ElectricFurnaceMenu (int containerId, Inventory inventory, RegistryFriendlyByteBuf buffer) {
 		this(containerId, inventory, findBlockEntity(inventory, buffer), new SimpleContainerData(DATA_COUNT));
 	}
 
-	/** Server-side construction with live machine-backed synchronization data. */
+	/**
+	 * Server-side construction with live machine-backed synchronization data.
+	 */
 	public ElectricFurnaceMenu (int containerId, Inventory inventory, ElectricFurnaceBlockEntity blockEntity) {
 		this(containerId, inventory, blockEntity, createServerData(blockEntity));
 	}

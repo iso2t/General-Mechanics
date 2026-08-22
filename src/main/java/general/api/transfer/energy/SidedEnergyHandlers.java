@@ -19,9 +19,9 @@ import java.util.function.Supplier;
  */
 public final class SidedEnergyHandlers {
 
-	private final EnergyHandler internalHandler;
-	private final SideView[]     sides;
-	private final @Nullable SideView unsided;
+	private final           EnergyHandler internalHandler;
+	private final           SideView[]    sides;
+	private final @Nullable SideView      unsided;
 
 	private SidedEnergyHandlers (EnergyHandler internalHandler, Map<Direction, Supplier<ResourceIoMode>> modes, @Nullable Supplier<ResourceIoMode> unsidedMode) {
 		this.internalHandler = internalHandler;
@@ -63,9 +63,9 @@ public final class SidedEnergyHandlers {
 
 	public static final class Builder {
 
-		private final EnergyHandler                                  internalHandler;
-		private final EnumMap<Direction, Supplier<ResourceIoMode>> modes = new EnumMap<>(Direction.class);
-		private       @Nullable Supplier<ResourceIoMode>           unsidedMode;
+		private final     EnergyHandler                                internalHandler;
+		private final     EnumMap<Direction, Supplier<ResourceIoMode>> modes = new EnumMap<>(Direction.class);
+		private @Nullable Supplier<ResourceIoMode>                     unsidedMode;
 
 		private Builder (EnergyHandler internalHandler) {
 			this.internalHandler = Objects.requireNonNull(internalHandler, "internalHandler");

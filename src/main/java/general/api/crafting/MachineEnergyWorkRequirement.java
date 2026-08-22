@@ -15,7 +15,7 @@ import java.util.function.Supplier;
  */
 public final class MachineEnergyWorkRequirement implements MachineWorkRequirement {
 
-	private final EnergyHandler                               energy;
+	private final EnergyHandler                                     energy;
 	private final Function<? super MachineRecipe, MachinePowerPlan> planner;
 
 	private MachineEnergyWorkRequirement (EnergyHandler energy, Function<? super MachineRecipe, MachinePowerPlan> planner) {

@@ -19,23 +19,8 @@ public final class GenRecipes {
 
 	public static final MachineRecipeRegistry REGISTRY = MachineRecipeRegistry.create(GenAPI.getModId());
 
-	public static final MachineRecipeDefinition<NoRecipeData> COKE_OVEN = REGISTRY.register("coke_oven", MachineRecipeSchema.builder().itemInput(CokeOvenController.RecipeSlots.INPUT).itemOutput(CokeOvenController.RecipeSlots.OUTPUT).fluidOutput(CokeOvenController.RecipeSlots.CREOSOTE).build()).craftingStation(() -> GenBlocks.COKE_OVEN_CONTROLLER);
-	public static final MachineRecipeDefinition<NoRecipeData> ELECTRIC_FURNACE = REGISTRY.register("electric_furnace", MachineRecipeSchema.builder()
-			.itemInput(ElectricFurnaceBlock.RecipeSlots.INPUT)
-			.optionalItemInput(ElectricFurnaceBlock.RecipeSlots.CATALYST)
-			.itemOutput(ElectricFurnaceBlock.RecipeSlots.OUTPUT_1)
-			.optionalItemOutput(ElectricFurnaceBlock.RecipeSlots.OUTPUT_2)
-			.optionalItemOutput(ElectricFurnaceBlock.RecipeSlots.OUTPUT_3)
-			.optionalItemOutput(ElectricFurnaceBlock.RecipeSlots.OUTPUT_4)
-			.build())
-			.craftingStation(() -> GenBlocks.ELECTRIC_FURNACE)
-			.interchangeableItemOutputs(
-					ElectricFurnaceBlock.RecipeSlots.OUTPUT_1,
-					ElectricFurnaceBlock.RecipeSlots.OUTPUT_2,
-					ElectricFurnaceBlock.RecipeSlots.OUTPUT_3,
-					ElectricFurnaceBlock.RecipeSlots.OUTPUT_4
-			)
-			.cookingRecipes(RecipeType.SMELTING, ElectricFurnaceBlock.RecipeSlots.INPUT, ElectricFurnaceBlock.RecipeSlots.OUTPUT_1, input -> input.item(ElectricFurnaceBlock.RecipeSlots.CATALYST).isEmpty());
+	public static final MachineRecipeDefinition<NoRecipeData> COKE_OVEN        = REGISTRY.register("coke_oven", MachineRecipeSchema.builder().itemInput(CokeOvenController.RecipeSlots.INPUT).itemOutput(CokeOvenController.RecipeSlots.OUTPUT).fluidOutput(CokeOvenController.RecipeSlots.CREOSOTE).build()).craftingStation(() -> GenBlocks.COKE_OVEN_CONTROLLER);
+	public static final MachineRecipeDefinition<NoRecipeData> ELECTRIC_FURNACE = REGISTRY.register("electric_furnace", MachineRecipeSchema.builder().itemInput(ElectricFurnaceBlock.RecipeSlots.INPUT).optionalItemInput(ElectricFurnaceBlock.RecipeSlots.CATALYST).itemOutput(ElectricFurnaceBlock.RecipeSlots.OUTPUT_1).optionalItemOutput(ElectricFurnaceBlock.RecipeSlots.OUTPUT_2).optionalItemOutput(ElectricFurnaceBlock.RecipeSlots.OUTPUT_3).optionalItemOutput(ElectricFurnaceBlock.RecipeSlots.OUTPUT_4).build()).craftingStation(() -> GenBlocks.ELECTRIC_FURNACE).interchangeableItemOutputs(ElectricFurnaceBlock.RecipeSlots.OUTPUT_1, ElectricFurnaceBlock.RecipeSlots.OUTPUT_2, ElectricFurnaceBlock.RecipeSlots.OUTPUT_3, ElectricFurnaceBlock.RecipeSlots.OUTPUT_4).cookingRecipes(RecipeType.SMELTING, ElectricFurnaceBlock.RecipeSlots.INPUT, ElectricFurnaceBlock.RecipeSlots.OUTPUT_1, input -> input.item(ElectricFurnaceBlock.RecipeSlots.CATALYST).isEmpty());
 
 	private GenRecipes () {
 	}
