@@ -1,6 +1,7 @@
 package general.mechanics.common.block.entity;
 
 import general.api.block.IOBlock;
+import general.api.block.entity.BaseBlockEntity;
 import general.api.capabilities.GeneralCapabilities;
 import general.api.multiblock.*;
 import general.api.network.INetworkInterface;
@@ -38,7 +39,7 @@ import java.util.List;
 /**
  * Shared, storage-free block entity for all controller-backed hatch blocks.
  */
-public class MultiblockHatchBlockEntity extends BlockEntity implements MultiblockHatch, INetworkInterface {
+public class MultiblockHatchBlockEntity extends BaseBlockEntity implements MultiblockHatch, INetworkInterface {
 
 	public static void registerCapabilities (RegisterCapabilitiesEvent event, BlockEntityType<MultiblockHatchBlockEntity> type) {
 		event.registerBlockEntity(Capabilities.Item.BLOCK, type, MultiblockHatchBlockEntity::getItemCapability);

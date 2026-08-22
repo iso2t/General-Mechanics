@@ -1,5 +1,6 @@
 package general.mechanics.common.block.entity;
 
+import general.api.block.entity.BaseBlockEntity;
 import general.api.capabilities.GeneralCapabilities;
 import general.api.network.INetworkInterface;
 import general.api.network.NetworkNode;
@@ -7,7 +8,6 @@ import general.api.network.NetworkServices;
 import general.api.network.service.EnergyNetworkService;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -22,7 +22,7 @@ import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-public class PowerInjectorBlockEntity extends BlockEntity implements INetworkInterface {
+public class PowerInjectorBlockEntity extends BaseBlockEntity implements INetworkInterface {
 
 	public static void registerCapabilities (RegisterCapabilitiesEvent event, BlockEntityType<PowerInjectorBlockEntity> type) {
 		event.registerBlockEntity(GeneralCapabilities.NETWORK_HANDLER_BLOCK, type, (injector, side) -> injector.isNetworkSide(side) ? injector : null);

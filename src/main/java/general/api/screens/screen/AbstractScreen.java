@@ -6,6 +6,10 @@ import general.api.screens.menu.AbstractMenu;
 import general.api.screens.renderers.GuiFluidRenderer;
 import general.api.screens.renderers.GuiPowerRenderer;
 import general.api.screens.renderers.GuiProgressBarRenderer;
+import general.api.screens.screen.widget.AbstractWidget;
+import general.api.screens.screen.widget.WidgetInfoArea;
+import general.api.screens.screen.widget.WidgetItemLockButton;
+import general.api.screens.screen.widget.WidgetRecipeViewerButton;
 import general.api.screens.slot.ILockableSlot;
 import lombok.Getter;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -26,21 +30,61 @@ public abstract class AbstractScreen<T extends AbstractMenu<?, ?>> extends Abstr
 
 	private static final boolean JEI_LOADED = GenAPI.isModLoaded("jei");
 
-	public static final int RECIPE_VIEWER_BUTTON_X      = -16;
-	public static final int RECIPE_VIEWER_BUTTON_Y      = -1;
+	public static final int INFO_AREA_X = -26;
+	public static final int INFO_AREA_Y = -1;
+
+	/**
+	 * @deprecated Query {@link #getRecipeViewerButtonRelativeArea()} instead.
+	 */
+	@Deprecated(forRemoval = true)
+	public static final int RECIPE_VIEWER_BUTTON_X      = INFO_AREA_X + (WidgetInfoArea.WIDTH - WidgetRecipeViewerButton.DEFAULT_RENDER_SIZE) / 2;
+	/**
+	 * @deprecated Query {@link #getRecipeViewerButtonRelativeArea()} instead.
+	 */
+	@Deprecated(forRemoval = true)
+	public static final int RECIPE_VIEWER_BUTTON_Y      = INFO_AREA_Y + WidgetInfoArea.CONTENT_TOP_INSET;
+	/**
+	 * @deprecated Query {@link #getRecipeViewerButtonRelativeArea()} instead.
+	 */
+	@Deprecated(forRemoval = true)
 	public static final int RECIPE_VIEWER_BUTTON_WIDTH  = 16;
+	/**
+	 * @deprecated Query {@link #getRecipeViewerButtonRelativeArea()} instead.
+	 */
+	@Deprecated(forRemoval = true)
 	public static final int RECIPE_VIEWER_BUTTON_HEIGHT = 16;
-	public static final int ITEM_LOCK_BUTTON_X           = -14;
-	public static final int ITEM_LOCK_BUTTON_Y           = RECIPE_VIEWER_BUTTON_Y + RECIPE_VIEWER_BUTTON_HEIGHT;
-	public static final int ITEM_LOCK_BUTTON_WIDTH       = 12;
-	public static final int ITEM_LOCK_BUTTON_HEIGHT      = 12;
+	/**
+	 * @deprecated The lock button's position depends on which preceding widgets are visible.
+	 */
+	@Deprecated(forRemoval = true)
+	public static final int ITEM_LOCK_BUTTON_X          = INFO_AREA_X + (WidgetInfoArea.WIDTH - WidgetItemLockButton.DEFAULT_RENDER_SIZE) / 2;
+	/**
+	 * @deprecated The lock button's position depends on which preceding widgets are visible.
+	 */
+	@Deprecated(forRemoval = true)
+	public static final int ITEM_LOCK_BUTTON_Y          = RECIPE_VIEWER_BUTTON_Y + RECIPE_VIEWER_BUTTON_HEIGHT;
+	/**
+	 * @deprecated Query {@link #getItemLockButtonArea()} instead.
+	 */
+	@Deprecated(forRemoval = true)
+	public static final int ITEM_LOCK_BUTTON_WIDTH      = WidgetItemLockButton.DEFAULT_RENDER_SIZE;
+	/**
+	 * @deprecated Query {@link #getItemLockButtonArea()} instead.
+	 */
+	@Deprecated(forRemoval = true)
+	public static final int ITEM_LOCK_BUTTON_HEIGHT     = WidgetItemLockButton.DEFAULT_RENDER_SIZE;
 
 	public static final Identifier STATUS_ACTIVE   = Resource.getMainMod("textures/gui/elements/status_active.png");
 	public static final Identifier STATUS_INACTIVE = Resource.getMainMod("textures/gui/elements/status_inactive.png");
 	public static final Identifier STATUS_ERROR    = Resource.getMainMod("textures/gui/elements/status_error.png");
-	public static final Identifier INFO_ICON       = Resource.getMainMod("textures/gui/elements/info.png");
-	public static final Identifier LOCKED_ICON     = Resource.getMainMod("textures/gui/elements/locked.png");
-	public static final Identifier UNLOCKED_ICON   = Resource.getMainMod("textures/gui/elements/unlocked.png");
+
+	private final WidgetInfoArea infoArea;
+
+	@Nullable
+	private final WidgetRecipeViewerButton recipeViewerButton;
+
+	@Nullable
+	private final WidgetItemLockButton itemLockButton;
 
 	@Nullable
 	@Getter
@@ -56,10 +100,17 @@ public abstract class AbstractScreen<T extends AbstractMenu<?, ?>> extends Abstr
 
 	public AbstractScreen (T menu, Inventory inventory, Component title) {
 		super(menu, inventory, title);
+		infoArea = new WidgetInfoArea(INFO_AREA_X, INFO_AREA_Y);
+		recipeViewerButton = JEI_LOADED && menu.hasRecipeDefinitions() ? infoArea.addWidget(new WidgetRecipeViewerButton()) : null;
+		itemLockButton = menu.hasItemSlotLocking() ? infoArea.addWidget(new WidgetItemLockButton(menu::areItemSlotsLocked, event -> {
+			if (minecraft.gameMode == null) return false;
+			minecraft.gameMode.handleInventoryButtonClick(menu.containerId, AbstractMenu.TOGGLE_ITEM_LOCK_BUTTON);
+			return true;
+		})) : null;
 	}
 
 	public AbstractScreen (T menu, Inventory inventory, String title) {
-		super(menu, inventory, Component.translatable(title));
+		this(menu, inventory, Component.translatable(title));
 	}
 
 	protected final void setPowerRenderer (@Nullable GuiPowerRenderer powerRenderer) {
@@ -74,22 +125,18 @@ public abstract class AbstractScreen<T extends AbstractMenu<?, ?>> extends Abstr
 		this.fluidRenderer = fluidRenderer;
 	}
 
+	/**
+	 * Appends a custom widget to the shared expandable info area.
+	 */
+	protected final <W extends AbstractWidget> W addInfoWidget (W widget) {
+		return infoArea.addWidget(widget);
+	}
+
 	@Override
 	public void extractBackground (@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
 		super.extractBackground(graphics, mouseX, mouseY, a);
 		graphics.blit(RenderPipelines.GUI_TEXTURED, getTexture(), leftPos, topPos, 0.f, 0.f, imageWidth, imageHeight, 256, 256);
-		if (hasRecipeViewerButton()) {
-			graphics.blit(RenderPipelines.GUI_TEXTURED, INFO_ICON, leftPos + RECIPE_VIEWER_BUTTON_X, topPos + RECIPE_VIEWER_BUTTON_Y, 0.0F, 0.0F, RECIPE_VIEWER_BUTTON_WIDTH, RECIPE_VIEWER_BUTTON_HEIGHT, RECIPE_VIEWER_BUTTON_WIDTH, RECIPE_VIEWER_BUTTON_HEIGHT);
-		}
-		if (hasItemLockButton()) {
-			Identifier texture = menu.areItemSlotsLocked() ? LOCKED_ICON : UNLOCKED_ICON;
-			graphics.blit(RenderPipelines.GUI_TEXTURED, texture, leftPos + ITEM_LOCK_BUTTON_X, topPos + ITEM_LOCK_BUTTON_Y, 0.0F, 0.0F, ITEM_LOCK_BUTTON_WIDTH, ITEM_LOCK_BUTTON_HEIGHT, ITEM_LOCK_BUTTON_WIDTH, ITEM_LOCK_BUTTON_HEIGHT);
-			if (isItemLockButtonHovered(mouseX, mouseY)) {
-				String key = menu.areItemSlotsLocked() ? "gui.generalmechanics.machine.item_lock.locked" : "gui.generalmechanics.machine.item_lock.unlocked";
-				String fallback = menu.areItemSlotsLocked() ? "Input Lock: Locked" : "Input Lock: Unlocked";
-				graphics.setTooltipForNextFrame(font, Component.translatableWithFallback(key, fallback), mouseX, mouseY);
-			}
-		}
+		infoArea.render(graphics, mouseX, mouseY, leftPos, topPos + 1); // Move down one to align tops
 
 		if (getPowerRenderer() != null) getPowerRenderer().renderRelative(graphics, leftPos, topPos);
 		if (getProgressBarRenderer() != null) getProgressBarRenderer().render(graphics, leftPos, topPos, mouseX, mouseY);
@@ -97,13 +144,8 @@ public abstract class AbstractScreen<T extends AbstractMenu<?, ?>> extends Abstr
 	}
 
 	@Override
-	public boolean mouseClicked (MouseButtonEvent event, boolean doubleClick) {
-		if (event.button() == 0 && isItemLockButtonHovered(event.x(), event.y())) {
-			if (minecraft.gameMode != null) {
-				minecraft.gameMode.handleInventoryButtonClick(menu.containerId, AbstractMenu.TOGGLE_ITEM_LOCK_BUTTON);
-			}
-			return true;
-		}
+	public boolean mouseClicked (@NonNull MouseButtonEvent event, boolean doubleClick) {
+		if (infoArea.mouseClicked(event, leftPos, topPos)) return true;
 		GuiFluidRenderer renderer = getFluidRenderer();
 		if (event.button() == 0 && renderer != null && menu.hasFluidContainerSource() && !menu.getCarried().isEmpty() && renderer.isMouseOver(event.x(), event.y(), leftPos, topPos)) {
 			if (minecraft.gameMode != null) {
@@ -115,7 +157,7 @@ public abstract class AbstractScreen<T extends AbstractMenu<?, ?>> extends Abstr
 	}
 
 	@Override
-	protected void renderSlotContents (GuiGraphicsExtractor graphics, ItemStack itemStack, Slot slot, @Nullable String itemCount) {
+	protected void renderSlotContents (@NonNull GuiGraphicsExtractor graphics, ItemStack itemStack, @NonNull Slot slot, @Nullable String itemCount) {
 		if (itemStack.isEmpty() && slot instanceof ILockableSlot lockableSlot && lockableSlot.isLocked()) {
 			ItemStack ghost = lockableSlot.getGhostStack();
 			if (!ghost.isEmpty()) {
@@ -128,7 +170,7 @@ public abstract class AbstractScreen<T extends AbstractMenu<?, ?>> extends Abstr
 	}
 
 	@Override
-	protected void extractTooltip (GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+	protected void extractTooltip (@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		super.extractTooltip(graphics, mouseX, mouseY);
 		if (hoveredSlot instanceof ILockableSlot lockableSlot && !hoveredSlot.hasItem() && lockableSlot.isLocked() && menu.getCarried().isEmpty()) {
 			ItemStack ghost = lockableSlot.getGhostStack();
@@ -142,33 +184,55 @@ public abstract class AbstractScreen<T extends AbstractMenu<?, ?>> extends Abstr
 	 * Whether this screen currently exposes the shared recipe-viewer button.
 	 */
 	public final boolean hasRecipeViewerButton () {
-		return JEI_LOADED && menu.hasRecipeDefinitions();
+		return recipeViewerButton != null;
 	}
 
 	public final boolean hasItemLockButton () {
-		return menu.hasItemSlotLocking();
+		return itemLockButton != null;
 	}
 
 	public final boolean isItemLockButtonHovered (double mouseX, double mouseY) {
-		return hasItemLockButton() && mouseX >= leftPos + ITEM_LOCK_BUTTON_X && mouseX < leftPos + ITEM_LOCK_BUTTON_X + ITEM_LOCK_BUTTON_WIDTH && mouseY >= topPos + ITEM_LOCK_BUTTON_Y && mouseY < topPos + ITEM_LOCK_BUTTON_Y + ITEM_LOCK_BUTTON_HEIGHT;
+		return itemLockButton != null && infoArea.isWidgetMouseOver(itemLockButton, mouseX, mouseY, leftPos, topPos);
 	}
 
 	/**
 	 * Tests JEI's GUI-relative mouse coordinates against the shared button.
 	 */
 	public final boolean isRecipeViewerButtonHovered (double guiMouseX, double guiMouseY) {
-		return hasRecipeViewerButton() && guiMouseX >= RECIPE_VIEWER_BUTTON_X && guiMouseX < RECIPE_VIEWER_BUTTON_X + RECIPE_VIEWER_BUTTON_WIDTH && guiMouseY >= RECIPE_VIEWER_BUTTON_Y && guiMouseY < RECIPE_VIEWER_BUTTON_Y + RECIPE_VIEWER_BUTTON_HEIGHT;
+		return recipeViewerButton != null && infoArea.isWidgetMouseOver(recipeViewerButton, guiMouseX, guiMouseY, 0, 0);
 	}
 
 	/**
 	 * Absolute screen-space area occupied outside the primary GUI texture.
 	 */
 	public final Rect2i getRecipeViewerButtonArea () {
-		return new Rect2i(leftPos + RECIPE_VIEWER_BUTTON_X, topPos + RECIPE_VIEWER_BUTTON_Y, RECIPE_VIEWER_BUTTON_WIDTH, RECIPE_VIEWER_BUTTON_HEIGHT);
+		if (recipeViewerButton == null) throw new IllegalStateException("This screen does not expose a recipe-viewer widget");
+		return infoArea.getWidgetArea(recipeViewerButton, leftPos, topPos);
+	}
+
+	/**
+	 * GUI-relative recipe-viewer widget bounds used by optional viewer integrations.
+	 */
+	public final Rect2i getRecipeViewerButtonRelativeArea () {
+		if (recipeViewerButton == null) throw new IllegalStateException("This screen does not expose a recipe-viewer widget");
+		return infoArea.getWidgetArea(recipeViewerButton, 0, 0);
 	}
 
 	public final Rect2i getItemLockButtonArea () {
-		return new Rect2i(leftPos + ITEM_LOCK_BUTTON_X, topPos + ITEM_LOCK_BUTTON_Y, ITEM_LOCK_BUTTON_WIDTH, ITEM_LOCK_BUTTON_HEIGHT);
+		if (itemLockButton == null) throw new IllegalStateException("This screen does not expose an item-lock widget");
+		return infoArea.getWidgetArea(itemLockButton, leftPos, topPos);
+	}
+
+	public final boolean hasInfoArea () {
+		return infoArea.isVisible();
+	}
+
+	/**
+	 * Absolute screen-space area occupied by the entire expandable widget panel.
+	 */
+	public final Rect2i getInfoAreaArea () {
+		if (!hasInfoArea()) throw new IllegalStateException("This screen has no visible info-area widgets");
+		return infoArea.getArea(leftPos, topPos);
 	}
 
 	/**

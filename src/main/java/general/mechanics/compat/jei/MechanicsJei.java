@@ -19,7 +19,6 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.ItemLike;
 import org.jspecify.annotations.NonNull;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -70,15 +69,13 @@ public class MechanicsJei implements IModPlugin {
 			if (!screen.isRecipeViewerButtonHovered(guiMouseX, guiMouseY)) return List.of();
 
 			IRecipeType<?>[] recipeTypes = screen.getMenu().getRecipeDefinitions().stream().map(definition -> (IRecipeType<?>) IRecipeHolderType.create(definition.type())).toArray(IRecipeType<?>[]::new);
-			return List.of(IGuiClickableArea.createBasic(AbstractScreen.RECIPE_VIEWER_BUTTON_X, AbstractScreen.RECIPE_VIEWER_BUTTON_Y, AbstractScreen.RECIPE_VIEWER_BUTTON_WIDTH, AbstractScreen.RECIPE_VIEWER_BUTTON_HEIGHT, recipeTypes));
+			Rect2i area = screen.getRecipeViewerButtonRelativeArea();
+			return List.of(IGuiClickableArea.createBasic(area.getX(), area.getY(), area.getWidth(), area.getHeight(), recipeTypes));
 		}
 
 		@Override
 		public @NonNull List<Rect2i> getGuiExtraAreas (AbstractScreen<?> screen) {
-			List<Rect2i> areas = new ArrayList<>(2);
-			if (screen.hasRecipeViewerButton()) areas.add(screen.getRecipeViewerButtonArea());
-			if (screen.hasItemLockButton()) areas.add(screen.getItemLockButtonArea());
-			return List.copyOf(areas);
+			return screen.hasInfoArea() ? List.of(screen.getInfoAreaArea()) : List.of();
 		}
 	}
 

@@ -1,5 +1,6 @@
 package general.mechanics.common.block.entity;
 
+import general.api.block.entity.BaseBlockEntity;
 import general.api.block.util.ILitProvider;
 import general.api.crafting.MachineRecipeProcessor;
 import general.api.definitions.MultiblockDefinition;
@@ -30,7 +31,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -47,7 +47,7 @@ import org.jspecify.annotations.Nullable;
 /**
  * Authoritative multiblock controller state for a coke oven.
  */
-public class CokeOvenControllerBlockEntity extends BlockEntity implements MultiblockController, SidedItemResourceProvider, SidedFluidResourceProvider, MenuProvider {
+public class CokeOvenControllerBlockEntity extends BaseBlockEntity implements MultiblockController, SidedItemResourceProvider, SidedFluidResourceProvider, MenuProvider {
 
 	private static final String RECIPE_PROCESSOR_TAG = "recipe_processor";
 	private static final String ITEM_LOCK_TAG        = "item_lock";

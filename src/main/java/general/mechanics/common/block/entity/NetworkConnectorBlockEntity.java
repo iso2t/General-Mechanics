@@ -1,5 +1,6 @@
 package general.mechanics.common.block.entity;
 
+import general.api.block.entity.BaseBlockEntity;
 import general.api.capabilities.GeneralCapabilities;
 import general.api.network.INetworkInterface;
 import general.api.network.NetworkEndpoint;
@@ -7,14 +8,13 @@ import general.api.network.NetworkNode;
 import general.mechanics.common.network.NetworkConnectorServices;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 
 import java.util.List;
 
-public class NetworkConnectorBlockEntity extends BlockEntity implements INetworkInterface {
+public class NetworkConnectorBlockEntity extends BaseBlockEntity implements INetworkInterface {
 
 	public static void registerCapabilities (RegisterCapabilitiesEvent event, BlockEntityType<NetworkConnectorBlockEntity> type) {
 		event.registerBlockEntity(GeneralCapabilities.NETWORK_HANDLER_BLOCK, type, (connector, side) -> side != Direction.UP ? connector : null);
