@@ -17,8 +17,8 @@ import java.util.function.Supplier;
  */
 public class MachineItemSlot extends ResourceHandlerSlot implements ILockableSlot {
 
-	private BooleanSupplier    lockedSupplier = () -> false;
-	private Supplier<ItemStack> ghostSupplier = () -> ItemStack.EMPTY;
+	private BooleanSupplier     lockedSupplier = () -> false;
+	private Supplier<ItemStack> ghostSupplier  = () -> ItemStack.EMPTY;
 	private boolean             lockStateBound;
 
 	public MachineItemSlot (ResourceHandler<ItemResource> handler, IndexModifier<ItemResource> slotModifier, int handlerSlot, int x, int y) {

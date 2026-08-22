@@ -308,7 +308,7 @@ public abstract class AbstractMenu<B extends EntityBlock, T extends BlockEntity>
 
 		@Nullable
 		private final Supplier<ItemStack> authoritativeStack;
-		private ItemStack remoteStack = ItemStack.EMPTY;
+		private       ItemStack           remoteStack = ItemStack.EMPTY;
 
 		private SynchronizedGhostSlot (@Nullable Supplier<ItemStack> authoritativeStack) {
 			super(new SimpleContainer(1), 0, -10_000, -10_000);

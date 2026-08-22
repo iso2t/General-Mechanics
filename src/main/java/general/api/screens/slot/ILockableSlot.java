@@ -4,7 +4,7 @@ import net.minecraft.world.item.ItemStack;
 
 public interface ILockableSlot {
 
-	SlotState getSlotState();
+	SlotState getSlotState ();
 
 	ItemStack getGhostStack ();
 

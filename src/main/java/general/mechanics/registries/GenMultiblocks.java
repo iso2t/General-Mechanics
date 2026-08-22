@@ -16,7 +16,7 @@ import java.util.List;
 
 public class GenMultiblocks {
 
-	public static final DeferredRegister<Multiblock> REGISTRY    = DeferredRegister.create(GenRegistries.MULTIBLOCKS, GenAPI.getModId());
+	public static final DeferredRegister<Multiblock> REGISTRY             = DeferredRegister.create(GenRegistries.MULTIBLOCKS, GenAPI.getModId());
 	public static final Registry<Multiblock>         MULTIBLOCKS_REGISTRY = REGISTRY.makeRegistry(builder -> {
 	});
 

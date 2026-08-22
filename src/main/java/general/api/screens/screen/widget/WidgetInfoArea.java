@@ -20,11 +20,11 @@ import java.util.Objects;
  */
 public class WidgetInfoArea extends AbstractWidget {
 
-	public static final int WIDTH         = 25;
-	public static final int CONTENT_WIDTH = WIDTH - 2;
-	public static final int TOP_HEIGHT    = 4;
-	public static final int MIDDLE_HEIGHT = 1;
-	public static final int BOTTOM_HEIGHT = 4;
+	public static final int WIDTH                = 25;
+	public static final int CONTENT_WIDTH        = WIDTH - 2;
+	public static final int TOP_HEIGHT           = 4;
+	public static final int MIDDLE_HEIGHT        = 1;
+	public static final int BOTTOM_HEIGHT        = 4;
 	public static final int CONTENT_TOP_INSET    = 1;
 	public static final int CONTENT_BOTTOM_INSET = 3;
 
