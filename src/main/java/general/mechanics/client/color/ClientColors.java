@@ -1,7 +1,11 @@
 package general.mechanics.client.color;
 
 import general.api.resources.Resource;
+import general.mechanics.registries.GenBlocks;
+import net.minecraft.client.color.block.BlockTintSources;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
+
+import java.util.List;
 
 public class ClientColors {
 
@@ -10,7 +14,7 @@ public class ClientColors {
 	}
 
 	public static void registerBlockColors (RegisterColorHandlersEvent.BlockTintSources event) {
-		// Terrain fluid tinting is registered with the FluidModel in ClientFluidRegistration.
+		event.register(List.of(BlockTintSources.foliage()), GenBlocks.RUBBER_LEAVES.get());
 	}
 
 }
