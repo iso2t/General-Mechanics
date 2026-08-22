@@ -1,22 +1,19 @@
-package general.mechanics.common.block;
+package general.mechanics.common.block.hatch;
 
 import general.api.block.IOBlock;
 import general.api.resources.Resource;
 import general.mechanics.common.block.entity.MultiblockHatchBlockEntity;
 import net.minecraft.resources.Identifier;
 
-public class IOItemHatch extends IOBlock<MultiblockHatchBlockEntity> {
+public class IOPowerHatch extends IOBlock<MultiblockHatchBlockEntity> {
 
-	public IOItemHatch (Properties properties, IOMode mode) {
-		super(properties, mode, IOType.ITEM);
+	public IOPowerHatch (Properties properties) {
+		super(properties, IOMode.ANY, IOType.POWER);
 	}
 
 	@Override
 	public Identifier getSideTexture () {
-		return switch (getMode()) {
-			case INPUT -> Resource.getMainMod("block/machine/machine_bottom_item");
-			default -> Resource.getMainMod("block/machine/machine_bottom_item_output");
-		};
+		return Resource.getMainMod("block/machine/machine_bottom_power");
 	}
 
 	@Override

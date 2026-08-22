@@ -1,4 +1,4 @@
-package general.mechanics.common.block;
+package general.mechanics.common.block.misc;
 
 import general.api.block.DecorativeBlock;
 import general.api.block.IBlockTagsProvider;

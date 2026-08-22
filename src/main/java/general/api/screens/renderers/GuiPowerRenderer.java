@@ -38,10 +38,6 @@ public class GuiPowerRenderer extends AbstractBarRenderer {
 
 	@Override
 	public void render (GuiGraphicsExtractor guiGraphics) {
-		/*int cap = getEnergyCapacity().getAsInt();
-		if (cap <= 0) return;
-		int storedPx = (int) (getHeight() * (getEnergyStored().getAsInt() / (float) cap));
-		guiGraphics.fillGradient(getXPos(), getYPos() + (getHeight() - storedPx), getXPos() + getWidth(), getYPos() + getHeight(), Color.BRIGHT_RED.getArgb(), Color.RED.getArgb());*/
 		render(guiGraphics, getXPos(), getYPos());
 	}
 

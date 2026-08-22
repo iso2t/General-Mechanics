@@ -1,4 +1,4 @@
-package general.mechanics.common.block;
+package general.mechanics.common.block.machine;
 
 import general.api.block.BaseBlock;
 import general.api.block.BlockEntityTypeOwner;
@@ -36,6 +36,7 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -50,7 +51,7 @@ public class CokeOvenController extends BaseBlock implements EntityBlock, BlockE
 	private BlockEntityType<CokeOvenControllerBlockEntity> blockEntityType;
 
 	public CokeOvenController (Properties properties) {
-		super(properties);
+		super(properties.requiresCorrectToolForDrops().strength(5.0F, 6.0F).sound(SoundType.STONE));
 		registerDefaultState(getStateDefinition().any().setValue(LIT, false));
 	}
 

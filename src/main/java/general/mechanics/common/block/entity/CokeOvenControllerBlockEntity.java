@@ -16,7 +16,7 @@ import general.api.transfer.fluid.SidedFluidResourceProvider;
 import general.api.transfer.item.ItemInventoryDefinition;
 import general.api.transfer.item.LockableItemResourceHandler;
 import general.api.transfer.item.SidedItemResourceProvider;
-import general.mechanics.common.block.CokeOvenController;
+import general.mechanics.common.block.machine.CokeOvenController;
 import general.mechanics.common.menus.CokeOvenMenu;
 import general.mechanics.registries.GenMultiblocks;
 import net.minecraft.core.BlockPos;

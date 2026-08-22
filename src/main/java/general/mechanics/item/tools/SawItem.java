@@ -2,7 +2,7 @@ package general.mechanics.item.tools;
 
 import general.api.crafting.RecipeGenerationContext;
 import general.api.item.ToolItem;
-import general.mechanics.common.block.RubberWood;
+import general.mechanics.common.block.misc.RubberWood;
 import general.mechanics.registries.GenItems;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;

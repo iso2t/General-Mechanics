@@ -1,19 +1,22 @@
-package general.mechanics.common.block;
+package general.mechanics.common.block.hatch;
 
 import general.api.block.IOBlock;
 import general.api.resources.Resource;
 import general.mechanics.common.block.entity.MultiblockHatchBlockEntity;
 import net.minecraft.resources.Identifier;
 
-public class IOPowerHatch extends IOBlock<MultiblockHatchBlockEntity> {
+public class IOFluidHatch extends IOBlock<MultiblockHatchBlockEntity> {
 
-	public IOPowerHatch (Properties properties) {
-		super(properties, IOMode.ANY, IOType.POWER);
+	public IOFluidHatch (Properties properties, IOMode mode) {
+		super(properties, mode, IOType.FLUID);
 	}
 
 	@Override
 	public Identifier getSideTexture () {
-		return Resource.getMainMod("block/machine/machine_bottom_power");
+		return switch (getMode()) {
+			case INPUT -> Resource.getMainMod("block/machine/machine_bottom_fluid");
+			default -> Resource.getMainMod("block/machine/machine_bottom_fluid_output");
+		};
 	}
 
 	@Override

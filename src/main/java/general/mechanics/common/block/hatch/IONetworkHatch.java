@@ -1,4 +1,4 @@
-package general.mechanics.common.block;
+package general.mechanics.common.block.hatch;
 
 import general.api.block.IOBlock;
 import general.api.resources.Resource;

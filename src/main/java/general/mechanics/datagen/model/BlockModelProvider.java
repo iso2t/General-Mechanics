@@ -14,7 +14,7 @@ import general.api.rotation.BlockRotationStrategies;
 import general.api.rotation.BlockRotationStrategy;
 import general.api.rotation.IRotatableBlock;
 import general.mechanics.client.model.CableModelLoader;
-import general.mechanics.common.block.RubberWood;
+import general.mechanics.common.block.misc.RubberWood;
 import general.mechanics.registries.GenBlocks;
 import general.mechanics.registries.GenFluids;
 import net.minecraft.client.data.models.BlockModelGenerators;

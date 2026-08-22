@@ -5,7 +5,7 @@ import general.api.crafting.MachineRecipeRegistry;
 import general.api.crafting.MachineRecipeSchema;
 import general.api.crafting.NoRecipeData;
 import general.api.mod.GenAPI;
-import general.mechanics.common.block.CokeOvenController;
+import general.mechanics.common.block.machine.CokeOvenController;
 import net.neoforged.bus.api.IEventBus;
 
 /**

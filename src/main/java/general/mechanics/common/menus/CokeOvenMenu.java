@@ -2,7 +2,7 @@ package general.mechanics.common.menus;
 
 import general.api.screens.menu.AbstractMenu;
 import general.api.screens.slot.MachineItemSlot;
-import general.mechanics.common.block.CokeOvenController;
+import general.mechanics.common.block.machine.CokeOvenController;
 import general.mechanics.common.block.entity.CokeOvenControllerBlockEntity;
 import general.mechanics.registries.GenBlockEntities;
 import general.mechanics.registries.GenBlocks;

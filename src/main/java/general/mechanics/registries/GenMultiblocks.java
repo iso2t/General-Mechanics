@@ -5,7 +5,7 @@ import general.api.mod.GenAPI;
 import general.api.multiblock.*;
 import general.api.network.NetworkServices;
 import general.api.registry.GenRegistries;
-import general.mechanics.common.block.CokeOvenController;
+import general.mechanics.common.block.machine.CokeOvenController;
 import net.minecraft.core.Registry;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.registries.DeferredRegister;
