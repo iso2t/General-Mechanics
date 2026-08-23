@@ -23,6 +23,7 @@ import general.api.transfer.item.SidedItemResourceProvider;
 import general.mechanics.common.block.machine.ElectricFurnaceBlock;
 import general.mechanics.common.menus.ElectricFurnaceMenu;
 import general.mechanics.common.network.NetworkConnectorServices;
+import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -88,15 +89,17 @@ public class ElectricFurnaceBlockEntity extends BaseBlockEntity implements Sided
 
 	private static final ResourceAccessPolicy<ItemResource> NETWORK_ITEM_ACCESS = ITEMS.access().insert(ElectricFurnaceBlock.RecipeSlots.INPUT, ElectricFurnaceBlock.RecipeSlots.CATALYST).extract(ElectricFurnaceBlock.RecipeSlots.OUTPUT_1, ElectricFurnaceBlock.RecipeSlots.OUTPUT_2, ElectricFurnaceBlock.RecipeSlots.OUTPUT_3, ElectricFurnaceBlock.RecipeSlots.OUTPUT_4).build();
 
-	private final MachineSideConfiguration            sideConfiguration;
-	private final LockableItemResourceHandler         items;
+	@Getter
+	private final MachineSideConfiguration    sideConfiguration;
+	private final LockableItemResourceHandler items;
 	private final SidedResourceHandlers<ItemResource> sidedItems;
 	private final ResourceHandler<ItemResource>       networkItems;
 	private final SimpleEnergyHandler                 energy;
 	private final EnergyHandler                       networkEnergyInput;
 	private final SidedEnergyHandlers                 sidedEnergy;
-	private final NetworkNode                         networkNode;
-	private final MachineRecipeProcessor              recipeProcessor;
+	private final NetworkNode            networkNode;
+	@Getter
+	private final MachineRecipeProcessor recipeProcessor;
 
 	public ElectricFurnaceBlockEntity (BlockEntityType<ElectricFurnaceBlockEntity> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
@@ -137,10 +140,6 @@ public class ElectricFurnaceBlockEntity extends BaseBlockEntity implements Sided
 		event.registerBlockEntity(GeneralCapabilities.NETWORK_HANDLER_BLOCK, type, ElectricFurnaceBlockEntity::getNetworkCapability);
 	}
 
-	public MachineSideConfiguration getSideConfiguration () {
-		return sideConfiguration;
-	}
-
 	public MachineSideMode getSideMode (MachineFace face) {
 		return sideConfiguration.getMode(face);
 	}
@@ -163,10 +162,6 @@ public class ElectricFurnaceBlockEntity extends BaseBlockEntity implements Sided
 
 	public MachinePowerProfile getPowerProfile () {
 		return POWER_PROFILE;
-	}
-
-	public MachineRecipeProcessor getRecipeProcessor () {
-		return recipeProcessor;
 	}
 
 	public int getProgress () {

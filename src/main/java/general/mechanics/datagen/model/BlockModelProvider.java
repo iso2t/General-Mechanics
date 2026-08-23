@@ -16,6 +16,7 @@ import general.api.rotation.BlockRotationStrategy;
 import general.api.rotation.IRotatableBlock;
 import general.mechanics.client.model.CableModelLoader;
 import general.mechanics.client.model.ConfigurableMachineModelLoader;
+import general.mechanics.common.block.misc.HeatingElementBlock;
 import general.mechanics.common.block.misc.RubberWood;
 import general.mechanics.registries.GenBlocks;
 import general.mechanics.registries.GenFluids;
@@ -94,9 +95,9 @@ public final class BlockModelProvider extends ModelProviders {
 				oreBlock(block);
 			} else if (block.get() instanceof LiquidBlock) {
 				// Liquid blocks render through the fluid renderer and have no model; none are currently registered.
-			} else if (block.get() instanceof HeatingElementBlock) {
+			}*/ else if (block.get() instanceof HeatingElementBlock) {
 				heater(block);
-			}*/
+			}
 		}
 
 		for (var fluid : GenFluids.getFluids()) {
@@ -260,7 +261,7 @@ public final class BlockModelProvider extends ModelProviders {
 	// Directional machines (model differs by a boolean state, oriented by FACING)
 	// ------------------------------------------------------------------------------------------------
 
-	/*private void heater(BlockDefinition<?> def) {
+	private void heater(BlockDefinition<?> def) {
 		var path = def.getId().getPath();
 		var on = Resource.get("block/ihe/" + path + "_on");
 		var off = Resource.get("block/ihe/" + path + "_off");
@@ -273,11 +274,10 @@ public final class BlockModelProvider extends ModelProviders {
 				new TextureMapping().put(TextureSlot.ALL, mat(off)), generators.modelOutput);
 
 		generators.blockStateOutput.accept(MultiVariantGenerator.dispatch(def.get())
-				.with(createBooleanModelDispatch(HeatingElementBlock.HEATING, plainVariant(onModel), plainVariant(offModel)))
-				.with(facingDispatch()));
+				.with(createBooleanModelDispatch(HeatingElementBlock.HEATING, plainVariant(onModel), plainVariant(offModel))));
 
 		generators.registerSimpleItemModel(def.get(), offModel);
-	}*/
+	}
 
 	/*private void machine(BlockDefinition<?> def) {
 		var path = def.getId().getPath();

@@ -16,6 +16,8 @@ import general.mechanics.common.block.hatch.IONetworkHatch;
 import general.mechanics.common.block.hatch.IOPowerHatch;
 import general.mechanics.common.block.machine.CokeOvenController;
 import general.mechanics.common.block.machine.ElectricFurnaceBlock;
+import general.mechanics.common.block.machine.MachineFrameBlock;
+import general.mechanics.common.block.misc.HeatingElementBlock;
 import general.mechanics.common.block.misc.RubberWood;
 import general.mechanics.common.block.network.NetworkConnectorBlock;
 import general.mechanics.common.block.network.PowerInjectorBlock;
@@ -65,6 +67,10 @@ public class GenBlocks extends BlockRegistry {
 	public static final BlockDefinition<DecorativeBlock> TUNGSTEN_CORE_MATRIX = registerBlock("Tungsten Core Matrix", DecorativeBlock::new);
 	public static final BlockDefinition<DecorativeBlock> QUANTUM_CORE_MATRIX  = registerBlock("Quantum Core Matrix", DecorativeBlock::new);
 
+	// Misc Multiblock
+	public static final BlockDefinition<DecorativeBlock>   MACHINE_CASING = registerBlock("Machine Casing", DecorativeBlock::new, () -> BlockBehaviour.Properties.of().requiresCorrectToolForDrops().strength(5.0F, 6.0F).sound(SoundType.STONE));
+	public static final BlockDefinition<MachineFrameBlock> MACHINE_FRAME  = registerBlock("Machine Frame", MachineFrameBlock::new);
+
 	// Coke Oven
 	public static final BlockDefinition<RecipeProviderBlock> COKE_OVEN_BRICKS     = registerBlock("Coke Oven Bricks", props -> new RecipeProviderBlock(props) {
 		@Override
@@ -81,6 +87,7 @@ public class GenBlocks extends BlockRegistry {
 
 	// Machines
 	public static final BlockDefinition<ElectricFurnaceBlock> ELECTRIC_FURNACE = registerBlock("Electric Furnace", ElectricFurnaceBlock::new);
+	public static final BlockDefinition<HeatingElementBlock> HEATING_ELEMENT  = registerBlock("Heating Element", HeatingElementBlock::new);
 
 	private static String formatColorName (String colorName) {
 		String[] words = colorName.split("_");

@@ -12,6 +12,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
@@ -22,7 +23,7 @@ public abstract class BaseBlock extends Block implements IBlockTagsProvider {
 	}
 
 	@Override
-	protected void createBlockStateDefinition (StateDefinition.Builder<Block, BlockState> builder) {
+	protected void createBlockStateDefinition (StateDefinition.@NonNull Builder<Block, BlockState> builder) {
 		super.createBlockStateDefinition(builder);
 		if (this instanceof IRotatableBlock rotatable) {
 			rotatable.getRotationStrategy().addProperties(builder);
@@ -33,7 +34,7 @@ public abstract class BaseBlock extends Block implements IBlockTagsProvider {
 	}
 
 	@Override
-	public BlockState getStateForPlacement (BlockPlaceContext context) {
+	public BlockState getStateForPlacement (@NonNull BlockPlaceContext context) {
 		BlockState state = super.getStateForPlacement(context);
 		if (state != null && this instanceof IRotatableBlock rotatable) {
 			return rotatable.getRotationStrategy().getStateForPlacement(state, context);

@@ -213,7 +213,7 @@ public class CableBlock extends BaseBlock implements SimpleWaterloggedBlock, Ent
 
 	@Nullable
 	@Override
-	public BlockState getStateForPlacement (BlockPlaceContext context) {
+	public BlockState getStateForPlacement (@NonNull BlockPlaceContext context) {
 		Level world = context.getLevel();
 		BlockPos pos = context.getClickedPos();
 		return calculateState(world, pos, defaultBlockState()).setValue(WATERLOGGED, world.getFluidState(pos).getType() == Fluids.WATER);
