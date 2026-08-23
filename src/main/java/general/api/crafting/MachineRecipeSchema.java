@@ -16,12 +16,16 @@ public final class MachineRecipeSchema {
 	private final List<Slot> itemOutputs;
 	private final List<Slot> fluidInputs;
 	private final List<Slot> fluidOutputs;
+	private final Set<String> retainedItemInputs;
+	private final Set<String> retainedFluidInputs;
 
 	private MachineRecipeSchema (Builder builder) {
 		this.itemInputs = validateGroup("item input", builder.itemInputs);
 		this.itemOutputs = validateGroup("item output", builder.itemOutputs);
 		this.fluidInputs = validateGroup("fluid input", builder.fluidInputs);
 		this.fluidOutputs = validateGroup("fluid output", builder.fluidOutputs);
+		this.retainedItemInputs = validateRetainedInputs("item", itemInputs, builder.retainedItemInputs);
+		this.retainedFluidInputs = validateRetainedInputs("fluid", fluidInputs, builder.retainedFluidInputs);
 		if (itemInputs.isEmpty() && itemOutputs.isEmpty() && fluidInputs.isEmpty() && fluidOutputs.isEmpty()) {
 			throw new IllegalArgumentException("A machine recipe schema must declare at least one resource slot");
 		}
@@ -45,6 +49,33 @@ public final class MachineRecipeSchema {
 
 	public List<Slot> fluidOutputs () {
 		return fluidOutputs;
+	}
+
+	/**
+	 * Whether a matching item ingredient is removed when the recipe completes.
+	 * Retained inputs are useful for dies, molds, and other reusable recipe tools.
+	 */
+	public boolean consumesItemInput (String name) {
+		Objects.requireNonNull(name, "name");
+		if (!contains(itemInputs, name)) throw new IllegalArgumentException("Unknown item input slot '" + name + "'");
+		return !retainedItemInputs.contains(name);
+	}
+
+	public boolean consumesItemInput (MachineRecipeSlot.ItemInput slot) {
+		return consumesItemInput(Objects.requireNonNull(slot, "slot").name());
+	}
+
+	/**
+	 * Fluid equivalent of {@link #consumesItemInput(String)}.
+	 */
+	public boolean consumesFluidInput (String name) {
+		Objects.requireNonNull(name, "name");
+		if (!contains(fluidInputs, name)) throw new IllegalArgumentException("Unknown fluid input slot '" + name + "'");
+		return !retainedFluidInputs.contains(name);
+	}
+
+	public boolean consumesFluidInput (MachineRecipeSlot.FluidInput slot) {
+		return consumesFluidInput(Objects.requireNonNull(slot, "slot").name());
 	}
 
 	/**
@@ -103,9 +134,18 @@ public final class MachineRecipeSchema {
 		return slots;
 	}
 
+	private static Set<String> validateRetainedInputs (String resourceName, List<Slot> inputs, Set<String> source) {
+		Set<String> retained = Set.copyOf(source);
+		for (String name : retained) {
+			if (!contains(inputs, name)) throw new IllegalArgumentException("Retained " + resourceName + " input '" + name + "' is not declared by the schema");
+		}
+		return retained;
+	}
+
 	/**
 	 * One logical field in a recipe. Required slots must be present in every
 	 * recipe; optional slots may be omitted from that recipe's serialized maps.
+	 * An omitted optional input only matches when its bound machine slot is empty.
 	 */
 	public record Slot(String name, boolean required) {
 
@@ -125,6 +165,8 @@ public final class MachineRecipeSchema {
 		private final List<Slot> itemOutputs  = new ArrayList<>();
 		private final List<Slot> fluidInputs  = new ArrayList<>();
 		private final List<Slot> fluidOutputs = new ArrayList<>();
+		private final Set<String> retainedItemInputs  = new LinkedHashSet<>();
+		private final Set<String> retainedFluidInputs = new LinkedHashSet<>();
 
 		public Builder itemInput (String name) {
 			return itemInput(name, true);
@@ -150,6 +192,26 @@ public final class MachineRecipeSchema {
 			return itemInput(Objects.requireNonNull(slot, "slot").name(), false);
 		}
 
+		/**
+		 * Adds a required reusable item input. The ingredient must match but is not
+		 * extracted when processing completes.
+		 */
+		public Builder itemCatalyst (String name) {
+			return itemCatalyst(name, true);
+		}
+
+		public Builder itemCatalyst (MachineRecipeSlot.ItemInput slot) {
+			return itemCatalyst(Objects.requireNonNull(slot, "slot").name());
+		}
+
+		public Builder optionalItemCatalyst (String name) {
+			return itemCatalyst(name, false);
+		}
+
+		public Builder optionalItemCatalyst (MachineRecipeSlot.ItemInput slot) {
+			return itemCatalyst(Objects.requireNonNull(slot, "slot").name(), false);
+		}
+
 		public Builder itemInput (String name, boolean required) {
 			itemInputs.add(new Slot(name, required));
 			return this;
@@ -157,6 +219,12 @@ public final class MachineRecipeSchema {
 
 		public Builder itemInput (MachineRecipeSlot.ItemInput slot, boolean required) {
 			return itemInput(Objects.requireNonNull(slot, "slot").name(), required);
+		}
+
+		private Builder itemCatalyst (String name, boolean required) {
+			itemInput(name, required);
+			retainedItemInputs.add(name);
+			return this;
 		}
 
 		public Builder itemOutput (String name) {
@@ -216,6 +284,22 @@ public final class MachineRecipeSchema {
 			return fluidInput(Objects.requireNonNull(slot, "slot").name(), false);
 		}
 
+		public Builder fluidCatalyst (String name) {
+			return fluidCatalyst(name, true);
+		}
+
+		public Builder fluidCatalyst (MachineRecipeSlot.FluidInput slot) {
+			return fluidCatalyst(Objects.requireNonNull(slot, "slot").name());
+		}
+
+		public Builder optionalFluidCatalyst (String name) {
+			return fluidCatalyst(name, false);
+		}
+
+		public Builder optionalFluidCatalyst (MachineRecipeSlot.FluidInput slot) {
+			return fluidCatalyst(Objects.requireNonNull(slot, "slot").name(), false);
+		}
+
 		public Builder fluidInput (String name, boolean required) {
 			fluidInputs.add(new Slot(name, required));
 			return this;
@@ -223,6 +307,12 @@ public final class MachineRecipeSchema {
 
 		public Builder fluidInput (MachineRecipeSlot.FluidInput slot, boolean required) {
 			return fluidInput(Objects.requireNonNull(slot, "slot").name(), required);
+		}
+
+		private Builder fluidCatalyst (String name, boolean required) {
+			fluidInput(name, required);
+			retainedFluidInputs.add(name);
+			return this;
 		}
 
 		public Builder fluidOutput (String name) {

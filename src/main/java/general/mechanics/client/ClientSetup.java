@@ -7,6 +7,7 @@ import general.mechanics.client.model.CableModelLoader;
 import general.mechanics.client.model.ConfigurableMachineModelLoader;
 import general.mechanics.client.screens.CokeOvenScreen;
 import general.mechanics.client.screens.ElectricFurnaceScreen;
+import general.mechanics.client.screens.StampingPressScreen;
 import general.mechanics.registries.GenMenus;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -34,6 +35,7 @@ public class ClientSetup {
 	public static void registerMenuScreens (RegisterMenuScreensEvent event) {
 		event.register(GenMenus.COKE_OVEN.get(), CokeOvenScreen::new);
 		event.register(GenMenus.ELECTRIC_FURNACE.get(), ElectricFurnaceScreen::new);
+		event.register(GenMenus.STAMPING_PRESS.get(), StampingPressScreen::new);
 	}
 
 	@SubscribeEvent

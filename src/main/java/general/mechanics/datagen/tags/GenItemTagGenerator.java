@@ -12,6 +12,8 @@ import general.mechanics.registries.GenItems;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.StairBlock;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.data.ItemTagsProvider;
 import org.jspecify.annotations.NonNull;
@@ -42,6 +44,11 @@ public class GenItemTagGenerator extends ItemTagsProvider {
 		}
 
 		this.tag(ItemTags.PLANKS).add(GenBlocks.RUBBER_PLANKS.asItem());
+
+		for (var block : GenBlocks.INSTANCE.getBlocks()) {
+			if (block.get() instanceof SlabBlock) this.tag(ItemTags.SLABS).add(block.asItem());
+			if (block.get() instanceof StairBlock) this.tag(ItemTags.STAIRS).add(block.asItem());
+		}
 
 	}
 

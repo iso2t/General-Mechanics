@@ -3,6 +3,7 @@ package general.mechanics.client.color;
 import com.mojang.serialization.MapCodec;
 import general.api.block.materials.MetalBlock;
 import general.api.item.materials.*;
+import general.mechanics.common.item.StampingDieItem;
 import net.minecraft.client.color.item.ItemTintSource;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.world.entity.LivingEntity;
@@ -29,6 +30,7 @@ public final class ElementItemTintSource implements ItemTintSource {
 		if (item instanceof GearItem gear) return gear.getParent().getColor();
 		if (item instanceof NuggetItem nugget) return nugget.getParent().getColor();
 		if (item instanceof PlateItem plate) return plate.getParent().getColor();
+		if (item instanceof StampingDieItem die) return die.getColor();
 		if (item instanceof RawItem raw) return raw.getParent().getColor();
 		return 0xFFFFFFFF;
 	}

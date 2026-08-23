@@ -20,6 +20,7 @@ geometry.
 
 * [Primitive Coke Oven](primitive-coke-oven.md) — Improve carbon by surrounding it with bricks and lava.
 * [Electric Furnace Factory](electric-furnace-factory.md) — Promote one furnace into an accelerated industrial complex.
+* [Stamping Factory](stamping-factory.md) — Apply industrial pressure across three fully budgeted floors.
 
 > **GENTECH SCALE NOTICE:** A larger machine does not eliminate operational problems. It provides sufficient interior
 > volume for those problems to become departments.

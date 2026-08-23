@@ -105,6 +105,8 @@ public final class BlockModelProvider extends ModelProviders {
 			}
 		}
 
+		registerLimestoneFamilies();
+
 		for (var fluid : GenFluids.getFluids()) {
 			registerFluid(fluid);
 		}
@@ -117,6 +119,12 @@ public final class BlockModelProvider extends ModelProviders {
 		rubberLogWithResin(GenBlocks.RUBBER_LOG.get(), "rubber_log", Resource.get("block/rubber_log_top"));
 		rubberLogWithResin(GenBlocks.RUBBER_WOOD.get(), "rubber_wood", Resource.get("block/rubber_log"));
 		blockModels.woodProvider(GenBlocks.STRIPPED_RUBBER_LOG.get()).logWithHorizontal(GenBlocks.STRIPPED_RUBBER_LOG.get()).wood(GenBlocks.STRIPPED_RUBBER_WOOD.get());
+	}
+
+	private void registerLimestoneFamilies () {
+		for (var family : GenBlocks.LIMESTONE_FAMILIES) {
+			generators.familyWithExistingFullBlock(family.base().get()).slab(family.slab().get()).stairs(family.stairs().get());
+		}
 	}
 
 	private void registerMetalBlock (BlockDefinition<?> definition, MetalBlock metal) {

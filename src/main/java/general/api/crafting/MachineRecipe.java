@@ -103,11 +103,23 @@ public final class MachineRecipe implements Recipe<MachineRecipeInput> {
 	@Override
 	public boolean matches (MachineRecipeInput input, Level level) {
 		if (input.definition() != definition) return false;
-		for (var entry : itemInputs.entrySet()) {
-			if (!entry.getValue().test(input.item(entry.getKey()))) return false;
+		for (MachineRecipeSchema.Slot slot : definition.schema().itemInputs()) {
+			var ingredient = itemInputs.get(slot.name());
+			ItemStack supplied = input.item(slot.name());
+			if (ingredient == null) {
+				if (!supplied.isEmpty()) return false;
+			} else if (!ingredient.test(supplied)) {
+				return false;
+			}
 		}
-		for (var entry : fluidInputs.entrySet()) {
-			if (!entry.getValue().test(input.fluid(entry.getKey()))) return false;
+		for (MachineRecipeSchema.Slot slot : definition.schema().fluidInputs()) {
+			var ingredient = fluidInputs.get(slot.name());
+			FluidStack supplied = input.fluid(slot.name());
+			if (ingredient == null) {
+				if (!supplied.isEmpty()) return false;
+			} else if (!ingredient.test(supplied)) {
+				return false;
+			}
 		}
 		return definition.matchesAdditional(this, input, level);
 	}

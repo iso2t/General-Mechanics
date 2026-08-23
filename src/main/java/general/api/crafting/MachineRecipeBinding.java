@@ -25,9 +25,10 @@ import java.util.stream.Collectors;
  * and fluid handlers.
  *
  * <p>The binding always uses unrestricted internal handlers, never sided
- * capability views. A completion extracts every input and inserts every output
- * under one NeoForge root transaction. Any partial transfer aborts the entire
- * operation, including changes already made to another handler.</p>
+	 * capability views. A completion extracts every consumable input, retains
+	 * declared catalysts, and inserts every output under one NeoForge root
+	 * transaction. Any partial transfer aborts the entire operation, including
+	 * changes already made to another handler.</p>
  */
 public final class MachineRecipeBinding {
 
@@ -133,8 +134,8 @@ public final class MachineRecipeBinding {
 	/**
 	 * Attempts one atomic recipe completion.
 	 *
-	 * @return {@code true} only when all inputs were consumed and all outputs were
-	 * committed
+	 * @return {@code true} only when all consumable inputs were extracted and all
+	 * outputs were committed
 	 */
 	public boolean tryExecute (MachineRecipe recipe, Level level) {
 		return tryExecute(recipe, captureInput(), level);
@@ -200,7 +201,7 @@ public final class MachineRecipeBinding {
 		if (items != null) {
 			for (MachineRecipeSchema.Slot slot : definition.schema().itemInputs()) {
 				var ingredient = recipe.itemInputs().get(slot.name());
-				if (ingredient == null) continue;
+				if (ingredient == null || !definition.schema().consumesItemInput(slot.name())) continue;
 				int index = itemSlots.get(slot.name());
 				ItemResource resource = items.getResource(index);
 				if (items.extract(index, resource, ingredient.count(), transaction) != ingredient.count()) return false;
@@ -209,7 +210,7 @@ public final class MachineRecipeBinding {
 		if (fluids != null) {
 			for (MachineRecipeSchema.Slot slot : definition.schema().fluidInputs()) {
 				var ingredient = recipe.fluidInputs().get(slot.name());
-				if (ingredient == null) continue;
+				if (ingredient == null || !definition.schema().consumesFluidInput(slot.name())) continue;
 				int index = fluidSlots.get(slot.name());
 				FluidResource resource = fluids.getResource(index);
 				if (fluids.extract(index, resource, ingredient.amount(), transaction) != ingredient.amount()) return false;

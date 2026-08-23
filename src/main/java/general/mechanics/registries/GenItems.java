@@ -12,6 +12,7 @@ import general.api.registry.item.ItemRegistry;
 import general.api.resources.Resource;
 import general.mechanics.Mechanics;
 import general.mechanics.common.item.NetworkDebuggerItem;
+import general.mechanics.common.item.StampingDieItem;
 import general.mechanics.item.WireSpoolItem;
 import general.mechanics.item.tools.SawItem;
 import general.mechanics.item.tools.WireCuttersItem;
@@ -57,6 +58,10 @@ public class GenItems extends ItemRegistry {
 	public static final ItemDefinition<IngotItem> STEEL    = Ingot.registerIngot("Steel", 0xFF71797E);
 	public static final ItemDefinition<IngotItem> TITANIUM = Ingot.registerIngot("Titanium", 0xFF5B798E);
 	public static final ItemDefinition<IngotItem> TUNGSTEN = Ingot.registerIngot("Tungsten", 0xFFB5AC9F);
+
+	// Reusable Stamping Press tools
+	public static final ItemDefinition<StampingDieItem> GEAR_DIE   = registerItem("Gear Die", properties -> new StampingDieItem(properties, StampingDieItem.Shape.GEAR));
+	public static final ItemDefinition<StampingDieItem> NUGGET_DIE = registerItem("Nugget Die", properties -> new StampingDieItem(properties, StampingDieItem.Shape.NUGGET));
 
 	// Misc
 	public static final ItemDefinition<Item>               TREE_SAP         = registerItem("Tree Sap", Item::new);
@@ -168,6 +173,11 @@ public class GenItems extends ItemRegistry {
 			String plateResourceName = name.toLowerCase().replace(' ', '_').replace("_ingot", "_plate");
 			itemPlate(plateName, plateResourceName, properties -> new PlateItem(elementDef.get(), properties));
 
+			// Register the gear item
+			String gearName = name.replace(" Ingot", " Gear");
+			String gearResourceName = name.toLowerCase().replace(' ', '_').replace("_ingot", "_gear");
+			itemGear(gearName, gearResourceName, properties -> new GearItem(elementDef.get(), properties));
+
 			return elementDef;
 		}
 
@@ -188,6 +198,18 @@ public class GenItems extends ItemRegistry {
 		}
 
 		static ItemDefinition<PlateItem> itemPlate (String name, Identifier id, Function<Item.Properties, PlateItem> factory) {
+			Preconditions.checkArgument(id.getNamespace().equals(Mechanics.MOD_ID), "Can only register items in " + Mechanics.MOD_ID);
+			var definition = new ItemDefinition<>(name, REGISTRY.registerItem(id.getPath(), factory));
+
+			ITEMS.add(definition);
+			return definition;
+		}
+
+		static ItemDefinition<GearItem> itemGear (String name, String resourceName, Function<Item.Properties, GearItem> factory) {
+			return itemGear(name, Resource.getMainMod(resourceName), factory);
+		}
+
+		static ItemDefinition<GearItem> itemGear (String name, Identifier id, Function<Item.Properties, GearItem> factory) {
 			Preconditions.checkArgument(id.getNamespace().equals(Mechanics.MOD_ID), "Can only register items in " + Mechanics.MOD_ID);
 			var definition = new ItemDefinition<>(name, REGISTRY.registerItem(id.getPath(), factory));
 

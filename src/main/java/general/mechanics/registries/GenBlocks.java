@@ -1,5 +1,6 @@
 package general.mechanics.registries;
 
+import general.api.block.DecorativeBlock;
 import general.api.block.IOBlock;
 import general.api.block.RecipeProviderBlock;
 import general.api.block.materials.MetalBlock;
@@ -65,6 +66,19 @@ public class GenBlocks extends BlockRegistry {
 	public static final BlockDefinition<EncasedFluidBlock>         ENCASED_WATER         = registerBlock("Encased Water", properties -> new EncasedFluidBlock(properties, Fluids.WATER));
 	public static final BlockDefinition<EncasedFluidBlock>         ENCASED_LAVA          = registerBlock("Encased Lava", properties -> new EncasedFluidBlock(properties, Fluids.LAVA));
 
+	// Misc
+	public static final BlockDefinition<DecorativeBlock> LIMESTONE                 = registerBlock("Limestone", properties -> new DecorativeBlock(properties.requiresCorrectToolForDrops().strength(5.0F, 6.0F).sound(SoundType.STONE)));
+	public static final BlockDefinition<SlabBlock>       LIMESTONE_SLAB            = registerBlock("Limestone Slab", properties -> new SlabBlock(properties.requiresCorrectToolForDrops().strength(5.0F, 6.0F).sound(SoundType.STONE)));
+	public static final BlockDefinition<StairBlock>      LIMESTONE_STAIRS          = registerBlock("Limestone Stairs", properties -> new StairBlock(LIMESTONE.get().defaultBlockState(), properties.requiresCorrectToolForDrops().strength(5.0F, 6.0F).sound(SoundType.STONE)));
+	public static final BlockDefinition<DecorativeBlock> LIMESTONE_BRICKS          = registerBlock("Limestone Bricks", properties -> new DecorativeBlock(properties.requiresCorrectToolForDrops().strength(5.0F, 6.0F).sound(SoundType.STONE)));
+	public static final BlockDefinition<SlabBlock>       LIMESTONE_BRICK_SLAB      = registerBlock("Limestone Bricks Slab", properties -> new SlabBlock(properties.requiresCorrectToolForDrops().strength(5.0F, 6.0F).sound(SoundType.STONE)));
+	public static final BlockDefinition<StairBlock>      LIMESTONE_BRICK_STAIRS    = registerBlock("Limestone Brick Stairs", properties -> new StairBlock(LIMESTONE_BRICKS.get().defaultBlockState(), properties.requiresCorrectToolForDrops().strength(5.0F, 6.0F).sound(SoundType.STONE)));
+	public static final BlockDefinition<DecorativeBlock> LIMESTONE_POLISHED        = registerBlock("Polished Limestone", "limestone_polished", properties -> new DecorativeBlock(properties.requiresCorrectToolForDrops().strength(5.0F, 6.0F).sound(SoundType.STONE)));
+	public static final BlockDefinition<SlabBlock>       LIMESTONE_POLISHED_SLAB   = registerBlock("Polished Limestone Slab", "limestone_polished_slab", properties -> new SlabBlock(properties.requiresCorrectToolForDrops().strength(5.0F, 6.0F).sound(SoundType.STONE)));
+	public static final BlockDefinition<StairBlock>      LIMESTONE_POLISHED_STAIRS = registerBlock("Polished Limestone Stairs", "limestone_polished_stairs", properties -> new StairBlock(LIMESTONE_POLISHED.get().defaultBlockState(), properties.requiresCorrectToolForDrops().strength(5.0F, 6.0F).sound(SoundType.STONE)));
+
+	public static final List<BlockFamilyDefinition> LIMESTONE_FAMILIES = List.of(new BlockFamilyDefinition(LIMESTONE, LIMESTONE_SLAB, LIMESTONE_STAIRS), new BlockFamilyDefinition(LIMESTONE_BRICKS, LIMESTONE_BRICK_SLAB, LIMESTONE_BRICK_STAIRS), new BlockFamilyDefinition(LIMESTONE_POLISHED, LIMESTONE_POLISHED_SLAB, LIMESTONE_POLISHED_STAIRS));
+
 	// Upgrade blocks
 	public static final BlockDefinition<CoreMatrixBlock> IRON_CORE_MATRIX     = registerBlock("Iron Core Matrix", properties -> new CoreMatrixBlock(coreMatrixProfile(1.25D), properties));
 	public static final BlockDefinition<CoreMatrixBlock> STEEL_CORE_MATRIX    = registerBlock("Steel Core Matrix", properties -> new CoreMatrixBlock(coreMatrixProfile(2.0D), properties));
@@ -92,7 +106,7 @@ public class GenBlocks extends BlockRegistry {
 
 	// Machines
 	public static final BlockDefinition<ElectricFurnaceBlock> ELECTRIC_FURNACE = registerBlock("Electric Furnace", ElectricFurnaceBlock::new);
-	public static final BlockDefinition<StampingPressBlock>   STAMPING_PRESS   = registerBlock("Hammer", StampingPressBlock::new);
+	public static final BlockDefinition<StampingPressBlock>   STAMPING_PRESS   = registerBlock("Stamping Press", StampingPressBlock::new);
 	public static final BlockDefinition<HeatingElementBlock>  HEATING_ELEMENT  = registerBlock("Heating Element", HeatingElementBlock::new);
 
 	// Metal Blocks
@@ -102,6 +116,9 @@ public class GenBlocks extends BlockRegistry {
 
 	private static BlockDefinition<MetalBlock> registerMetalBlock (String materialName, Supplier<? extends IngotItem> ingot) {
 		return registerBlock("Block of " + materialName, properties -> new MetalBlock(properties, ingot));
+	}
+
+	public record BlockFamilyDefinition(BlockDefinition<? extends Block> base, BlockDefinition<? extends SlabBlock> slab, BlockDefinition<? extends StairBlock> stairs) {
 	}
 
 	private static MachineUpgradeProfile coreMatrixProfile (double multiplier) {

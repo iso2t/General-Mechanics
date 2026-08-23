@@ -5,6 +5,7 @@ import general.api.item.materials.*;
 import general.api.mod.GenAPI;
 import general.api.resources.Resource;
 import general.mechanics.client.color.ElementItemTintSource;
+import general.mechanics.common.item.StampingDieItem;
 import general.mechanics.registries.GenItems;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
@@ -49,6 +50,8 @@ public final class ItemModelProvider extends ModelProviders {
 				itemModels.generateFlatItem(registeredItem, ModelTemplates.FLAT_HANDHELD_ITEM);
 			} else if (registeredItem instanceof IngotItem ingot) {
 				registerPartModels(ingot, itemModels);
+			} else if (registeredItem instanceof StampingDieItem die) {
+				partModel(die, die.getShape().getTexture(), itemModels);
 			} else if (registeredItem instanceof RawItem || registeredItem instanceof NuggetItem || registeredItem instanceof DustItem || registeredItem instanceof PlateItem || registeredItem instanceof GearItem) {
 				// These are emitted with their parent ingot so each form can share a common model and texture.
 			} else itemModels.generateFlatItem(registeredItem, ModelTemplates.FLAT_HANDHELD_ITEM);
