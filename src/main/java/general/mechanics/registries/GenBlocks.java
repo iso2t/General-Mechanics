@@ -87,7 +87,7 @@ public class GenBlocks extends BlockRegistry {
 
 	// Machines
 	public static final BlockDefinition<ElectricFurnaceBlock> ELECTRIC_FURNACE = registerBlock("Electric Furnace", ElectricFurnaceBlock::new);
-	public static final BlockDefinition<HeatingElementBlock> HEATING_ELEMENT  = registerBlock("Heating Element", HeatingElementBlock::new);
+	public static final BlockDefinition<HeatingElementBlock>  HEATING_ELEMENT  = registerBlock("Heating Element", HeatingElementBlock::new);
 
 	private static String formatColorName (String colorName) {
 		String[] words = colorName.split("_");

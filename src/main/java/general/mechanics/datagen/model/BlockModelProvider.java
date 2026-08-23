@@ -261,20 +261,15 @@ public final class BlockModelProvider extends ModelProviders {
 	// Directional machines (model differs by a boolean state, oriented by FACING)
 	// ------------------------------------------------------------------------------------------------
 
-	private void heater(BlockDefinition<?> def) {
+	private void heater (BlockDefinition<?> def) {
 		var path = def.getId().getPath();
 		var on = Resource.get("block/ihe/" + path + "_on");
 		var off = Resource.get("block/ihe/" + path + "_off");
 
-		var onModel = ModelTemplates.CUBE_ALL.create(
-				Resource.get("block/machine/" + path + "/" + path + "_on"),
-				new TextureMapping().put(TextureSlot.ALL, mat(on)), generators.modelOutput);
-		var offModel = ModelTemplates.CUBE_ALL.create(
-				Resource.get("block/machine/" + path + "/" + path + "_off"),
-				new TextureMapping().put(TextureSlot.ALL, mat(off)), generators.modelOutput);
+		var onModel = ModelTemplates.CUBE_ALL.create(Resource.get("block/machine/" + path + "/" + path + "_on"), new TextureMapping().put(TextureSlot.ALL, mat(on)), generators.modelOutput);
+		var offModel = ModelTemplates.CUBE_ALL.create(Resource.get("block/machine/" + path + "/" + path + "_off"), new TextureMapping().put(TextureSlot.ALL, mat(off)), generators.modelOutput);
 
-		generators.blockStateOutput.accept(MultiVariantGenerator.dispatch(def.get())
-				.with(createBooleanModelDispatch(HeatingElementBlock.HEATING, plainVariant(onModel), plainVariant(offModel))));
+		generators.blockStateOutput.accept(MultiVariantGenerator.dispatch(def.get()).with(createBooleanModelDispatch(HeatingElementBlock.HEATING, plainVariant(onModel), plainVariant(offModel))));
 
 		generators.registerSimpleItemModel(def.get(), offModel);
 	}

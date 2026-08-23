@@ -14,6 +14,7 @@ import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 public class HeatingElementBlockEntity extends BaseBlockEntity implements IHeater {
 
 	public static void registerCapabilities (RegisterCapabilitiesEvent event, BlockEntityType<HeatingElementBlockEntity> type) {
+		// Doesn't have capabilities. Due to BE registration, this method must exist.
 	}
 
 	public HeatingElementBlockEntity (BlockEntityType<?> type, BlockPos pos, BlockState state) {

@@ -15,7 +15,10 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.InsideBlockEffectApplier;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.*;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -36,7 +39,7 @@ public class HeatingElementBlock extends BaseBlock implements EntityBlock, Block
 
 	private BlockEntityType<HeatingElementBlockEntity> blockEntityType;
 
-	public HeatingElementBlock(Properties properties) {
+	public HeatingElementBlock (Properties properties) {
 		super(properties.requiresCorrectToolForDrops().strength(5.0F, 6.0F).sound(SoundType.STONE));
 		registerDefaultState(defaultBlockState().setValue(HEATING, false));
 	}
@@ -73,8 +76,7 @@ public class HeatingElementBlock extends BaseBlock implements EntityBlock, Block
 	@Override
 	public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker (@NonNull Level level, @NonNull BlockState blockState, @NonNull BlockEntityType<T> type) {
 		return ((lvl, pos, state, t) -> {
-			if (t instanceof HeatingElementBlockEntity)
-				((HeatingElementBlockEntity) t).tick(lvl, pos, state);
+			if (t instanceof HeatingElementBlockEntity) ((HeatingElementBlockEntity) t).tick(lvl, pos, state);
 		});
 	}
 
@@ -92,7 +94,7 @@ public class HeatingElementBlock extends BaseBlock implements EntityBlock, Block
 	}
 
 	@Override
-	public void animateTick(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull RandomSource random) {
+	public void animateTick (@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull RandomSource random) {
 		if (!isHeating(state)) return;
 
 		double xPos = (double) pos.getX() + 0.5;
@@ -119,7 +121,7 @@ public class HeatingElementBlock extends BaseBlock implements EntityBlock, Block
 	}
 
 	@Override
-	protected void onPlace(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull BlockState oldState, boolean isMoving) {
+	protected void onPlace (@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull BlockState oldState, boolean isMoving) {
 		level.scheduleTick(pos, this, 20);
 	}
 
@@ -142,11 +144,11 @@ public class HeatingElementBlock extends BaseBlock implements EntityBlock, Block
 		return true;
 	}
 
-	protected BlockState blockAbove(Level level, BlockPos pos) {
+	protected BlockState blockAbove (Level level, BlockPos pos) {
 		return level.getBlockState(pos.above());
 	}
 
-	protected boolean isHeating(BlockState state) {
+	protected boolean isHeating (BlockState state) {
 		return state.is(this) && state.getValue(HEATING);
 	}
 
