@@ -351,7 +351,7 @@ public class ElectricFurnaceBlockEntity extends BaseBlockEntity implements Multi
 
 	@Override
 	public @NonNull Component getDisplayName () {
-		return Component.translatable(getBlockState().getBlock().getDescriptionId());
+		return !isMultiblockFormed() ? Component.translatable(getBlockState().getBlock().getDescriptionId()) : Component.translatable(getMultiblockDefinition().toString());
 	}
 
 	@Override

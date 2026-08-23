@@ -44,7 +44,7 @@ public class GenMultiblocks {
 					.itemExtract(CokeOvenController.RecipeSlots.OUTPUT).fluidExtract(CokeOvenController.RecipeSlots.CREOSOTE).network(NetworkServices.ITEM, NetworkServices.FLUID).build())
 			.build());
 
-	public static final MultiblockDefinition ELECTRIC_FURNACE = register("Electric Furnace", Multiblock.builder(MultiblockPattern.builder().whereHatchable('B', MultiblockElement.block(GenBlocks.MACHINE_FRAME)).where('C', MultiblockElement.block(GenBlocks.ELECTRIC_FURNACE)).whereUniform('U', CoreTags.Blocks.CORE_MATRICES, GenBlocks.IRON_CORE_MATRIX).where('I', MultiblockElement.block(GenBlocks.HEATING_ELEMENT)).whereHatchable('T', GenBlocks.MACHINE_CASING)
+	public static final MultiblockDefinition ELECTRIC_FURNACE = register("Electric Furnace Factory", Multiblock.builder(MultiblockPattern.builder().whereHatchable('B', MultiblockElement.block(GenBlocks.MACHINE_FRAME)).where('C', MultiblockElement.block(GenBlocks.ELECTRIC_FURNACE)).whereUniform('U', CoreTags.Blocks.CORE_MATRICES, GenBlocks.IRON_CORE_MATRIX).where('I', MultiblockElement.block(GenBlocks.HEATING_ELEMENT)).whereHatchable('T', GenBlocks.MACHINE_CASING)
 			.anchor('C')
 			.layer("BBB", "BBB", "BCB")
 			.layer("UUU", "UIU", "UUU")

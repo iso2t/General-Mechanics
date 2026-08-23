@@ -5,7 +5,7 @@ navigation:
     icon: item_input_hatch
     position: 10
 categories:
-- network
+- devices
 item_ids:
 - generalmechanics:item_input_hatch
 - generalmechanics:item_output_hatch
@@ -17,14 +17,24 @@ item_ids:
 
 # Hatches
 
-Hatches allow pipes, storage blocks, power systems, and machine networks to interact with a formed multiblock. A hatch
-does not contain its own inventory or tank; it provides controlled access to resources stored by its controller. The
-multiblock determines which hatch types it accepts, how many may be installed, and which slots, tanks, or services each
-hatch can access.
+## Approved Holes in Expensive Machinery
 
-Hatches only function while their multiblock is formed and operational. Each hatch belongs to exactly one controller, so
-placing one in a [shared wall](../multiblocks/multiblocks-index.md#shared-walls) invalidates any other multiblock that would
-also use it.
+During the first GenTech multiblock trials, researchers discovered that surrounding a machine with solid casing made it
+exceptionally secure and almost entirely unusable. The Infrastructure Access Division responded with **hatches**:
+controlled interfaces that allow pipes, storage blocks, power systems, and Machine Networks to interact with a formed
+multiblock.
+
+A hatch does not contain its own inventory or tank. It provides access to resources stored by its controller. Each
+multiblock decides which hatch types it accepts, how many may be installed, and which slots, tanks, or services they may
+access. GenTech calls this “delegated responsibility.” The controller calls it Tuesday.
+
+Hatches function only while their multiblock is formed and operational. Each hatch belongs to exactly one controller, so
+do not install one in a [shared wall](../multiblocks/multiblocks-index.md#shared-walls). Any other multiblock attempting to
+use the same hatch will become invalid, initiating the traditional engineering process of removing blocks until everything
+works again.
+
+> **GENTECH ACCESS NOTICE:** One hatch. One controller. Multiple controllers may submit a formal ownership dispute by
+> refusing to operate.
 
 ## Item Input Hatch
 
@@ -34,8 +44,9 @@ also use it.
     </GameScene>
 </Column>
 
-The Item Input Hatch allows external item automation to insert items into the controller slots assigned to it by the
-multiblock. It does not allow those items to be extracted through the same hatch.
+The Item Input Hatch is the multiblock's designated receiving department. External item automation may insert items into
+the controller slots assigned to this hatch. Extraction is not supported; once an item enters Receiving, it is no longer
+Receiving's problem.
 
 ## Item Output Hatch
 
@@ -45,8 +56,8 @@ multiblock. It does not allow those items to be extracted through the same hatch
     </GameScene>
 </Column>
 
-The Item Output Hatch allows external item automation to extract items from the controller slots assigned to it by the
-multiblock. It does not accept items through the same hatch.
+The Item Output Hatch allows external item automation to extract items from the controller slots assigned to it. It does
+not accept incoming items. Please direct all unsolicited materials, packages, and personal effects to Item Input.
 
 ## Fluid Input Hatch
 
@@ -57,7 +68,7 @@ multiblock. It does not accept items through the same hatch.
 </Column>
 
 The Fluid Input Hatch allows external fluid automation to fill the controller tanks assigned to it by the multiblock. It
-does not allow fluid to be drained through the same hatch.
+does not permit fluid extraction, ensuring all approved liquids continue moving in the approved direction.
 
 ## Fluid Output Hatch
 
@@ -67,8 +78,8 @@ does not allow fluid to be drained through the same hatch.
     </GameScene>
 </Column>
 
-The Fluid Output Hatch allows external fluid automation to drain fluid from the controller tanks assigned to it by the
-multiblock. It does not accept fluid through the same hatch.
+The Fluid Output Hatch allows external fluid automation to drain the controller tanks assigned to it. It does not accept
+incoming fluids, even if the fluid has an appointment.
 
 ## Power Hatch
 
@@ -78,8 +89,9 @@ multiblock. It does not accept fluid through the same hatch.
     </GameScene>
 </Column>
 
-The Power Hatch connects external energy systems to a multiblock's energy storage. Depending on the multiblock, a Power
-Hatch may accept energy, provide energy, or support both directions.
+The Power Hatch connects external energy systems to a multiblock's energy storage. Depending on the multiblock, it may
+accept energy, provide energy, or support both directions. Consult the machine's approved operating procedure before
+assuming electricity will travel in whichever direction is currently most convenient.
 
 ## Network Hatch
 
@@ -89,6 +101,8 @@ Hatch may accept energy, provide energy, or support both directions.
     </GameScene>
 </Column>
 
-The Network Hatch connects a multiblock directly to the General Mechanics Machine Network. It can expose the item, fluid,
-energy, or other network services assigned by the multiblock without requiring a separate Network Connector. Only the
-services explicitly supported by that multiblock are available through the hatch.
+The Network Hatch connects a multiblock directly to the General Mechanics Machine Network without requiring a separate
+Network Connector. It may expose item, fluid, energy, or other services assigned by the multiblock. Installing a Network
+Hatch does not grant the machine new capabilities; only services explicitly supported by that multiblock are available.
+
+This limitation is intentional and must not be described as a missed opportunity in quarterly infrastructure reviews.

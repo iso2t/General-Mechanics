@@ -3,11 +3,17 @@ package general.mechanics.common.block.misc;
 import general.api.block.BaseBlock;
 import general.api.block.BlockEntityTypeOwner;
 import general.api.block.IWrenchable;
+import general.api.crafting.RecipeDataProvider;
+import general.api.crafting.RecipeGenerationContext;
 import general.mechanics.common.block.entity.HeatingElementBlockEntity;
 import general.mechanics.datagen.data.GenDamageTypes;
+import general.mechanics.registries.GenBlocks;
+import general.mechanics.registries.GenItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.data.recipes.RecipeCategory;
+import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -16,10 +22,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.InsideBlockEffectApplier;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.ScheduledTickAccess;
+import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -34,7 +37,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-public class HeatingElementBlock extends BaseBlock implements EntityBlock, BlockEntityTypeOwner<HeatingElementBlockEntity>, IWrenchable {
+public class HeatingElementBlock extends BaseBlock implements EntityBlock, BlockEntityTypeOwner<HeatingElementBlockEntity>, IWrenchable, RecipeDataProvider {
 
 	public static final BooleanProperty HEATING = BooleanProperty.create("heating");
 
@@ -153,4 +156,20 @@ public class HeatingElementBlock extends BaseBlock implements EntityBlock, Block
 		return state.is(this) && state.getValue(HEATING);
 	}
 
+	@Override
+	public void generateRecipes (RecipeGenerationContext context) {
+		context.save(ShapedRecipeBuilder.shaped(context.items(), RecipeCategory.MISC, this, 1)
+				.pattern("SSS")
+				.pattern("BEB")
+				.pattern("SSS")
+				.define('E', GenBlocks.ENCASED_LAVA.get())
+				.define('S', GenItems.STEEL.get().getPlateItem())
+				.define('B', GenItems.STEEL),
+				"heating_element");
+	}
+
+	@Override
+	public ItemLike getRecipeUnlockItem () {
+		return GenBlocks.ENCASED_LAVA;
+	}
 }

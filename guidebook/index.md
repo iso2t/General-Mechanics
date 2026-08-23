@@ -4,19 +4,34 @@ navigation:
     position: 10
 ---
 
-![Logo](assets/logo.png)
+# GenTech, Inc.
 
-# What is General Mechanics?
+## Congratulations, Prospective Success Asset!
 
-# What is General Mechanics?
-General Mechanics is the basis for the General Series of mods, which add new and challenging machines, mechanics, and
-features to Minecraft. Each mod adds its own unique mechanics and features, from projectiles and nukes (General Ballistics)
-to arboriculture (General Synthesis).
+GenTech is pleased to announce that you have been assigned to prosper in this exciting new world. Your appointment was
+determined by a rigorous selection process involving initiative, adaptability, and being the nearest available person.
 
-From early game processing, to large scale multiblock factories, General Mechanics 
+General Mechanics is the foundation of the General Series: a growing collection of advanced machines, industrial systems,
+and entirely manageable hazards designed to convert natural resources into measurable progress. From your first processing
+line to a large-scale multiblock factory, GenTech provides the equipment. You provide the labor, floor space, power,
+maintenance, and any replacement flooring.
 
-* [Getting Started](getting-started.md)
-* [Tips and Tricks](tips-and-tricks.md)
-* [AE2 Mechanics](ae2-mechanics/ae2-mechanics-index.md)
-* [Example Setups](example-setups/example-setups-index.md)
-* [Blocks](blocks/blocks-index.md)
+Additional General Series divisions offer specialized opportunities, including projectiles and nuclear technology through
+General Ballistics, and arboriculture through General Synthesis. Whatever this world demands, a GenTech department is
+prepared to turn it into a procedure.
+
+> **GENTECH PROSPERITY NOTICE:** Success is strongly encouraged. Unexpected outcomes will be reclassified as valuable
+> research data.
+
+## Mandatory Orientation Materials
+
+Please review the following approved resources before operating company equipment, approaching company equipment, or
+thinking confidently near company equipment:
+
+* [Getting Started](getting-started.md) — Begin your approved transition from survivor to industrial asset.
+* [Tips and Tricks](tips-and-tricks.md) — Benefit from lessons learned during previous, fully documented outcomes.
+* [AE2 Mechanics](ae2-mechanics/ae2-mechanics-index.md) — Integrate Applied Energistics 2 with GenTech-certified efficiency.
+* [Example Setups](example-setups/example-setups-index.md) — Observe arrangements that have already passed basic reality checks.
+* [Blocks](blocks/blocks-index.md) — Review the equipment you are now trusted to operate responsibly.
+
+Thank you for choosing GenTech. Your cooperation has already been recorded.
