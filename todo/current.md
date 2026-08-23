@@ -1,0 +1,7 @@
+- [ ] Introduce electric furnace multiblock (factory)
+- [ ] Add fluid transposer (?) for filling fluid blocks / buckets
+- [ ] Add fluid pump
+- [ ] Add fluid tank
+- [ ] Add sawmill for increasing plank output from normal logs, with chance to output sawdust.
+- [ ] Add pressing machine for making plates
+- [ ] Fix encased block overlay texture as it is ugly.

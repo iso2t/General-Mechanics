@@ -5,12 +5,14 @@ import general.api.block.util.ILitProvider;
 import general.api.capabilities.GeneralCapabilities;
 import general.api.crafting.MachineEnergyWorkRequirement;
 import general.api.crafting.MachineRecipeProcessor;
+import general.api.definitions.MultiblockDefinition;
 import general.api.machine.config.MachineFace;
 import general.api.machine.config.MachineSideConfiguration;
 import general.api.machine.config.MachineSideConfigurationDefinition;
 import general.api.machine.config.MachineSideMode;
 import general.api.machine.power.MachinePowerProfile;
 import general.api.model.ConfigurableMachineModelData;
+import general.api.multiblock.MultiblockController;
 import general.api.network.INetworkInterface;
 import general.api.network.NetworkNode;
 import general.api.network.NetworkServices;
@@ -23,6 +25,7 @@ import general.api.transfer.item.SidedItemResourceProvider;
 import general.mechanics.common.block.machine.ElectricFurnaceBlock;
 import general.mechanics.common.menus.ElectricFurnaceMenu;
 import general.mechanics.common.network.NetworkConnectorServices;
+import general.mechanics.registries.GenMultiblocks;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -58,7 +61,7 @@ import org.jspecify.annotations.Nullable;
  * Persistent storage and dynamically configured external services for the
  * standalone Electric Furnace.
  */
-public class ElectricFurnaceBlockEntity extends BaseBlockEntity implements SidedItemResourceProvider, SidedEnergyResourceProvider, INetworkInterface, MenuProvider {
+public class ElectricFurnaceBlockEntity extends BaseBlockEntity implements MultiblockController, SidedItemResourceProvider, SidedEnergyResourceProvider, INetworkInterface, MenuProvider {
 
 	private static final String ITEMS_TAG              = "items";
 	private static final String ITEM_LOCK_TAG          = "item_lock";
@@ -364,5 +367,30 @@ public class ElectricFurnaceBlockEntity extends BaseBlockEntity implements Sided
 	private void registerNetworkServices () {
 		networkNode.getServices().register(NetworkServices.ITEM, NetworkConnectorServices.itemService(() -> networkItems));
 		networkNode.getServices().register(NetworkServices.ENERGY, NetworkConnectorServices.energyService(() -> networkEnergyInput));
+	}
+
+	@Override
+	public MultiblockDefinition getMultiblockDefinition () {
+		return GenMultiblocks.ELECTRIC_FURNACE;
+	}
+
+	@Override
+	public BlockPos getMultiblockPosition () {
+		return getBlockPos();
+	}
+
+	@Override
+	public Direction getMultiblockFacing () {
+		return getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING).getOpposite();
+	}
+
+	@Override
+	public boolean isMultiblockFormed () {
+		return false;
+	}
+
+	@Override
+	public void setMultiblockFormed (boolean formed) {
+
 	}
 }

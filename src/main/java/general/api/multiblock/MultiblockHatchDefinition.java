@@ -46,6 +46,10 @@ public record MultiblockHatchDefinition(HatchKey key, MultiblockHatchMatcher mat
 			this.matcher = Objects.requireNonNull(matcher, "matcher");
 		}
 
+		public Builder count (int count) {
+			return count(HatchCount.atMost(count));
+		}
+
 		public Builder count (HatchCount count) {
 			this.count = Objects.requireNonNull(count, "count");
 			return this;

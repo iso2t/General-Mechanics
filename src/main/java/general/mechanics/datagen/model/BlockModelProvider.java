@@ -16,6 +16,7 @@ import general.api.rotation.BlockRotationStrategy;
 import general.api.rotation.IRotatableBlock;
 import general.mechanics.client.model.CableModelLoader;
 import general.mechanics.client.model.ConfigurableMachineModelLoader;
+import general.mechanics.common.block.misc.EncasedFluidBlock;
 import general.mechanics.common.block.misc.HeatingElementBlock;
 import general.mechanics.common.block.misc.RubberWood;
 import general.mechanics.registries.GenBlocks;
@@ -24,6 +25,7 @@ import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.MultiVariant;
 import net.minecraft.client.data.models.blockstates.*;
+import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.data.models.model.TextureSlot;
@@ -42,6 +44,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.client.model.generators.template.ExtendedModelTemplateBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
@@ -56,11 +59,12 @@ public final class BlockModelProvider extends ModelProviders {
 	public static final Identifier MACHINE_TOP    = Resource.get("block/machine/machine_top");
 	public static final Identifier MACHINE_SIDE   = Resource.get("block/machine/machine_side");
 
-	// Custom texture slots used by the layered ore models and machine-frame overlay models.
+	// Custom texture slots used by layered encased-fluid, ore, and machine-frame models.
 	private static final TextureSlot BASE    = TextureSlot.create("base");
 	private static final TextureSlot OVERLAY = TextureSlot.create("overlay");
 	// Resin-spot face texture for a full rubber log.
-	private static final TextureSlot RESIN   = TextureSlot.create("resin");
+	private static final TextureSlot RESIN               = TextureSlot.create("resin");
+	private static final int         DEFAULT_WATER_COLOR = 0xFF3F76E4;
 
 	private BlockModelGenerators generators;
 
@@ -83,7 +87,9 @@ public final class BlockModelProvider extends ModelProviders {
 		this.generators = blockModels;
 
 		for (var block : GenBlocks.INSTANCE.getBlocks()) {
-			if (block.get() instanceof DecorativeBlock || block.get() instanceof IBasicModel) {
+			if (block.get() instanceof EncasedFluidBlock encasedFluid) {
+				registerEncasedFluid(block, encasedFluid);
+			} else if (block.get() instanceof DecorativeBlock || block.get() instanceof IBasicModel) {
 				blockWithItem(block);
 			} else if (block.get() instanceof IConfigurableMachineModel machine) {
 				registerConfigurableMachine(block, machine);
@@ -112,6 +118,41 @@ public final class BlockModelProvider extends ModelProviders {
 		rubberLogWithResin(GenBlocks.RUBBER_LOG.get(), "rubber_log", Resource.get("block/rubber_log_top"));
 		rubberLogWithResin(GenBlocks.RUBBER_WOOD.get(), "rubber_wood", Resource.get("block/rubber_log"));
 		blockModels.woodProvider(GenBlocks.STRIPPED_RUBBER_LOG.get()).logWithHorizontal(GenBlocks.STRIPPED_RUBBER_LOG.get()).wood(GenBlocks.STRIPPED_RUBBER_WOOD.get());
+	}
+
+	private void registerEncasedFluid (BlockDefinition<?> definition, EncasedFluidBlock encasedFluid) {
+		var fluid = encasedFluid.getFluid();
+		var isWater = fluid.isSame(Fluids.WATER);
+		var isLava = fluid.isSame(Fluids.LAVA);
+		if (!isWater && !isLava) {
+			throw new IllegalStateException("No encased-fluid model texture is defined for " + BuiltInRegistries.FLUID.getKey(fluid));
+		}
+
+		var casing = mat(Resource.get("block/encased_fluid_block"));
+		var blockModel = ModelTemplates.CUBE_ALL.create(definition.get(), TextureMapping.cube(casing), generators.modelOutput);
+		registerBlockState(definition, blockModel);
+
+		var stillTexture = Resource.getMinecraftResource(isWater ? "block/water_still" : "block/lava_still");
+		var fluidMaterial = mat(stillTexture).withForceTranslucent(isWater);
+		var itemModel = ExtendedModelTemplateBuilder.builder()
+				.parent(Resource.getMinecraftResource("block/block"))
+				.requiredTextureSlot(BASE)
+				.requiredTextureSlot(OVERLAY)
+				.requiredTextureSlot(TextureSlot.PARTICLE)
+				.element(element -> element.from(0.01F, 0.01F, 0.01F).to(15.99F, 15.99F, 15.99F).allFaces((_, face) -> {
+					face.texture(BASE).uvs(0, 0, 16, 16);
+					if (isWater) face.tintindex(0);
+					if (isLava) face.lightEmission(15);
+				}))
+				.element(element -> element.from(0, 0, 0).to(16, 16, 16).textureAll(OVERLAY))
+				.build()
+				.create(Resource.get("block/" + definition.getId().getPath() + "_item"), new TextureMapping().put(BASE, fluidMaterial).put(OVERLAY, casing).put(TextureSlot.PARTICLE, casing), generators.modelOutput);
+
+		if (isWater) {
+			generators.itemModelOutput.accept(definition.get().asItem(), ItemModelUtils.tintedModel(itemModel, ItemModelUtils.constantTint(DEFAULT_WATER_COLOR)));
+		} else {
+			generators.itemModelOutput.accept(definition.get().asItem(), ItemModelUtils.plainModel(itemModel));
+		}
 	}
 
 	private void registerFluid (FluidDefinition definition) {

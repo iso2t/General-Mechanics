@@ -114,7 +114,7 @@ public class HeatingElementBlock extends BaseBlock implements EntityBlock, Block
 		}
 
 		if (random.nextDouble() < 0.1) {
-			level.playLocalSound(xPos, yPos, zPos, SoundEvents.FURNACE_FIRE_CRACKLE, SoundSource.BLOCKS, 1.0F, 1.0F, false);
+			level.playLocalSound(xPos, yPos, zPos, SoundEvents.FURNACE_FIRE_CRACKLE, SoundSource.BLOCKS, 1.0F, 1.0F, true);
 		}
 
 		super.animateTick(state, level, pos, random);

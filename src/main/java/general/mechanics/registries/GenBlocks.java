@@ -17,6 +17,7 @@ import general.mechanics.common.block.hatch.IOPowerHatch;
 import general.mechanics.common.block.machine.CokeOvenController;
 import general.mechanics.common.block.machine.ElectricFurnaceBlock;
 import general.mechanics.common.block.machine.MachineFrameBlock;
+import general.mechanics.common.block.misc.EncasedFluidBlock;
 import general.mechanics.common.block.misc.HeatingElementBlock;
 import general.mechanics.common.block.misc.RubberWood;
 import general.mechanics.common.block.network.NetworkConnectorBlock;
@@ -28,6 +29,7 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -58,7 +60,9 @@ public class GenBlocks extends BlockRegistry {
 	public static final BlockDefinition<IOFluidHatch>              FLUID_INPUT_HATCH     = registerBlock("Fluid Input Hatch", properties -> new IOFluidHatch(properties, IOBlock.IOMode.INPUT));
 	public static final BlockDefinition<IOFluidHatch>              FLUID_OUTPUT_HATCH    = registerBlock("Fluid Output Hatch", properties -> new IOFluidHatch(properties, IOBlock.IOMode.OUTPUT));
 	public static final BlockDefinition<IOPowerHatch>              POWER_HATCH           = registerBlock("Power Hatch", IOPowerHatch::new);
-	public static final BlockDefinition<IONetworkHatch>            NETWORK_HATCH         = registerBlock("Network Hatch", IONetworkHatch::new);
+	public static final BlockDefinition<IONetworkHatch>    NETWORK_HATCH = registerBlock("Network Hatch", IONetworkHatch::new);
+	public static final BlockDefinition<EncasedFluidBlock> ENCASED_WATER = registerBlock("Encased Water", properties -> new EncasedFluidBlock(properties, Fluids.WATER));
+	public static final BlockDefinition<EncasedFluidBlock> ENCASED_LAVA  = registerBlock("Encased Lava", properties -> new EncasedFluidBlock(properties, Fluids.LAVA));
 
 	// Upgrade blocks
 	public static final BlockDefinition<DecorativeBlock> IRON_CORE_MATRIX     = registerBlock("Iron Core Matrix", DecorativeBlock::new);

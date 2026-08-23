@@ -68,6 +68,10 @@ public final class MultiblockPattern {
 			return this;
 		}
 
+		public Builder where (char symbol, Block block) {
+			return where(symbol, MultiblockElement.block(block));
+		}
+
 		public Builder whereHatchable (char symbol, MultiblockElement casing) {
 			return where(symbol, MultiblockElement.hatchable(casing));
 		}
