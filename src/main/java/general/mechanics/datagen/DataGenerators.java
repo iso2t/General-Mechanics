@@ -1,6 +1,7 @@
 package general.mechanics.datagen;
 
 import general.mechanics.Mechanics;
+import general.mechanics.datagen.data.DatapackProvider;
 import general.mechanics.datagen.data.SoundProvider;
 import general.mechanics.datagen.lang.GenMechEnLangProvider;
 import general.mechanics.datagen.loot.GenLootTableProvider;
@@ -10,7 +11,6 @@ import general.mechanics.datagen.recipe.GenRecipeProvider;
 import general.mechanics.datagen.tags.GenBlockTagGenerator;
 import general.mechanics.datagen.tags.GenFluidTagGenerator;
 import general.mechanics.datagen.tags.GenItemTagGenerator;
-import general.mechanics.datagen.world.WorldGenProvider;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
@@ -34,8 +34,9 @@ public class DataGenerators {
 		var localization = new GenMechEnLangProvider(generator);
 		var packOutput = generator.getPackOutput();
 
-		// World Gen
-		pack.addProvider(output -> new WorldGenProvider(output, registries));
+		// Data Pack
+		// Damage Types / World Gen
+		pack.addProvider(output -> new DatapackProvider(output, registries));
 
 		// Sounds
 		pack.addProvider(SoundProvider::new);

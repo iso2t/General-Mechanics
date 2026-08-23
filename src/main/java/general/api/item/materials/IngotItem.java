@@ -34,9 +34,13 @@ public class IngotItem extends Item implements RecipeDataProvider {
 	@Setter
 	private GearItem gearItem;
 
-	public IngotItem (Properties properties) {
+	@Getter
+	private final int color;
+
+	public IngotItem (Properties properties, int color) {
 		super(properties);
 		this.properties = properties;
+		this.color = color;
 	}
 
 	@Override
@@ -106,4 +110,5 @@ public class IngotItem extends Item implements RecipeDataProvider {
 		// Fall back to the always-present ingot when this material has no pile form.
 		return getRawItem() != null ? this::getRawItem : this;
 	}
+
 }

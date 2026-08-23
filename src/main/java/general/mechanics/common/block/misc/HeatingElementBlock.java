@@ -4,6 +4,7 @@ import general.api.block.BaseBlock;
 import general.api.block.BlockEntityTypeOwner;
 import general.api.block.IWrenchable;
 import general.mechanics.common.block.entity.HeatingElementBlockEntity;
+import general.mechanics.datagen.data.GenDamageTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -85,7 +86,7 @@ public class HeatingElementBlock extends BaseBlock implements EntityBlock, Block
 		if (!(entity instanceof LivingEntity)) return;
 
 		if (!isHeating(state)) return;
-		entity.hurtServer((ServerLevel) level, level.damageSources().campfire(), 1.0F);
+		if (!level.isClientSide() && level instanceof ServerLevel server) entity.hurtServer(server, GenDamageTypes.create(server, GenDamageTypes.HEATING_ELEMENT), 2F);
 	}
 
 	@Override

@@ -11,6 +11,7 @@ public class ClientColors {
 
 	public static void registerItemColors (RegisterColorHandlersEvent.ItemTintSources event) {
 		event.register(Resource.getMainMod("fluid_tint"), FluidItemTintSource.CODEC);
+		event.register(Resource.getMainMod("element_tint"), ElementItemTintSource.CODEC);
 	}
 
 	public static void registerBlockColors (RegisterColorHandlersEvent.BlockTintSources event) {

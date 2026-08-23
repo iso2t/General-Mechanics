@@ -1,12 +1,19 @@
 package general.mechanics.datagen.model;
 
 import general.api.item.ToolItem;
+import general.api.item.materials.DustItem;
+import general.api.item.materials.GearItem;
 import general.api.item.materials.IngotItem;
+import general.api.item.materials.NuggetItem;
+import general.api.item.materials.PlateItem;
+import general.api.item.materials.RawItem;
 import general.api.mod.GenAPI;
 import general.api.resources.Resource;
+import general.mechanics.client.color.ElementItemTintSource;
 import general.mechanics.registries.GenItems;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
+import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.resources.model.sprite.Material;
@@ -40,11 +47,16 @@ public final class ItemModelProvider extends ModelProviders {
 	@Override
 	protected void registerModels (@NonNull BlockModelGenerators blockModels, @NonNull ItemModelGenerators itemModels) {
 		for (var item : GenItems.INSTANCE.getItems()) {
-			if (item.get() instanceof BucketItem bucket) {
+			var registeredItem = item.get();
+			if (registeredItem instanceof BucketItem bucket) {
 				registerFluidBucket(bucket, itemModels);
-			} else if (item.get() instanceof ToolItem) {
-				itemModels.generateFlatItem(item.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
-			} else itemModels.generateFlatItem(item.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
+			} else if (registeredItem instanceof ToolItem) {
+				itemModels.generateFlatItem(registeredItem, ModelTemplates.FLAT_HANDHELD_ITEM);
+			} else if (registeredItem instanceof IngotItem ingot) {
+				registerPartModels(ingot, itemModels);
+			} else if (registeredItem instanceof RawItem || registeredItem instanceof NuggetItem || registeredItem instanceof DustItem || registeredItem instanceof PlateItem || registeredItem instanceof GearItem) {
+				// These are emitted with their parent ingot so each form can share a common model and texture.
+			} else itemModels.generateFlatItem(registeredItem, ModelTemplates.FLAT_HANDHELD_ITEM);
 		}
 	}
 
@@ -68,6 +80,7 @@ public final class ItemModelProvider extends ModelProviders {
 		if (createdElementModels.add(model)) {
 			ModelTemplates.FLAT_ITEM.create(model, TextureMapping.layer0(new Material(model)), items.modelOutput);
 		}
+		items.itemModelOutput.accept(item, ItemModelUtils.tintedModel(model, ElementItemTintSource.INSTANCE));
 	}
 
 	@Override

@@ -1,13 +1,16 @@
 package general.mechanics.registries;
 
+import com.google.common.base.Preconditions;
 import general.api.crafting.RecipeGenerationContext;
 import general.api.definitions.ItemDefinition;
 import general.api.item.PartItem;
 import general.api.item.RecipeProviderItem;
+import general.api.item.materials.*;
 import general.api.mod.GenAPI;
 import general.api.registry.RegistryString;
 import general.api.registry.item.ItemRegistry;
 import general.api.resources.Resource;
+import general.mechanics.Mechanics;
 import general.mechanics.common.item.NetworkDebuggerItem;
 import general.mechanics.item.WireSpoolItem;
 import general.mechanics.item.tools.SawItem;
@@ -15,6 +18,7 @@ import general.mechanics.item.tools.WireCuttersItem;
 import general.mechanics.item.tools.WrenchItem;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -48,6 +52,11 @@ public class GenItems extends ItemRegistry {
 	public static final ItemDefinition<WireCuttersItem>     WIRE_CUTTERS = registerItem("Wire Cutters", WireCuttersItem::new);
 	public static final ItemDefinition<SawItem>             SAW          = registerItem("Saw", SawItem::new);
 	public static final ItemDefinition<NetworkDebuggerItem> GUIDE        = registerItem("Service Terminal", "guide", NetworkDebuggerItem::new);
+
+	// Ingots
+	public static final ItemDefinition<IngotItem> STEEL    = Ingot.registerIngot("Steel", 0xFF71797E);
+	public static final ItemDefinition<IngotItem> TITANIUM = Ingot.registerIngot("Titanium", 0xFF5B798E);
+	public static final ItemDefinition<IngotItem> TUNGSTEN = Ingot.registerIngot("Tungsten", 0xFFB5AC9F);
 
 	// Misc
 	public static final ItemDefinition<Item>               TREE_SAP         = registerItem("Tree Sap", Item::new);
@@ -128,4 +137,88 @@ public class GenItems extends ItemRegistry {
 	public void buildDisplayItems (CreativeModeTab.ItemDisplayParameters parameters, CreativeModeTab.Output output) {
 		for (var item : getItems()) output.accept(item);
 	}
+
+	private static class Ingot {
+
+		private static ItemDefinition<IngotItem> registerIngot (final String name, int color) {
+			return ingot(name + " Ingot", properties -> new IngotItem(properties, color));
+		}
+
+		static <T extends IngotItem> ItemDefinition<T> ingot (String name, Function<Item.Properties, T> factory) {
+			// Create the main element item
+			ItemDefinition<T> elementDef = registerItem(name, factory);
+
+			// Register the raw item
+			String rawName = "Raw " + name.replace(" Ingot", "");
+			String rawResourceName = name.toLowerCase().replace(' ', '_').replace("_ingot", "_raw");
+			itemElementRaw(rawName, rawResourceName, properties -> new RawItem(elementDef.get(), properties));
+
+			// Register the nugget item
+			String nuggetName = name.replace(" Ingot", " Nugget");
+			String nuggetResourceName = name.toLowerCase().replace(' ', '_').replace("_ingot", "_nugget");
+			itemElementNugget(nuggetName, nuggetResourceName, properties -> new NuggetItem(elementDef.get(), properties));
+
+			// Register the dust item
+			String dustName = name.replace(" Ingot", " Dust");
+			String dustResourceName = name.toLowerCase().replace(' ', '_').replace("_ingot", "_dust");
+			itemDust(dustName, dustResourceName, properties -> new DustItem(elementDef.get(), properties));
+
+			// Register the plate item
+			String plateName = name.replace(" Ingot", " Plate");
+			String plateResourceName = name.toLowerCase().replace(' ', '_').replace("_ingot", "_plate");
+			itemPlate(plateName, plateResourceName, properties -> new PlateItem(elementDef.get(), properties));
+
+			return elementDef;
+		}
+
+		static ItemDefinition<DustItem> itemDust (String name, String resourceName, Function<Item.Properties, DustItem> factory) {
+			return itemDust(name, Resource.getMainMod(resourceName), factory);
+		}
+
+		static ItemDefinition<DustItem> itemDust (String name, Identifier id, Function<Item.Properties, DustItem> factory) {
+			Preconditions.checkArgument(id.getNamespace().equals(Mechanics.MOD_ID), "Can only register items in " + Mechanics.MOD_ID);
+			var definition = new ItemDefinition<>(name, REGISTRY.registerItem(id.getPath(), factory));
+
+			ITEMS.add(definition);
+			return definition;
+		}
+
+		static ItemDefinition<PlateItem> itemPlate (String name, String resourceName, Function<Item.Properties, PlateItem> factory) {
+			return itemPlate(name, Resource.getMainMod(resourceName), factory);
+		}
+
+		static ItemDefinition<PlateItem> itemPlate (String name, Identifier id, Function<Item.Properties, PlateItem> factory) {
+			Preconditions.checkArgument(id.getNamespace().equals(Mechanics.MOD_ID), "Can only register items in " + Mechanics.MOD_ID);
+			var definition = new ItemDefinition<>(name, REGISTRY.registerItem(id.getPath(), factory));
+
+			ITEMS.add(definition);
+			return definition;
+		}
+
+		static ItemDefinition<RawItem> itemElementRaw (String name, String resourceName, Function<Item.Properties, RawItem> factory) {
+			return itemElementRaw(name, Resource.getMainMod(resourceName), factory);
+		}
+
+		static ItemDefinition<RawItem> itemElementRaw (String name, Identifier id, Function<Item.Properties, RawItem> factory) {
+			Preconditions.checkArgument(id.getNamespace().equals(Mechanics.MOD_ID), "Can only register items in " + Mechanics.MOD_ID);
+			var definition = new ItemDefinition<>(name, REGISTRY.registerItem(id.getPath(), factory));
+
+			ITEMS.add(definition);
+			return definition;
+		}
+
+		static ItemDefinition<NuggetItem> itemElementNugget (String name, String resourceName, Function<Item.Properties, NuggetItem> factory) {
+			return itemElementNugget(name, Resource.getMainMod(resourceName), factory);
+		}
+
+		static ItemDefinition<NuggetItem> itemElementNugget (String name, Identifier id, Function<Item.Properties, NuggetItem> factory) {
+			Preconditions.checkArgument(id.getNamespace().equals(Mechanics.MOD_ID), "Can only register items in " + Mechanics.MOD_ID);
+			var definition = new ItemDefinition<>(name, REGISTRY.registerItem(id.getPath(), factory));
+
+			ITEMS.add(definition);
+			return definition;
+		}
+
+	}
+
 }

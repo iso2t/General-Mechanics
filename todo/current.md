@@ -2,6 +2,7 @@
 - [ ] Add fluid transposer (?) for filling fluid blocks / buckets
 - [ ] Add fluid pump
 - [ ] Add fluid tank
-- [ ] Add sawmill for increasing plank output from normal logs, with chance to output sawdust.
-- [ ] Add pressing machine for making plates
+- [ ] Add sawmill + factory for increasing plank output from normal logs, with chance to output sawdust.
+- [ ] Add electric press + factory for making plates
 - [ ] Fix encased block overlay texture as it is ugly.
+- [ ] Add macerator + factory for dusts 
