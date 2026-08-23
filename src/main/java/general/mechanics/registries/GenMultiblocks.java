@@ -5,8 +5,8 @@ import general.api.mod.GenAPI;
 import general.api.multiblock.*;
 import general.api.network.NetworkServices;
 import general.api.registry.GenRegistries;
+import general.api.tag.CoreTags;
 import general.api.transfer.ResourceIoMode;
-import general.mechanics.common.block.entity.ElectricFurnaceBlockEntity;
 import general.mechanics.common.block.machine.CokeOvenController;
 import general.mechanics.common.block.machine.ElectricFurnaceBlock;
 import net.minecraft.core.Registry;
@@ -44,7 +44,7 @@ public class GenMultiblocks {
 					.itemExtract(CokeOvenController.RecipeSlots.OUTPUT).fluidExtract(CokeOvenController.RecipeSlots.CREOSOTE).network(NetworkServices.ITEM, NetworkServices.FLUID).build())
 			.build());
 
-	public static final MultiblockDefinition ELECTRIC_FURNACE = register("Electric Furnace", Multiblock.builder(MultiblockPattern.builder().whereHatchable('B', MultiblockElement.block(GenBlocks.MACHINE_FRAME)).where('C', GenBlocks.ELECTRIC_FURNACE.get()).where('U', GenBlocks.IRON_CORE_MATRIX.get()).where('I', GenBlocks.HEATING_ELEMENT.get()).whereHatchable('T', GenBlocks.MACHINE_CASING.get())
+	public static final MultiblockDefinition ELECTRIC_FURNACE = register("Electric Furnace", Multiblock.builder(MultiblockPattern.builder().whereHatchable('B', MultiblockElement.block(GenBlocks.MACHINE_FRAME)).where('C', MultiblockElement.block(GenBlocks.ELECTRIC_FURNACE)).whereUniform('U', CoreTags.Blocks.CORE_MATRICES, GenBlocks.IRON_CORE_MATRIX).where('I', MultiblockElement.block(GenBlocks.HEATING_ELEMENT)).whereHatchable('T', GenBlocks.MACHINE_CASING)
 			.anchor('C')
 			.layer("BBB", "BBB", "BCB")
 			.layer("UUU", "UIU", "UUU")
@@ -52,8 +52,7 @@ public class GenMultiblocks {
 			.layer("UUU", "UIU", "UUU")
 			.layer("TTT", "TTT", "TTT")
 			.build())
-			.hatch(MultiblockHatchDefinition.builder("item_input", GenBlocks.ITEM_INPUT_HATCH).count(1).itemInsert(ElectricFurnaceBlock.RecipeSlots.INPUT).build())
-			.hatch(MultiblockHatchDefinition.builder("catalyst", GenBlocks.ITEM_INPUT_HATCH).count(1).itemInsert(ElectricFurnaceBlock.RecipeSlots.CATALYST).build())
+			.hatch(MultiblockHatchDefinition.builder("item_input", GenBlocks.ITEM_INPUT_HATCH).count(1).itemInsert(ElectricFurnaceBlock.RecipeSlots.INPUT, ElectricFurnaceBlock.RecipeSlots.CATALYST).build())
 			.hatch(MultiblockHatchDefinition.builder("item_output", GenBlocks.ITEM_OUTPUT_HATCH).count(1).itemExtract(ElectricFurnaceBlock.RecipeSlots.OUTPUT_1, ElectricFurnaceBlock.RecipeSlots.OUTPUT_2, ElectricFurnaceBlock.RecipeSlots.OUTPUT_3, ElectricFurnaceBlock.RecipeSlots.OUTPUT_4).build())
 			.hatch(MultiblockHatchDefinition.builder("energy", GenBlocks.POWER_HATCH).count(1).energy(ResourceIoMode.INSERT).build())
 			.hatch(MultiblockHatchDefinition.builder("network", GenBlocks.NETWORK_HATCH).count(HatchCount.atMost(1)).itemInsert(ElectricFurnaceBlock.RecipeSlots.INPUT).itemInsert(ElectricFurnaceBlock.RecipeSlots.CATALYST)

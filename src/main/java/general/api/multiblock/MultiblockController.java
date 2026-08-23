@@ -52,6 +52,15 @@ public interface MultiblockController {
 
 	void setMultiblockFormed (boolean formed);
 
+	/**
+	 * Called after every successful server-side validation, including restoration
+	 * of a persisted formed structure after loading. Controllers can use the
+	 * resolved instance to refresh derived operating data without treating a load
+	 * as a new formation event.
+	 */
+	default void onMultiblockValidated (MultiblockInstance instance) {
+	}
+
 	default void onMultiblockFormed (MultiblockInstance instance) {
 	}
 

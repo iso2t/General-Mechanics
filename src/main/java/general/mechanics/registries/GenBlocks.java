@@ -17,6 +17,7 @@ import general.mechanics.common.block.hatch.IOPowerHatch;
 import general.mechanics.common.block.machine.CokeOvenController;
 import general.mechanics.common.block.machine.ElectricFurnaceBlock;
 import general.mechanics.common.block.machine.MachineFrameBlock;
+import general.mechanics.common.block.misc.CoreMatrixBlock;
 import general.mechanics.common.block.misc.EncasedFluidBlock;
 import general.mechanics.common.block.misc.HeatingElementBlock;
 import general.mechanics.common.block.misc.RubberWood;
@@ -65,11 +66,11 @@ public class GenBlocks extends BlockRegistry {
 	public static final BlockDefinition<EncasedFluidBlock> ENCASED_LAVA  = registerBlock("Encased Lava", properties -> new EncasedFluidBlock(properties, Fluids.LAVA));
 
 	// Upgrade blocks
-	public static final BlockDefinition<DecorativeBlock> IRON_CORE_MATRIX     = registerBlock("Iron Core Matrix", DecorativeBlock::new);
-	public static final BlockDefinition<DecorativeBlock> STEEL_CORE_MATRIX    = registerBlock("Steel Core Matrix", DecorativeBlock::new);
-	public static final BlockDefinition<DecorativeBlock> TITANIUM_CORE_MATRIX = registerBlock("Titanium Core Matrix", DecorativeBlock::new);
-	public static final BlockDefinition<DecorativeBlock> TUNGSTEN_CORE_MATRIX = registerBlock("Tungsten Core Matrix", DecorativeBlock::new);
-	public static final BlockDefinition<DecorativeBlock> QUANTUM_CORE_MATRIX  = registerBlock("Quantum Core Matrix", DecorativeBlock::new);
+	public static final BlockDefinition<CoreMatrixBlock> IRON_CORE_MATRIX     = registerBlock("Iron Core Matrix", properties -> new CoreMatrixBlock(1.25D, properties));
+	public static final BlockDefinition<CoreMatrixBlock> STEEL_CORE_MATRIX    = registerBlock("Steel Core Matrix", properties -> new CoreMatrixBlock(2.0D, properties));
+	public static final BlockDefinition<CoreMatrixBlock> TITANIUM_CORE_MATRIX = registerBlock("Titanium Core Matrix", properties -> new CoreMatrixBlock(4.0D, properties));
+	public static final BlockDefinition<CoreMatrixBlock> TUNGSTEN_CORE_MATRIX = registerBlock("Tungsten Core Matrix", properties -> new CoreMatrixBlock(32.0D, properties));
+	public static final BlockDefinition<CoreMatrixBlock> QUANTUM_CORE_MATRIX  = registerBlock("Quantum Core Matrix", properties -> new CoreMatrixBlock(64.0D, properties));
 
 	// Misc Multiblock
 	public static final BlockDefinition<DecorativeBlock>   MACHINE_CASING = registerBlock("Machine Casing", DecorativeBlock::new, () -> BlockBehaviour.Properties.of().requiresCorrectToolForDrops().strength(5.0F, 6.0F).sound(SoundType.STONE));

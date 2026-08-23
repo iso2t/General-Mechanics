@@ -3,6 +3,7 @@ package general.api.multiblock;
 import general.api.definitions.BlockDefinition;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 
@@ -29,10 +30,21 @@ public final class MultiblockPattern {
 	@Getter
 	private final BlockPos anchor;
 
+	@Getter
+	private final Set<Character> uniformSymbols;
+
 	public MultiblockPattern (Map<Character, MultiblockElement> palette, List<List<String>> layers, BlockPos anchor) {
+		this(palette, layers, anchor, Set.of());
+	}
+
+	public MultiblockPattern (Map<Character, MultiblockElement> palette, List<List<String>> layers, BlockPos anchor, Set<Character> uniformSymbols) {
 		this.palette = Map.copyOf(palette);
 		this.layers = List.copyOf(layers);
 		this.anchor = anchor;
+		this.uniformSymbols = Set.copyOf(uniformSymbols);
+		for (char symbol : this.uniformSymbols) {
+			if (!this.palette.containsKey(symbol)) throw new IllegalArgumentException("Uniform multiblock symbol is not defined: '" + symbol + "'");
+		}
 
 		this.height = layers.size();
 		this.depth = layers.getFirst().size();
@@ -40,10 +52,49 @@ public final class MultiblockPattern {
 	}
 
 	public MultiblockElement getElementAt (int x, int y, int z) {
-		var symbol = getLayers().get(y).get(z).charAt(x);
+		var symbol = getSymbolAt(x, y, z);
 
 		if (symbol == ' ') return null;
 		return getPalette().get(symbol);
+	}
+
+	public char getSymbolAt (int x, int y, int z) {
+		return getLayers().get(y).get(z).charAt(x);
+	}
+
+	/**
+	 * Resolves every occurrence of a pattern symbol into world coordinates for a
+	 * particular controller anchor and orientation.
+	 */
+	public List<BlockPos> getWorldPositions (char symbol, BlockPos worldAnchor, Direction facing) {
+		Objects.requireNonNull(worldAnchor, "worldAnchor");
+		Objects.requireNonNull(facing, "facing");
+		if (!palette.containsKey(symbol)) throw new IllegalArgumentException("Undefined multiblock symbol: '" + symbol + "'");
+
+		var positions = new ArrayList<BlockPos>();
+		for (int y = 0; y < height; y++) {
+			for (int z = 0; z < depth; z++) {
+				for (int x = 0; x < width; x++) {
+					if (getSymbolAt(x, y, z) == symbol) positions.add(getWorldPosition(worldAnchor, facing, x, y, z));
+				}
+			}
+		}
+		return List.copyOf(positions);
+	}
+
+	public BlockPos getWorldPosition (BlockPos worldAnchor, Direction facing, int x, int y, int z) {
+		Objects.requireNonNull(worldAnchor, "worldAnchor");
+		Objects.requireNonNull(facing, "facing");
+		int relativeX = x - anchor.getX();
+		int relativeY = y - anchor.getY();
+		int relativeZ = z - anchor.getZ();
+		return switch (facing) {
+			case NORTH -> worldAnchor.offset(relativeX, relativeY, relativeZ);
+			case SOUTH -> worldAnchor.offset(-relativeX, relativeY, -relativeZ);
+			case EAST -> worldAnchor.offset(-relativeZ, relativeY, relativeX);
+			case WEST -> worldAnchor.offset(relativeZ, relativeY, -relativeX);
+			default -> throw new IllegalArgumentException("Multiblock facing must be horizontal");
+		};
 	}
 
 	public static Builder builder () {
@@ -55,6 +106,7 @@ public final class MultiblockPattern {
 		private final Map<Character, MultiblockElement> palette = new HashMap<>();
 
 		private final List<List<String>> layers = new ArrayList<>();
+		private final Set<Character>      uniformSymbols = new HashSet<>();
 
 		private Character anchorSymbol;
 
@@ -70,6 +122,40 @@ public final class MultiblockPattern {
 
 		public Builder where (char symbol, Block block) {
 			return where(symbol, MultiblockElement.block(block));
+		}
+
+		/**
+		 * Defines a symbol whose positions must each match {@code element} and must
+		 * all contain the same block type in a valid structure.
+		 */
+		public Builder whereUniform (char symbol, MultiblockElement element) {
+			where(symbol, element);
+			uniformSymbols.add(symbol);
+			return this;
+		}
+
+		public Builder whereUniform (char symbol, Block block) {
+			return whereUniform(symbol, MultiblockElement.block(block));
+		}
+
+		public Builder whereUniform (char symbol, BlockDefinition<? extends Block> block) {
+			return whereUniform(symbol, MultiblockElement.block(block));
+		}
+
+		public Builder whereUniform (char symbol, TagKey<Block> tag) {
+			return whereUniform(symbol, MultiblockElement.tag(tag));
+		}
+
+		public Builder whereUniform (char symbol, TagKey<Block> tag, Block constructionBlock) {
+			return whereUniform(symbol, MultiblockElement.tag(tag, constructionBlock));
+		}
+
+		public Builder whereUniform (char symbol, TagKey<Block> tag, BlockDefinition<? extends Block> constructionBlock) {
+			return whereUniform(symbol, MultiblockElement.tag(tag, constructionBlock));
+		}
+
+		public Builder whereUniform (char symbol, TagKey<Block> tag, Supplier<? extends Block> constructionBlock) {
+			return whereUniform(symbol, MultiblockElement.tag(tag, constructionBlock));
 		}
 
 		public Builder whereHatchable (char symbol, MultiblockElement casing) {
@@ -198,7 +284,7 @@ public final class MultiblockPattern {
 				throw new IllegalStateException("Multiblock anchor symbol '" + anchorSymbol + "' was not found.");
 			}
 
-			return new MultiblockPattern(palette, layers, anchor);
+			return new MultiblockPattern(palette, layers, anchor, uniformSymbols);
 		}
 	}
 

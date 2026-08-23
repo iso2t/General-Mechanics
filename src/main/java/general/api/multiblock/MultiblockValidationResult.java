@@ -29,6 +29,10 @@ public record MultiblockValidationResult(Status status, MultiblockInstance insta
 		return new MultiblockValidationResult(Status.INVALID, null, position, expected, found, null);
 	}
 
+	public static MultiblockValidationResult invalid (BlockPos position, MultiblockElement expected, BlockState found, String detail) {
+		return new MultiblockValidationResult(Status.INVALID, null, position, expected, found, detail);
+	}
+
 	public static MultiblockValidationResult invalidHatch (BlockPos position, String detail) {
 		return new MultiblockValidationResult(Status.INVALID_HATCH, null, position, null, null, detail);
 	}

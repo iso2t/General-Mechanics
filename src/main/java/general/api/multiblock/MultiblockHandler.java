@@ -15,7 +15,9 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.neoforged.neoforge.common.NeoForge;
@@ -67,6 +69,9 @@ public final class MultiblockHandler {
 			hatches.put(worldPos.immutable(), route);
 			hatchCounts.merge(route, 1, Integer::sum);
 		}
+
+		MultiblockValidationResult uniformResult = validateUniformSymbols(level, instance);
+		if (uniformResult != null) return uniformResult;
 
 		for (MultiblockHatchDefinition hatch : definition.get().hatches()) {
 			int count = hatchCounts.getOrDefault(hatch.key(), 0);
@@ -406,6 +411,7 @@ public final class MultiblockHandler {
 				postDestroyed(level, null, tracked);
 			}
 			index(runtime, controllerPos, result.instance());
+			controller.onMultiblockValidated(result.instance());
 			if (!controller.isMultiblockFormed()) {
 				controller.setMultiblockFormed(true);
 				markChanged(controller);
@@ -647,13 +653,29 @@ public final class MultiblockHandler {
 		return null;
 	}
 
+	private static @Nullable MultiblockValidationResult validateUniformSymbols (LevelReader level, MultiblockInstance instance) {
+		MultiblockPattern pattern = instance.definition().get().pattern();
+		for (char symbol : pattern.getUniformSymbols()) {
+			Block expectedBlock = null;
+			MultiblockElement expectedElement = pattern.getPalette().get(symbol);
+			for (BlockPos position : pattern.getWorldPositions(symbol, instance.anchor(), instance.facing())) {
+				BlockState state = level.getBlockState(position);
+				if (expectedBlock == null) {
+					expectedBlock = state.getBlock();
+				} else if (!state.is(expectedBlock)) {
+					return MultiblockValidationResult.invalid(position, expectedElement, state, "All blocks at pattern symbol '" + symbol + "' must use the same block type");
+				}
+			}
+		}
+		return null;
+	}
+
 	private static RuntimeState runtime (ServerLevel level) {
 		return RUNTIMES.computeIfAbsent(level, ignored -> new RuntimeState());
 	}
 
 	private static MultiblockInstance createInstance (BlockPos anchor, Direction facing, MultiblockDefinition definition) {
 		MultiblockPattern pattern = definition.get().pattern();
-		BlockPos patternAnchor = pattern.getAnchor();
 		Map<BlockPos, MultiblockElement> blocks = new LinkedHashMap<>();
 
 		for (int y = 0; y < pattern.getHeight(); y++) {
@@ -662,30 +684,12 @@ public final class MultiblockHandler {
 					MultiblockElement element = pattern.getElementAt(x, y, z);
 					if (element == null) continue;
 
-					int relativeX = x - patternAnchor.getX();
-					int relativeY = y - patternAnchor.getY();
-					int relativeZ = z - patternAnchor.getZ();
-					blocks.put(transform(anchor, relativeX, relativeY, relativeZ, facing), element);
+					blocks.put(pattern.getWorldPosition(anchor, facing, x, y, z), element);
 				}
 			}
 		}
 
 		return new MultiblockInstance(definition, anchor.immutable(), facing, Collections.unmodifiableMap(blocks));
-	}
-
-	private static BlockPos transform (BlockPos anchor, int x, int y, int z, Direction facing) {
-		return switch (facing) {
-
-			case NORTH -> anchor.offset(x, y, z);
-
-			case SOUTH -> anchor.offset(-x, y, -z);
-
-			case EAST -> anchor.offset(-z, y, x);
-
-			case WEST -> anchor.offset(z, y, -x);
-
-			default -> throw new IllegalArgumentException("Multiblock facing must be horizontal.");
-		};
 	}
 
 	private record SearchRange(int horizontal, int vertical) {

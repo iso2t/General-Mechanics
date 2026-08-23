@@ -29,6 +29,7 @@ public class CoreTags {
 		public static final TagKey<Block> NETWORK_HATCHES    = createTag("multiblock_hatches/network");
 		public static final TagKey<Block> INPUT_HATCHES      = createTag("multiblock_hatches/input");
 		public static final TagKey<Block> OUTPUT_HATCHES     = createTag("multiblock_hatches/output");
+		public static final TagKey<Block> CORE_MATRICES      = createTag("core_matrices");
 
 		private static TagKey<Block> createTag (String key) {
 			return BlockTags.create(Resource.get(key));
