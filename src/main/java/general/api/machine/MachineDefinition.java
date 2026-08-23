@@ -183,6 +183,7 @@ public final class MachineDefinition {
 			if (recipes != null && items == null && fluids == null) {
 				throw new IllegalStateException("Machine recipe processing requires item or fluid storage");
 			}
+			if (recipes != null) litState = true;
 			return new MachineDefinition(this);
 		}
 	}

@@ -35,7 +35,7 @@ public class CokeOvenControllerBlockEntity extends MachineBlockEntity implements
 	public static final int OUTPUT_SLOT   = ITEMS.index(CokeOvenController.RecipeSlots.OUTPUT);
 	public static final int CREOSOTE_TANK = FLUIDS.index(CokeOvenController.RecipeSlots.CREOSOTE);
 
-	public static final MachineDefinition MACHINE = MachineDefinition.builder().items(ITEMS, items -> items.lockable(CokeOvenController.RecipeSlots.INPUT).input(CokeOvenController.RecipeSlots.INPUT).output(CokeOvenController.RecipeSlots.OUTPUT)).fluids(FLUIDS, FluidTanks.buckets(32), fluids -> fluids.output(CokeOvenController.RecipeSlots.CREOSOTE)).recipes(CokeOvenController::getRecipeDefinition).multiblock(() -> GenMultiblocks.COKE_OVEN, false).litState().build();
+	public static final MachineDefinition MACHINE = MachineDefinition.builder().items(ITEMS, items -> items.lockable(CokeOvenController.RecipeSlots.INPUT).input(CokeOvenController.RecipeSlots.INPUT).output(CokeOvenController.RecipeSlots.OUTPUT)).fluids(FLUIDS, FluidTanks.buckets(32), fluids -> fluids.output(CokeOvenController.RecipeSlots.CREOSOTE)).recipes(CokeOvenController::getRecipeDefinition).multiblock(() -> GenMultiblocks.COKE_OVEN, false).build();
 
 	public CokeOvenControllerBlockEntity (BlockEntityType<CokeOvenControllerBlockEntity> type, BlockPos pos, BlockState state) {
 		super(type, pos, state, MACHINE);

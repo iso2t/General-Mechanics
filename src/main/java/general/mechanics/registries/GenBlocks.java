@@ -2,8 +2,10 @@ package general.mechanics.registries;
 
 import general.api.block.IOBlock;
 import general.api.block.RecipeProviderBlock;
+import general.api.block.materials.MetalBlock;
 import general.api.crafting.RecipeGenerationContext;
 import general.api.definitions.BlockDefinition;
+import general.api.item.materials.IngotItem;
 import general.api.machine.upgrade.MachineUpgradeProfile;
 import general.api.mod.GenAPI;
 import general.api.registry.RegistryString;
@@ -14,10 +16,7 @@ import general.mechanics.common.block.hatch.IOFluidHatch;
 import general.mechanics.common.block.hatch.IOItemHatch;
 import general.mechanics.common.block.hatch.IONetworkHatch;
 import general.mechanics.common.block.hatch.IOPowerHatch;
-import general.mechanics.common.block.machine.CokeOvenController;
-import general.mechanics.common.block.machine.ElectricFurnaceBlock;
-import general.mechanics.common.block.machine.MachineCasingBlock;
-import general.mechanics.common.block.machine.MachineFrameBlock;
+import general.mechanics.common.block.machine.*;
 import general.mechanics.common.block.misc.CoreMatrixBlock;
 import general.mechanics.common.block.misc.EncasedFluidBlock;
 import general.mechanics.common.block.misc.HeatingElementBlock;
@@ -93,7 +92,17 @@ public class GenBlocks extends BlockRegistry {
 
 	// Machines
 	public static final BlockDefinition<ElectricFurnaceBlock> ELECTRIC_FURNACE = registerBlock("Electric Furnace", ElectricFurnaceBlock::new);
+	public static final BlockDefinition<StampingPressBlock>   STAMPING_PRESS   = registerBlock("Hammer", StampingPressBlock::new);
 	public static final BlockDefinition<HeatingElementBlock>  HEATING_ELEMENT  = registerBlock("Heating Element", HeatingElementBlock::new);
+
+	// Metal Blocks
+	public static final BlockDefinition<MetalBlock> STEEL_BLOCK    = registerMetalBlock("Steel", GenItems.STEEL);
+	public static final BlockDefinition<MetalBlock> TITANIUM_BLOCK = registerMetalBlock("Titanium", GenItems.TITANIUM);
+	public static final BlockDefinition<MetalBlock> TUNGSTEN_BLOCK = registerMetalBlock("Tungsten", GenItems.TUNGSTEN);
+
+	private static BlockDefinition<MetalBlock> registerMetalBlock (String materialName, Supplier<? extends IngotItem> ingot) {
+		return registerBlock("Block of " + materialName, properties -> new MetalBlock(properties, ingot));
+	}
 
 	private static MachineUpgradeProfile coreMatrixProfile (double multiplier) {
 		return MachineUpgradeProfile.builder().processingSpeed(multiplier).energy(multiplier, multiplier, multiplier).fluid(multiplier, multiplier).build();

@@ -1,10 +1,12 @@
 package general.mechanics.client.color;
 
 import com.mojang.serialization.MapCodec;
+import general.api.block.materials.MetalBlock;
 import general.api.item.materials.*;
 import net.minecraft.client.color.item.ItemTintSource;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.NonNull;
 
@@ -18,15 +20,17 @@ public final class ElementItemTintSource implements ItemTintSource {
 
 	@Override
 	public int calculate (ItemStack stack, ClientLevel level, LivingEntity entity) {
-		return switch (stack.getItem()) {
-			case IngotItem ingot -> ingot.getColor();
-			case DustItem dust -> dust.getParent().getColor();
-			case GearItem gear -> gear.getParent().getColor();
-			case NuggetItem nugget -> nugget.getParent().getColor();
-			case PlateItem plate -> plate.getParent().getColor();
-			case RawItem raw -> raw.getParent().getColor();
-			default -> 0xFFFFFFFF;
-		};
+		var item = stack.getItem();
+		if (item instanceof BlockItem blockItem && blockItem.getBlock() instanceof MetalBlock metal) {
+			return metal.getColor();
+		}
+		if (item instanceof IngotItem ingot) return ingot.getColor();
+		if (item instanceof DustItem dust) return dust.getParent().getColor();
+		if (item instanceof GearItem gear) return gear.getParent().getColor();
+		if (item instanceof NuggetItem nugget) return nugget.getParent().getColor();
+		if (item instanceof PlateItem plate) return plate.getParent().getColor();
+		if (item instanceof RawItem raw) return raw.getParent().getColor();
+		return 0xFFFFFFFF;
 	}
 
 	@Override

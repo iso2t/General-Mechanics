@@ -1,16 +1,9 @@
 package general.mechanics.common.block.machine;
 
-import general.api.block.BaseBlock;
-import general.api.block.BlockEntityTypeOwner;
-import general.api.block.IWrenchable;
-import general.api.block.util.ILitProvider;
-import general.api.block.util.IPickaxe;
 import general.api.crafting.*;
+import general.api.machine.MachineBlock;
 import general.api.model.IMachineModel;
 import general.api.resources.Resource;
-import general.api.rotation.BlockRotationStrategies;
-import general.api.rotation.BlockRotationStrategy;
-import general.api.rotation.IRotatableBlock;
 import general.api.transfer.fluid.FluidTanks;
 import general.mechanics.common.block.entity.CokeOvenControllerBlockEntity;
 import general.mechanics.registries.GenBlocks;
@@ -24,63 +17,23 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.resources.Identifier;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityTicker;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.common.Tags;
 import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
-public class CokeOvenController extends BaseBlock implements EntityBlock, BlockEntityTypeOwner<CokeOvenControllerBlockEntity>, IWrenchable, IMachineModel, IRotatableBlock, RecipeDataProvider, ILitProvider, IPickaxe {
-
-	private BlockEntityType<CokeOvenControllerBlockEntity> blockEntityType;
+public class CokeOvenController extends MachineBlock<CokeOvenControllerBlockEntity> implements IMachineModel, RecipeDataProvider {
 
 	public CokeOvenController (Properties properties) {
-		super(properties.requiresCorrectToolForDrops().strength(5.0F, 6.0F).sound(SoundType.STONE));
-		registerDefaultState(getStateDefinition().any().setValue(LIT, false));
-	}
-
-	@Override
-	public void setBlockEntity (Class<CokeOvenControllerBlockEntity> blockEntityClass, BlockEntityType<CokeOvenControllerBlockEntity> blockEntityType) {
-		this.blockEntityType = blockEntityType;
-	}
-
-	@Override
-	public @Nullable BlockEntity newBlockEntity (@NonNull BlockPos blockPos, @NonNull BlockState blockState) {
-		return new CokeOvenControllerBlockEntity(blockEntityType, blockPos, blockState);
-	}
-
-	@Override
-	public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker (Level level, @NonNull BlockState state, @NonNull BlockEntityType<T> type) {
-		if (level.isClientSide() || type != blockEntityType) return null;
-		return (tickLevel, pos, tickState, blockEntity) -> {
-			if (tickLevel instanceof ServerLevel serverLevel && blockEntity instanceof CokeOvenControllerBlockEntity controller) {
-				controller.serverTick(serverLevel);
-			}
-		};
-	}
-
-	@Override
-	protected @NonNull InteractionResult useWithoutItem (@NonNull BlockState state, @NonNull Level level, @NonNull BlockPos pos, @NonNull Player player, @NonNull BlockHitResult hitResult) {
-		if (level.getBlockEntity(pos) instanceof CokeOvenControllerBlockEntity controller) {
-			return controller.useMultiblock(player, hitResult);
-		}
-		return InteractionResult.PASS;
+		super(properties.requiresCorrectToolForDrops().strength(5.0F, 6.0F).sound(SoundType.STONE), CokeOvenControllerBlockEntity.class, CokeOvenControllerBlockEntity.MACHINE);
 	}
 
 	@Override
@@ -106,11 +59,6 @@ public class CokeOvenController extends BaseBlock implements EntityBlock, BlockE
 	@Override
 	public Identifier getLitTexture () {
 		return Resource.getMainMod("block/machine/coke_oven/coke_oven_controller_lit");
-	}
-
-	@Override
-	public BlockRotationStrategy getRotationStrategy () {
-		return BlockRotationStrategies.HORIZONTAL_FACING;
 	}
 
 	@Override

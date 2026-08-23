@@ -49,7 +49,7 @@ public class ElectricFurnaceBlockEntity extends MachineBlockEntity implements Ma
 	public static final MachineDefinition MACHINE = MachineDefinition.builder().items(ITEMS, items -> items.lockable(ElectricFurnaceBlock.RecipeSlots.INPUT, ElectricFurnaceBlock.RecipeSlots.CATALYST).input(ElectricFurnaceBlock.RecipeSlots.INPUT, ElectricFurnaceBlock.RecipeSlots.CATALYST).output(ElectricFurnaceBlock.RecipeSlots.OUTPUT_1, ElectricFurnaceBlock.RecipeSlots.OUTPUT_2, ElectricFurnaceBlock.RecipeSlots.OUTPUT_3, ElectricFurnaceBlock.RecipeSlots.OUTPUT_4)).energy(BASE_POWER_PROFILE, energy -> energy.network(ResourceIoMode.INSERT)).sideConfiguration(SIDES).poweredRecipes(ElectricFurnaceBlock::getRecipeDefinition).network("ElectricFurnace", (runtime, services) -> {
 		services.register(NetworkServices.ITEM, NetworkConnectorServices.itemService(runtime::getNetworkItemHandler));
 		services.register(NetworkServices.ENERGY, NetworkConnectorServices.energyService(runtime::getNetworkEnergyHandler));
-	}).multiblock(() -> GenMultiblocks.ELECTRIC_FURNACE, true, MachineUpgradeResolvers.firstProviderAt('U')).litState().build();
+	}).multiblock(() -> GenMultiblocks.ELECTRIC_FURNACE, true, MachineUpgradeResolvers.firstProviderAt('U')).build();
 
 	public ElectricFurnaceBlockEntity (BlockEntityType<ElectricFurnaceBlockEntity> type, BlockPos pos, BlockState state) {
 		super(type, pos, state, MACHINE);

@@ -1,60 +1,31 @@
 package general.mechanics.common.block.machine;
 
-import general.api.block.BaseBlock;
-import general.api.block.BlockEntityTypeOwner;
-import general.api.block.IWrenchable;
-import general.api.block.util.ILitProvider;
-import general.api.block.util.IPickaxe;
 import general.api.crafting.*;
-import general.api.machine.config.MachineSideConfigurationDefinition;
+import general.api.machine.MachineBlock;
 import general.api.model.IConfigurableMachineModel;
 import general.api.resources.Resource;
-import general.api.rotation.BlockRotationStrategies;
-import general.api.rotation.BlockRotationStrategy;
-import general.api.rotation.IRotatableBlock;
 import general.mechanics.common.block.entity.ElectricFurnaceBlockEntity;
+import general.mechanics.registries.GenItems;
 import general.mechanics.registries.GenRecipes;
-import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityTicker;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
-public class ElectricFurnaceBlock extends BaseBlock implements EntityBlock, BlockEntityTypeOwner<ElectricFurnaceBlockEntity>, IWrenchable, IConfigurableMachineModel, IRotatableBlock, RecipeDataProvider, ILitProvider, IPickaxe {
-
-	private BlockEntityType<ElectricFurnaceBlockEntity> blockEntityType;
+public class ElectricFurnaceBlock extends MachineBlock<ElectricFurnaceBlockEntity> implements IConfigurableMachineModel, RecipeDataProvider {
 
 	public ElectricFurnaceBlock (Properties properties) {
-		super(properties.requiresCorrectToolForDrops().strength(5.0F, 6.0F).sound(SoundType.IRON));
-		registerDefaultState(getStateDefinition().any().setValue(LIT, false));
-	}
-
-	@Override
-	public void setBlockEntity (Class<ElectricFurnaceBlockEntity> blockEntityClass, BlockEntityType<ElectricFurnaceBlockEntity> blockEntityType) {
-		this.blockEntityType = blockEntityType;
-	}
-
-	@Override
-	public Identifier getLitTexture () {
-		return Resource.getMainMod("block/machine/electric_furnace/electric_furnace_lit");
+		super(properties.requiresCorrectToolForDrops().strength(5.0F, 6.0F).sound(SoundType.IRON), ElectricFurnaceBlockEntity.class, ElectricFurnaceBlockEntity.MACHINE);
 	}
 
 	@Override
 	public void generateRecipes (RecipeGenerationContext context) {
+		context.save(getRecipeDefinition().recipeBuilder().itemInput(RecipeSlots.INPUT, GenItems.TUNGSTEN.get().getRawItem(), 1).itemOutput(RecipeSlots.OUTPUT_1, GenItems.TUNGSTEN.get(), 1).duration(250), "electric_furnace/tungsten_ingot_from_raw_tungsten");
+		context.save(getRecipeDefinition().recipeBuilder().itemInput(RecipeSlots.INPUT, GenItems.TUNGSTEN.get().getDustItem(), 1).itemOutput(RecipeSlots.OUTPUT_1, GenItems.TUNGSTEN.get(), 2).duration(300), "electric_furnace/tungsten_ingot_from_2_dust_tungsten");
 
+		context.save(getRecipeDefinition().recipeBuilder().itemInput(RecipeSlots.INPUT, GenItems.TITANIUM.get().getRawItem(), 1).itemInput(RecipeSlots.CATALYST, Items.GUNPOWDER, 2).itemOutput(RecipeSlots.OUTPUT_1, GenItems.TITANIUM.get(), 1).duration(250), "electric_furnace/titanium_ingot_from_raw_titanium");
+		context.save(getRecipeDefinition().recipeBuilder().itemInput(RecipeSlots.INPUT, GenItems.TITANIUM.get().getDustItem(), 1).itemInput(RecipeSlots.CATALYST, Items.GUNPOWDER, 2).itemOutput(RecipeSlots.OUTPUT_1, GenItems.TITANIUM.get(), 2).duration(300), "electric_furnace/titanium_ingot_from_2_dust_titanium");
 	}
 
 	@Override
@@ -63,51 +34,19 @@ public class ElectricFurnaceBlock extends BaseBlock implements EntityBlock, Bloc
 	}
 
 	@Override
-	public BlockRotationStrategy getRotationStrategy () {
-		return BlockRotationStrategies.HORIZONTAL_FACING;
+	public Identifier getFrontTexture () {
+		return Resource.getMainMod("block/machine/electric_furnace/electric_furnace");
 	}
 
 	@Override
-	public @Nullable BlockEntity newBlockEntity (@NonNull BlockPos blockPos, @NonNull BlockState blockState) {
-		if (blockEntityType == null) throw new IllegalStateException("Electric Furnace block entity type has not been bound yet");
-		return blockEntityType.create(blockPos, blockState);
-	}
-
-	@Override
-	public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker (Level level, @NonNull BlockState state, @NonNull BlockEntityType<T> type) {
-		if (level.isClientSide() || type != blockEntityType) return null;
-		return (tickLevel, pos, tickState, blockEntity) -> {
-			if (tickLevel instanceof ServerLevel serverLevel && blockEntity instanceof ElectricFurnaceBlockEntity furnace) {
-				furnace.serverTick(serverLevel);
-			}
-		};
-	}
-
-	@Override
-	public MachineSideConfigurationDefinition getSideConfigurationDefinition () {
-		return ElectricFurnaceBlockEntity.SIDES;
-	}
-
-	@Override
-	protected @NonNull InteractionResult useWithoutItem (@NonNull BlockState state, @NonNull Level level, @NonNull BlockPos pos, @NonNull Player player, @NonNull BlockHitResult hitResult) {
-		if (!(level.getBlockEntity(pos) instanceof ElectricFurnaceBlockEntity furnace)) return InteractionResult.PASS;
-		if (player instanceof ServerPlayer serverPlayer) serverPlayer.openMenu(furnace, pos);
-		return InteractionResult.SUCCESS;
+	public Identifier getLitTexture () {
+		return Resource.getMainMod("block/machine/electric_furnace/electric_furnace_lit");
 	}
 
 	public static MachineRecipeDefinition<NoRecipeData> getRecipeDefinition () {
 		return GenRecipes.ELECTRIC_FURNACE;
 	}
 
-	@Override
-	public Identifier getFrontTexture () {
-		return Resource.getMainMod("block/machine/electric_furnace/electric_furnace");
-	}
-
-	/**
-	 * Logical fields shared by Electric Furnace storage and its future custom
-	 * recipe schema.
-	 */
 	public static final class RecipeSlots {
 
 		public static final MachineRecipeSlot.ItemInput  INPUT    = MachineRecipeSlots.ITEM_INPUT;

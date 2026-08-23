@@ -2,6 +2,7 @@ package general.mechanics.datagen.model;
 
 import com.mojang.math.Quadrant;
 import general.api.block.DecorativeBlock;
+import general.api.block.materials.MetalBlock;
 import general.api.block.util.ILitProvider;
 import general.api.definitions.BlockDefinition;
 import general.api.definitions.FluidDefinition;
@@ -14,6 +15,7 @@ import general.api.resources.Resource;
 import general.api.rotation.BlockRotationStrategies;
 import general.api.rotation.BlockRotationStrategy;
 import general.api.rotation.IRotatableBlock;
+import general.mechanics.client.color.ElementItemTintSource;
 import general.mechanics.client.model.CableModelLoader;
 import general.mechanics.client.model.ConfigurableMachineModelLoader;
 import general.mechanics.common.block.misc.EncasedFluidBlock;
@@ -84,6 +86,8 @@ public final class BlockModelProvider extends ModelProviders {
 		for (var block : GenBlocks.INSTANCE.getBlocks()) {
 			if (block.get() instanceof EncasedFluidBlock encasedFluid) {
 				registerEncasedFluid(block, encasedFluid);
+			} else if (block.get() instanceof MetalBlock metal) {
+				registerMetalBlock(block, metal);
 			} else if (block.get() instanceof DecorativeBlock || block.get() instanceof IBasicModel) {
 				blockWithItem(block);
 			} else if (block.get() instanceof IConfigurableMachineModel machine) {
@@ -113,6 +117,14 @@ public final class BlockModelProvider extends ModelProviders {
 		rubberLogWithResin(GenBlocks.RUBBER_LOG.get(), "rubber_log", Resource.get("block/rubber_log_top"));
 		rubberLogWithResin(GenBlocks.RUBBER_WOOD.get(), "rubber_wood", Resource.get("block/rubber_log"));
 		blockModels.woodProvider(GenBlocks.STRIPPED_RUBBER_LOG.get()).logWithHorizontal(GenBlocks.STRIPPED_RUBBER_LOG.get()).wood(GenBlocks.STRIPPED_RUBBER_WOOD.get());
+	}
+
+	private void registerMetalBlock (BlockDefinition<?> definition, MetalBlock metal) {
+		var texture = mat(metal.getTopTexture());
+		var model = ExtendedModelTemplateBuilder.builder().parent(Resource.getMinecraftResource("block/block")).requiredTextureSlot(TextureSlot.ALL).requiredTextureSlot(TextureSlot.PARTICLE).element(element -> element.from(0, 0, 0).to(16, 16, 16).allFaces((direction, face) -> face.texture(TextureSlot.ALL).uvs(0, 0, 16, 16).cullface(direction).tintindex(0))).build().create(Resource.get("block/" + definition.getId().getPath()), new TextureMapping().put(TextureSlot.ALL, texture).put(TextureSlot.PARTICLE, texture), generators.modelOutput);
+
+		registerBlockState(definition, model);
+		generators.registerSimpleTintedItemModel(definition.get(), model, ElementItemTintSource.INSTANCE);
 	}
 
 	private void registerEncasedFluid (BlockDefinition<?> definition, EncasedFluidBlock encasedFluid) {
