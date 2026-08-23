@@ -1,28 +1,15 @@
 package general.mechanics.common.block.entity;
 
-import general.api.block.entity.BaseBlockEntity;
-import general.api.block.util.ILitProvider;
-import general.api.crafting.MachineRecipeProcessor;
-import general.api.definitions.MultiblockDefinition;
-import general.api.multiblock.MultiblockController;
-import general.api.multiblock.MultiblockHandler;
+import general.api.machine.*;
 import general.api.multiblock.MultiblockInstance;
-import general.api.transfer.ResourceAccessPolicy;
-import general.api.transfer.SidedResourceHandlers;
 import general.api.transfer.fluid.FluidInventoryDefinition;
-import general.api.transfer.fluid.FluidResourceHandler;
 import general.api.transfer.fluid.FluidTanks;
-import general.api.transfer.fluid.SidedFluidResourceProvider;
 import general.api.transfer.item.ItemInventoryDefinition;
-import general.api.transfer.item.LockableItemResourceHandler;
-import general.api.transfer.item.SidedItemResourceProvider;
 import general.mechanics.common.block.machine.CokeOvenController;
 import general.mechanics.common.menus.CokeOvenMenu;
 import general.mechanics.registries.GenMultiblocks;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
@@ -30,32 +17,15 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.transfer.fluid.FluidResource;
-import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-/**
- * Authoritative multiblock controller state for a coke oven.
- */
-public class CokeOvenControllerBlockEntity extends BaseBlockEntity implements MultiblockController, SidedItemResourceProvider, SidedFluidResourceProvider, MenuProvider {
-
-	private static final String RECIPE_PROCESSOR_TAG = "recipe_processor";
-	private static final String ITEM_LOCK_TAG        = "item_lock";
-
-	public static void registerCapabilities (RegisterCapabilitiesEvent event, BlockEntityType<CokeOvenControllerBlockEntity> type) {
-		// External automation is routed through registered multiblock hatches. The
-		// controller providers remain available to recipes, menus, and hatch proxies.
-	}
+public class CokeOvenControllerBlockEntity extends MachineBlockEntity implements MachineMultiblock, MachineLockableItems, MachineFluids, MenuProvider {
 
 	public static final ItemInventoryDefinition ITEMS = ItemInventoryDefinition.builder().input(CokeOvenController.RecipeSlots.INPUT).output(CokeOvenController.RecipeSlots.OUTPUT).build();
 
@@ -65,162 +35,28 @@ public class CokeOvenControllerBlockEntity extends BaseBlockEntity implements Mu
 	public static final int OUTPUT_SLOT   = ITEMS.index(CokeOvenController.RecipeSlots.OUTPUT);
 	public static final int CREOSOTE_TANK = FLUIDS.index(CokeOvenController.RecipeSlots.CREOSOTE);
 
-	private static final ResourceAccessPolicy<ItemResource> ITEM_AUTOMATION = ITEMS.access().insert(CokeOvenController.RecipeSlots.INPUT).extract(CokeOvenController.RecipeSlots.OUTPUT).build();
-
-	private static final ResourceAccessPolicy<FluidResource> FLUID_AUTOMATION = FLUIDS.access().extract(CokeOvenController.RecipeSlots.CREOSOTE).build();
-
-	private       boolean                              formed;
-	private final LockableItemResourceHandler          items           = ITEMS.createLockableHandler(this::setChanged, INPUT_SLOT);
-	private final FluidResourceHandler                 fluids          = FLUIDS.createHandler(this::setChanged);
-	private final MachineRecipeProcessor               recipeProcessor = CokeOvenController.getRecipeDefinition().processor(items, fluids, this::setChanged);
-	private final SidedResourceHandlers<ItemResource>  sidedItems;
-	private final SidedResourceHandlers<FluidResource> sidedFluids;
+	public static final MachineDefinition MACHINE = MachineDefinition.builder().items(ITEMS, items -> items.lockable(CokeOvenController.RecipeSlots.INPUT).input(CokeOvenController.RecipeSlots.INPUT).output(CokeOvenController.RecipeSlots.OUTPUT)).fluids(FLUIDS, FluidTanks.buckets(32), fluids -> fluids.output(CokeOvenController.RecipeSlots.CREOSOTE)).recipes(CokeOvenController::getRecipeDefinition).multiblock(() -> GenMultiblocks.COKE_OVEN, false).litState().build();
 
 	public CokeOvenControllerBlockEntity (BlockEntityType<CokeOvenControllerBlockEntity> type, BlockPos pos, BlockState state) {
-		super(type, pos, state);
-		var itemViews = SidedResourceHandlers.builder(items);
-		var fluidViews = SidedResourceHandlers.builder(fluids);
-		for (Direction side : Direction.values()) {
-			itemViews.side(side, ITEM_AUTOMATION);
-			fluidViews.side(side, FLUID_AUTOMATION);
-		}
-		this.sidedItems = itemViews.build();
-		this.sidedFluids = fluidViews.build();
+		super(type, pos, state, MACHINE);
 	}
 
-	@Override
-	public MultiblockDefinition getMultiblockDefinition () {
-		return GenMultiblocks.COKE_OVEN;
+	public static void registerCapabilities (RegisterCapabilitiesEvent event, BlockEntityType<CokeOvenControllerBlockEntity> type) {
+		MachineCapabilities.register(event, type);
 	}
 
-	@Override
-	public BlockPos getMultiblockPosition () {
-		return getBlockPos();
+	public ItemStack getInputStack () {
+		return machine().getItemStack(INPUT_SLOT);
 	}
 
-	@Override
-	public Direction getMultiblockFacing () {
-		return getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING).getOpposite();
-	}
-
-	@Override
-	public boolean isMultiblockFormed () {
-		return formed;
-	}
-
-	@Override
-	public void setMultiblockFormed (boolean formed) {
-		if (this.formed == formed) return;
-		this.formed = formed;
-		setChanged();
-		if (level != null) {
-			if (!formed && level instanceof ServerLevel serverLevel) {
-				recipeProcessor.reset();
-				setLit(serverLevel, false);
-			}
-			level.invalidateCapabilities(worldPosition);
-			level.updateNeighborsAt(worldPosition, getBlockState().getBlock());
-		}
-	}
-
-	@Override
-	public void onMultiblockFormed (MultiblockInstance instance) {
-		if (getLevel() instanceof ServerLevel serverLevel) {
-			MultiblockHandler.spawnFormationParticles(serverLevel, instance);
-		}
+	public FluidStack getFluidStack () {
+		return getFluidHandler().getResource(CREOSOTE_TANK).toStack(getFluidHandler().getAmountAsInt(CREOSOTE_TANK));
 	}
 
 	@Override
 	public InteractionResult onFormedMultiblockUse (Player player, BlockHitResult hitResult, MultiblockInstance instance) {
-		if (player instanceof ServerPlayer serverPlayer) {
-			serverPlayer.openMenu(this, worldPosition);
-		}
+		if (player instanceof ServerPlayer serverPlayer) serverPlayer.openMenu(this, getBlockPos());
 		return InteractionResult.SUCCESS;
-	}
-
-	@Override
-	protected void saveAdditional (@NonNull ValueOutput output) {
-		super.saveAdditional(output);
-		output.putBoolean(FORMED_TAG, formed);
-		recipeProcessor.save(output.child(RECIPE_PROCESSOR_TAG));
-		items.serialize(output.child("items"));
-		items.serializeLockState(output.child(ITEM_LOCK_TAG));
-		fluids.serialize(output.child("fluids"));
-	}
-
-	@Override
-	protected void loadAdditional (@NonNull ValueInput input) {
-		super.loadAdditional(input);
-		formed = input.getBooleanOr(FORMED_TAG, false);
-		recipeProcessor.load(input.childOrEmpty(RECIPE_PROCESSOR_TAG));
-		items.deserialize(input.childOrEmpty("items"));
-		items.deserializeLockState(input.childOrEmpty(ITEM_LOCK_TAG));
-		fluids.deserialize(input.childOrEmpty("fluids"));
-	}
-
-	@Override
-	public FluidResourceHandler getFluidHandler () {
-		return fluids;
-	}
-
-	@Override
-	public FluidInventoryDefinition getFluidDefinition () {
-		return FLUIDS;
-	}
-
-	@Override
-	public SidedResourceHandlers<FluidResource> getSidedFluidHandlers () {
-		return sidedFluids;
-	}
-
-	@Override
-	public LockableItemResourceHandler getItemHandler () {
-		return items;
-	}
-
-	@Override
-	public ItemInventoryDefinition getItemDefinition () {
-		return ITEMS;
-	}
-
-	@Override
-	public SidedResourceHandlers<ItemResource> getSidedItemHandlers () {
-		return sidedItems;
-	}
-
-	/**
-	 * Copy of the current input for client-side particles and display code.
-	 */
-	public ItemStack getInputStack () {
-		return items.getResource(INPUT_SLOT).toStack(items.getAmountAsInt(INPUT_SLOT));
-	}
-
-	public FluidStack getFluidStack () {
-		return fluids.getResource(CREOSOTE_TANK).toStack(fluids.getAmountAsInt(CREOSOTE_TANK));
-	}
-
-	public int getProgress () {
-		return recipeProcessor.progress();
-	}
-
-	public int getMaxProgress () {
-		return recipeProcessor.maxProgress();
-	}
-
-	public void serverTick (ServerLevel level) {
-		if (!isMultiblockOperational()) {
-			recipeProcessor.reset();
-			setLit(level, false);
-			return;
-		}
-		MachineRecipeProcessor.TickResult result = recipeProcessor.tick(level);
-		setLit(level, result.status() == MachineRecipeProcessor.Status.RUNNING);
-	}
-
-	private void setLit (ServerLevel level, boolean lit) {
-		BlockState state = getBlockState();
-		if (!state.hasProperty(ILitProvider.LIT) || state.getValue(ILitProvider.LIT) == lit) return;
-		level.setBlock(worldPosition, state.setValue(ILitProvider.LIT, lit), Block.UPDATE_CLIENTS);
 	}
 
 	@Override
@@ -232,5 +68,4 @@ public class CokeOvenControllerBlockEntity extends BaseBlockEntity implements Mu
 	public @Nullable AbstractContainerMenu createMenu (int containerId, @NonNull Inventory inventory, @NonNull Player player) {
 		return isMultiblockOperational() ? new CokeOvenMenu(containerId, inventory, this) : null;
 	}
-
 }

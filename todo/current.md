@@ -1,4 +1,4 @@
-- [ ] Introduce electric furnace multiblock (factory)
+- [x] Introduce electric furnace multiblock (factory)
 - [ ] Add fluid transposer (?) for filling fluid blocks / buckets
 - [ ] Add fluid pump
 - [ ] Add fluid tank

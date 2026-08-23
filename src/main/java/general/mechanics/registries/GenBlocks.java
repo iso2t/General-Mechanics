@@ -1,6 +1,5 @@
 package general.mechanics.registries;
 
-import general.api.block.DecorativeBlock;
 import general.api.block.IOBlock;
 import general.api.block.RecipeProviderBlock;
 import general.api.crafting.RecipeGenerationContext;
@@ -17,6 +16,7 @@ import general.mechanics.common.block.hatch.IONetworkHatch;
 import general.mechanics.common.block.hatch.IOPowerHatch;
 import general.mechanics.common.block.machine.CokeOvenController;
 import general.mechanics.common.block.machine.ElectricFurnaceBlock;
+import general.mechanics.common.block.machine.MachineCasingBlock;
 import general.mechanics.common.block.machine.MachineFrameBlock;
 import general.mechanics.common.block.misc.CoreMatrixBlock;
 import general.mechanics.common.block.misc.EncasedFluidBlock;
@@ -74,8 +74,8 @@ public class GenBlocks extends BlockRegistry {
 	public static final BlockDefinition<CoreMatrixBlock> QUANTUM_CORE_MATRIX  = registerBlock("Quantum Core Matrix", properties -> new CoreMatrixBlock(coreMatrixProfile(64.0D), properties));
 
 	// Misc Multiblock
-	public static final BlockDefinition<DecorativeBlock>   MACHINE_CASING = registerBlock("Machine Casing", DecorativeBlock::new, () -> BlockBehaviour.Properties.of().requiresCorrectToolForDrops().strength(5.0F, 6.0F).sound(SoundType.STONE));
-	public static final BlockDefinition<MachineFrameBlock> MACHINE_FRAME  = registerBlock("Machine Frame", MachineFrameBlock::new);
+	public static final BlockDefinition<MachineCasingBlock> MACHINE_CASING = registerBlock("Machine Casing", MachineCasingBlock::new);
+	public static final BlockDefinition<MachineFrameBlock>  MACHINE_FRAME  = registerBlock("Machine Frame", MachineFrameBlock::new);
 
 	// Coke Oven
 	public static final BlockDefinition<RecipeProviderBlock> COKE_OVEN_BRICKS     = registerBlock("Coke Oven Bricks", props -> new RecipeProviderBlock(props) {

@@ -1,5 +1,6 @@
 package general.api.machine.config;
 
+import lombok.Getter;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -16,10 +17,11 @@ import java.util.Objects;
  * <p>Configuration is stored using {@link MachineFace relative faces}. Runtime
  * consumers may resolve it with a world direction, which keeps configuration
  * attached to the machine when the block is rotated. Runtime changes notify the
- * supplied listener; loading saved state deliberately does not.</p>
+ * supplied listener; loading the saved state deliberately does not.</p>
  */
 public final class MachineSideConfiguration {
 
+	@Getter
 	private final MachineSideConfigurationDefinition    definition;
 	private final EnumMap<MachineFace, MachineSideMode> modes;
 	private final ChangeListener                        changeListener;
@@ -28,10 +30,6 @@ public final class MachineSideConfiguration {
 		this.definition = Objects.requireNonNull(definition, "definition");
 		this.modes = definition.createDefaultModes();
 		this.changeListener = Objects.requireNonNull(changeListener, "changeListener");
-	}
-
-	public MachineSideConfigurationDefinition getDefinition () {
-		return definition;
 	}
 
 	public MachineSideMode getMode (MachineFace face) {

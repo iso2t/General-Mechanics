@@ -34,12 +34,19 @@ Before substituting [Hatches](../blocks/hatches.md), the complete factory requir
 
 * **1 Electric Furnace** — controller, operator interface, and designated recipient of all blame.
 * **8 Machine Frames** — the lower structural layer.
-* **9 Machine Casings** — the upper structural layer.
-* **24 matching Factory Matrices** — all one tier; collective bargaining between tiers is not supported.
+* **33 Machine Casings, 9 if upgrading** — the upper structural layer.
+* **24 matching Factory Matrices if upgrading** — all one tier; collective bargaining between tiers is not supported.
 * **3 Heating Elements** — the central thermal column.
 
 The Heating Elements are structural factory components and do not require separate redstone signals for factory
 processing. Supplying them with redstone will still make them hot, because GenTech has not yet developed ceremonial heat.
+
+<Column alignItems="center" fullWidth={true}>
+    <GameScene zoom="4" interactive={true}>
+        <ImportStructure src="../assets/assemblies/electric_furnace_factory_iron.nbt" />
+        <IsometricCamera yaw="105" pitch="5" />
+    </GameScene>
+</Column>
 
 ## Hatch Integration
 
