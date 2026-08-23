@@ -94,7 +94,11 @@ public final class WidgetMachineSideConfiguration extends AbstractWidget {
 
 	public void setOpen (boolean open) {
 		this.open = open;
-		if (!open) dragging = false;
+		if (!open) {
+			dragging = false;
+			dragMoved = false;
+			consumedButton = -1;
+		}
 	}
 
 	@Override

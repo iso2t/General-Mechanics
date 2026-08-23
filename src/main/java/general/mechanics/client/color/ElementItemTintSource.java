@@ -1,12 +1,7 @@
 package general.mechanics.client.color;
 
 import com.mojang.serialization.MapCodec;
-import general.api.item.materials.DustItem;
-import general.api.item.materials.GearItem;
-import general.api.item.materials.IngotItem;
-import general.api.item.materials.NuggetItem;
-import general.api.item.materials.PlateItem;
-import general.api.item.materials.RawItem;
+import general.api.item.materials.*;
 import net.minecraft.client.color.item.ItemTintSource;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.world.entity.LivingEntity;

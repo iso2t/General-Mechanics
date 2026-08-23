@@ -152,10 +152,19 @@ public abstract class DefinitionBackedResourceHandler<S, R extends Resource> ext
 				throw new IllegalArgumentException("Serialized resource " + resource + " is not valid for slot '" + displayName(index) + "'");
 			}
 			int capacity = getEffectiveCapacity(definition.get(index), resource);
-			if (amount > capacity) {
+			if (amount > capacity && !allowsSerializedAmountAboveCapacity(index, resource, amount, capacity)) {
 				throw new IllegalArgumentException("Serialized amount " + amount + " exceeds capacity " + capacity + " for slot '" + displayName(index) + "'");
 			}
 		}
+	}
+
+	/**
+	 * Allows specialized handlers with runtime-variable capacities to retain
+	 * contents written under a larger previous capacity. The default remains strict
+	 * so fixed-capacity handlers continue to reject malformed or incompatible data.
+	 */
+	protected boolean allowsSerializedAmountAboveCapacity (int index, R resource, int amount, int capacity) {
+		return false;
 	}
 
 	private NonNullList<S> normalizeLoadedStacks (NonNullList<S> loaded) {

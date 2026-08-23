@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiPredicate;
+import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -234,12 +235,25 @@ public abstract class AbstractMenu<B extends EntityBlock, T extends BlockEntity>
 	 * invoked after the server validates the requested face and mode.
 	 */
 	protected final void enableMachineSideConfiguration (MachineSideConfigurationDefinition definition, Function<MachineFace, MachineSideMode> modeProvider, BiPredicate<MachineFace, MachineSideMode> modeSetter) {
+		enableMachineSideConfiguration(definition, modeProvider, modeSetter, () -> true);
+	}
+
+	/**
+	 * Enables side configuration with a live availability rule. Existing menus can
+	 * continue using the three-argument overload for an always-available widget.
+	 */
+	protected final void enableMachineSideConfiguration (MachineSideConfigurationDefinition definition, Function<MachineFace, MachineSideMode> modeProvider, BiPredicate<MachineFace, MachineSideMode> modeSetter, BooleanSupplier availability) {
 		if (sideConfigurationSource != null) throw new IllegalStateException("Machine side configuration is already enabled for this menu");
-		this.sideConfigurationSource = new MachineSideConfigurationSource(Objects.requireNonNull(definition, "definition"), Objects.requireNonNull(modeProvider, "modeProvider"), Objects.requireNonNull(modeSetter, "modeSetter"));
+		this.sideConfigurationSource = new MachineSideConfigurationSource(Objects.requireNonNull(definition, "definition"), Objects.requireNonNull(modeProvider, "modeProvider"), Objects.requireNonNull(modeSetter, "modeSetter"), Objects.requireNonNull(availability, "availability"));
 	}
 
 	public final boolean hasMachineSideConfiguration () {
 		return sideConfigurationSource != null;
+	}
+
+	public final boolean isMachineSideConfigurationAvailable () {
+		MachineSideConfigurationSource source = sideConfigurationSource;
+		return source != null && source.availability().getAsBoolean();
 	}
 
 	public final MachineSideConfigurationDefinition getMachineSideConfigurationDefinition () {
@@ -277,12 +291,11 @@ public abstract class AbstractMenu<B extends EntityBlock, T extends BlockEntity>
 
 	private boolean configureMachineSide (Player player, int buttonId) {
 		MachineSideConfigurationSource source = sideConfigurationSource;
-		if (source == null || player.level().isClientSide() || !stillValid(player)) return false;
+		if (source == null || player.level().isClientSide() || !stillValid(player) || !source.availability().getAsBoolean()) return false;
 		MachineFace face = MachineFace.byId(buttonId >>> Byte.SIZE & 0xFF).orElse(null);
 		MachineSideMode mode = MachineSideMode.byId(buttonId & 0xFF).orElse(null);
 		if (face == null || mode == null || !source.definition().isConfigurable(face) || !source.definition().supports(face, mode)) return false;
-		source.modeSetter().test(face, mode);
-		return true;
+		return source.modeSetter().test(face, mode);
 	}
 
 	private boolean toggleItemSlotLock (Player player) {
@@ -353,7 +366,7 @@ public abstract class AbstractMenu<B extends EntityBlock, T extends BlockEntity>
 	private record FluidContainerSource(ResourceHandler<FluidResource> handler, int tank, int transferLimit) {
 	}
 
-	private record MachineSideConfigurationSource(MachineSideConfigurationDefinition definition, Function<MachineFace, MachineSideMode> modeProvider, BiPredicate<MachineFace, MachineSideMode> modeSetter) {
+	private record MachineSideConfigurationSource(MachineSideConfigurationDefinition definition, Function<MachineFace, MachineSideMode> modeProvider, BiPredicate<MachineFace, MachineSideMode> modeSetter, BooleanSupplier availability) {
 	}
 
 	/**

@@ -1,10 +1,12 @@
 package general.api.transfer.fluid;
 
+import general.api.machine.upgrade.MachineUpgradeProfile;
 import general.api.transfer.*;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 /**
  * Fluid convenience layer over the generic physical inventory definition.
@@ -55,6 +57,22 @@ public final class FluidInventoryDefinition {
 
 	public FluidResourceHandler createHandler (ResourceChangeListener<FluidResource> changeListener) {
 		return new FluidResourceHandler(this, changeListener);
+	}
+
+	public ProfiledFluidResourceHandler createProfiledHandler (Supplier<MachineUpgradeProfile> profileSupplier, Runnable changeCallback) {
+		return new ProfiledFluidResourceHandler(this, profileSupplier, changeCallback);
+	}
+
+	public ProfiledFluidResourceHandler createProfiledHandler (Supplier<MachineUpgradeProfile> profileSupplier, ResourceChangeListener<FluidResource> changeListener) {
+		return new ProfiledFluidResourceHandler(this, profileSupplier, changeListener);
+	}
+
+	public ProfiledFluidResourceHandler createProfiledHandler (MachineUpgradeProfile profile, Runnable changeCallback) {
+		return new ProfiledFluidResourceHandler(this, profile, changeCallback);
+	}
+
+	public ProfiledFluidResourceHandler createProfiledHandler (MachineUpgradeProfile profile, ResourceChangeListener<FluidResource> changeListener) {
+		return new ProfiledFluidResourceHandler(this, profile, changeListener);
 	}
 
 	public static final class Builder {

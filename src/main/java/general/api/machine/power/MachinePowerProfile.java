@@ -1,5 +1,9 @@
 package general.api.machine.power;
 
+import general.api.machine.upgrade.MachineUpgradeProfile;
+
+import java.util.Objects;
+
 /**
  * Storage limits and processing economics for a machine operating tier.
  *
@@ -33,6 +37,18 @@ public record MachinePowerProfile(int capacity, int maxInput, int baseEnergyPerT
 
 	public MachinePowerProfile withModifiers (double speedMultiplier, double energyMultiplier) {
 		return new MachinePowerProfile(capacity, maxInput, baseEnergyPerTick, speedMultiplier, energyMultiplier);
+	}
+
+	/**
+	 * Applies the power-related portions of an upgrade profile. Input is capped at
+	 * the resulting storage capacity because a larger per-operation input could
+	 * never be accepted by this profile.
+	 */
+	public MachinePowerProfile upgradedBy (MachineUpgradeProfile upgrade) {
+		Objects.requireNonNull(upgrade, "upgrade");
+		int upgradedCapacity = upgrade.scaleEnergyCapacity(capacity);
+		int upgradedInput = Math.min(upgradedCapacity, upgrade.scaleEnergyInput(maxInput));
+		return new MachinePowerProfile(upgradedCapacity, upgradedInput, baseEnergyPerTick, speedMultiplier * upgrade.processingSpeedMultiplier(), energyMultiplier);
 	}
 
 	public MachinePowerPlan plan (int baseDuration) {

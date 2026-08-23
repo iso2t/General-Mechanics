@@ -11,6 +11,8 @@ import general.api.machine.config.MachineSideConfiguration;
 import general.api.machine.config.MachineSideConfigurationDefinition;
 import general.api.machine.config.MachineSideMode;
 import general.api.machine.power.MachinePowerProfile;
+import general.api.machine.upgrade.MachineUpgradeProfile;
+import general.api.machine.upgrade.MachineUpgradeProvider;
 import general.api.model.ConfigurableMachineModelData;
 import general.api.multiblock.MultiblockController;
 import general.api.multiblock.MultiblockHandler;
@@ -19,13 +21,14 @@ import general.api.network.INetworkInterface;
 import general.api.network.NetworkNode;
 import general.api.network.NetworkServices;
 import general.api.transfer.*;
+import general.api.transfer.energy.ProfiledEnergyHandler;
 import general.api.transfer.energy.SidedEnergyHandlers;
 import general.api.transfer.energy.SidedEnergyResourceProvider;
+import general.api.transfer.energy.SupplierBackedEnergyHandler;
 import general.api.transfer.item.ItemInventoryDefinition;
 import general.api.transfer.item.LockableItemResourceHandler;
 import general.api.transfer.item.SidedItemResourceProvider;
 import general.mechanics.common.block.machine.ElectricFurnaceBlock;
-import general.mechanics.common.block.misc.CoreMatrixBlock;
 import general.mechanics.common.menus.ElectricFurnaceMenu;
 import general.mechanics.common.network.NetworkConnectorServices;
 import general.mechanics.registries.GenMultiblocks;
@@ -54,11 +57,11 @@ import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.model.data.ModelData;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.energy.EnergyHandler;
-import net.neoforged.neoforge.transfer.energy.LimitingEnergyHandler;
-import net.neoforged.neoforge.transfer.energy.SimpleEnergyHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+
+import java.util.Objects;
 
 /**
  * Persistent storage, multiblock state, and dynamically configured external
@@ -71,12 +74,19 @@ public class ElectricFurnaceBlockEntity extends BaseBlockEntity implements Multi
 	private static final String ENERGY_TAG             = "energy";
 	private static final String RECIPE_PROCESSOR_TAG   = "recipe_processor";
 	private static final String SIDE_CONFIGURATION_TAG = "side_configuration";
+	private static final String MULTIBLOCK_PROFILE_TAG = "multiblock_upgrade_profile";
+	private static final String OPERATING_PROFILE_TAG  = "operating_upgrade_profile";
+	/**
+	 * Legacy speed-only persistence retained for world compatibility.
+	 */
 	private static final String MULTIBLOCK_SPEED_TAG   = "multiblock_speed";
 	private static final String OPERATING_SPEED_TAG    = "operating_speed";
 
 	private static final MachinePowerProfile BASE_POWER_PROFILE = MachinePowerProfile.base(100_000, 10_000, 20);
 
-	/** Standalone operation uses the recipe's base processing time. */
+	/**
+	 * Standalone operation uses the recipe's base processing time.
+	 */
 	public static final MachinePowerProfile STANDALONE_POWER_PROFILE = BASE_POWER_PROFILE;
 
 	public static final ItemInventoryDefinition ITEMS = ItemInventoryDefinition.builder().input(ElectricFurnaceBlock.RecipeSlots.INPUT).input(ElectricFurnaceBlock.RecipeSlots.CATALYST).output(ElectricFurnaceBlock.RecipeSlots.OUTPUT_1).output(ElectricFurnaceBlock.RecipeSlots.OUTPUT_2).output(ElectricFurnaceBlock.RecipeSlots.OUTPUT_3).output(ElectricFurnaceBlock.RecipeSlots.OUTPUT_4).build();
@@ -105,7 +115,7 @@ public class ElectricFurnaceBlockEntity extends BaseBlockEntity implements Multi
 	private final LockableItemResourceHandler         items;
 	private final SidedResourceHandlers<ItemResource> sidedItems;
 	private final ResourceHandler<ItemResource>       networkItems;
-	private final SimpleEnergyHandler                 energy;
+	private final ProfiledEnergyHandler               energy;
 	private final EnergyHandler                       networkEnergyInput;
 	private final SidedEnergyHandlers                 sidedEnergy;
 	private final NetworkNode                         networkNode;
@@ -113,7 +123,8 @@ public class ElectricFurnaceBlockEntity extends BaseBlockEntity implements Multi
 	private final MachineRecipeProcessor              recipeProcessor;
 	private       boolean                             formed;
 	private       boolean                             multiblockProfileResolved = true;
-	private       MachinePowerProfile                 multiblockPowerProfile    = STANDALONE_POWER_PROFILE;
+	private       MachineUpgradeProfile               multiblockUpgradeProfile  = MachineUpgradeProfile.identity();
+	private       MachineUpgradeProfile               operatingUpgradeProfile   = MachineUpgradeProfile.identity();
 	private       MachinePowerProfile                 operatingPowerProfile     = STANDALONE_POWER_PROFILE;
 
 	public ElectricFurnaceBlockEntity (BlockEntityType<ElectricFurnaceBlockEntity> type, BlockPos pos, BlockState state) {
@@ -128,13 +139,8 @@ public class ElectricFurnaceBlockEntity extends BaseBlockEntity implements Multi
 		}
 		this.sidedItems = itemViews.build();
 
-		this.energy = new SimpleEnergyHandler(STANDALONE_POWER_PROFILE.capacity(), STANDALONE_POWER_PROFILE.maxInput(), STANDALONE_POWER_PROFILE.capacity()) {
-			@Override
-			protected void onEnergyChanged (int amount) {
-				setChanged();
-			}
-		};
-		this.networkEnergyInput = new LimitingEnergyHandler(energy, STANDALONE_POWER_PROFILE.maxInput(), 0);
+		this.energy = new ProfiledEnergyHandler(BASE_POWER_PROFILE.capacity(), BASE_POWER_PROFILE.maxInput(), BASE_POWER_PROFILE.capacity(), this::getOperatingUpgradeProfile, this::setChanged);
+		this.networkEnergyInput = new SupplierBackedEnergyHandler(() -> energy, () -> formed ? ResourceIoMode.NONE : ResourceIoMode.INSERT);
 
 		var energyViews = SidedEnergyHandlers.builder(energy);
 		for (Direction side : Direction.values()) {
@@ -167,7 +173,7 @@ public class ElectricFurnaceBlockEntity extends BaseBlockEntity implements Multi
 	 * Server-authoritative side mutation used by the shared configuration menu.
 	 */
 	public boolean setSideMode (MachineFace face, MachineSideMode mode) {
-		if (level != null && level.isClientSide()) return false;
+		if (formed || level != null && level.isClientSide()) return false;
 		return sideConfiguration.setMode(face, mode);
 	}
 
@@ -181,6 +187,18 @@ public class ElectricFurnaceBlockEntity extends BaseBlockEntity implements Multi
 
 	public double getProcessingSpeedMultiplier () {
 		return operatingPowerProfile.speedMultiplier();
+	}
+
+	public MachineUpgradeProfile getMultiblockUpgradeProfile () {
+		return multiblockUpgradeProfile;
+	}
+
+	public MachineUpgradeProfile getOperatingUpgradeProfile () {
+		return operatingUpgradeProfile;
+	}
+
+	public int getMaxEnergyInput () {
+		return energy.getMaxInsert();
 	}
 
 	public int getProgress () {
@@ -216,7 +234,12 @@ public class ElectricFurnaceBlockEntity extends BaseBlockEntity implements Multi
 			setLit(level, false);
 			return new MachineRecipeProcessor.TickResult(recipeProcessor.status(), false);
 		}
-		refreshOperatingPowerProfile(level);
+		boolean multiblockOperational = formed && isMultiblockOperational();
+		refreshOperatingProfile(level, multiblockOperational);
+		if (formed && !multiblockOperational) {
+			setLit(level, false);
+			return new MachineRecipeProcessor.TickResult(recipeProcessor.status(), false);
+		}
 		MachineRecipeProcessor.TickResult result = recipeProcessor.tick(level);
 		setLit(level, result.status() == MachineRecipeProcessor.Status.RUNNING || result.crafted());
 		return result;
@@ -228,7 +251,7 @@ public class ElectricFurnaceBlockEntity extends BaseBlockEntity implements Multi
 	}
 
 	public @Nullable ResourceHandler<ItemResource> getItemCapability (@Nullable Direction side) {
-		return getSideMode(side).isItem() ? getItemHandler(side) : null;
+		return !formed && getSideMode(side).isItem() ? getItemHandler(side) : null;
 	}
 
 	@Override
@@ -247,11 +270,11 @@ public class ElectricFurnaceBlockEntity extends BaseBlockEntity implements Multi
 	}
 
 	public @Nullable EnergyHandler getEnergyCapability (@Nullable Direction side) {
-		return getEnergyHandler(side);
+		return formed ? null : getEnergyHandler(side);
 	}
 
 	@Override
-	public SimpleEnergyHandler getEnergyHandler () {
+	public ProfiledEnergyHandler getEnergyHandler () {
 		return energy;
 	}
 
@@ -261,7 +284,7 @@ public class ElectricFurnaceBlockEntity extends BaseBlockEntity implements Multi
 	}
 
 	public @Nullable INetworkInterface getNetworkCapability (@Nullable Direction side) {
-		return getSideMode(side) == MachineSideMode.NETWORK ? this : null;
+		return !formed && getSideMode(side) == MachineSideMode.NETWORK ? this : null;
 	}
 
 	@Override
@@ -272,6 +295,7 @@ public class ElectricFurnaceBlockEntity extends BaseBlockEntity implements Multi
 
 	@Override
 	public boolean isNetworkEnabled () {
+		if (formed) return false;
 		for (MachineFace face : MachineFace.values()) {
 			if (sideConfiguration.getMode(face) == MachineSideMode.NETWORK) return true;
 		}
@@ -331,7 +355,9 @@ public class ElectricFurnaceBlockEntity extends BaseBlockEntity implements Multi
 		recipeProcessor.save(output.child(RECIPE_PROCESSOR_TAG));
 		sideConfiguration.save(output.child(SIDE_CONFIGURATION_TAG));
 		output.putBoolean(FORMED_TAG, formed);
-		output.putDouble(MULTIBLOCK_SPEED_TAG, multiblockPowerProfile.speedMultiplier());
+		multiblockUpgradeProfile.save(output.child(MULTIBLOCK_PROFILE_TAG));
+		operatingUpgradeProfile.save(output.child(OPERATING_PROFILE_TAG));
+		output.putDouble(MULTIBLOCK_SPEED_TAG, multiblockUpgradeProfile.processingSpeedMultiplier());
 		output.putDouble(OPERATING_SPEED_TAG, operatingPowerProfile.speedMultiplier());
 	}
 
@@ -345,8 +371,11 @@ public class ElectricFurnaceBlockEntity extends BaseBlockEntity implements Multi
 		sideConfiguration.load(input.childOrEmpty(SIDE_CONFIGURATION_TAG));
 		formed = input.getBooleanOr(FORMED_TAG, false);
 		multiblockProfileResolved = !formed;
-		multiblockPowerProfile = profileWithSpeed(input.getDoubleOr(MULTIBLOCK_SPEED_TAG, STANDALONE_POWER_PROFILE.speedMultiplier()), STANDALONE_POWER_PROFILE);
-		operatingPowerProfile = profileWithSpeed(input.getDoubleOr(OPERATING_SPEED_TAG, STANDALONE_POWER_PROFILE.speedMultiplier()), STANDALONE_POWER_PROFILE);
+		MachineUpgradeProfile legacyMultiblock = legacyUpgradeProfile(input.getDoubleOr(MULTIBLOCK_SPEED_TAG, MachineUpgradeProfile.identity().processingSpeedMultiplier()));
+		MachineUpgradeProfile legacyOperating = legacyUpgradeProfile(input.getDoubleOr(OPERATING_SPEED_TAG, STANDALONE_POWER_PROFILE.speedMultiplier()));
+		multiblockUpgradeProfile = MachineUpgradeProfile.load(input.childOrEmpty(MULTIBLOCK_PROFILE_TAG), legacyMultiblock);
+		operatingUpgradeProfile = MachineUpgradeProfile.load(input.childOrEmpty(OPERATING_PROFILE_TAG), legacyOperating);
+		operatingPowerProfile = BASE_POWER_PROFILE.upgradedBy(operatingUpgradeProfile);
 	}
 
 	@Override
@@ -360,6 +389,7 @@ public class ElectricFurnaceBlockEntity extends BaseBlockEntity implements Multi
 	}
 
 	private ResourceIoMode itemIoMode (Direction side) {
+		if (formed) return ResourceIoMode.NONE;
 		return switch (getSideMode(side)) {
 			case ITEM_INPUT -> ResourceIoMode.INSERT;
 			case ITEM_OUTPUT -> ResourceIoMode.EXTRACT;
@@ -378,7 +408,7 @@ public class ElectricFurnaceBlockEntity extends BaseBlockEntity implements Multi
 	}
 
 	private ResourceIoMode energyIoMode (Direction side) {
-		return getSideMode(side) == MachineSideMode.ENERGY_INPUT ? ResourceIoMode.INSERT : ResourceIoMode.NONE;
+		return !formed && getSideMode(side) == MachineSideMode.ENERGY_INPUT ? ResourceIoMode.INSERT : ResourceIoMode.NONE;
 	}
 
 	private void onSideConfigurationChanged (MachineFace face, MachineSideMode previous, MachineSideMode current) {
@@ -394,8 +424,12 @@ public class ElectricFurnaceBlockEntity extends BaseBlockEntity implements Multi
 	}
 
 	private void registerNetworkServices () {
-		networkNode.getServices().register(NetworkServices.ITEM, NetworkConnectorServices.itemService(() -> networkItems));
-		networkNode.getServices().register(NetworkServices.ENERGY, NetworkConnectorServices.energyService(() -> networkEnergyInput));
+		if (formed) {
+			networkNode.getServices().clear();
+			return;
+		}
+		networkNode.getServices().register(NetworkServices.ITEM, NetworkConnectorServices.itemService(() -> formed ? null : networkItems));
+		networkNode.getServices().register(NetworkServices.ENERGY, NetworkConnectorServices.energyService(() -> formed ? null : networkEnergyInput));
 	}
 
 	@Override
@@ -424,21 +458,29 @@ public class ElectricFurnaceBlockEntity extends BaseBlockEntity implements Multi
 		this.formed = formed;
 		if (!formed) {
 			multiblockProfileResolved = true;
-			multiblockPowerProfile = STANDALONE_POWER_PROFILE;
+			multiblockUpgradeProfile = MachineUpgradeProfile.identity();
 		}
+		operatingUpgradeProfile = MachineUpgradeProfile.identity();
 		operatingPowerProfile = STANDALONE_POWER_PROFILE;
+		registerNetworkServices();
 		resetProcessing();
 		setChanged();
 		if (level != null) {
 			level.invalidateCapabilities(worldPosition);
 			level.updateNeighborsAt(worldPosition, getBlockState().getBlock());
+			BlockState state = getBlockState();
+			level.sendBlockUpdated(worldPosition, state, state, Block.UPDATE_CLIENTS);
 		}
 	}
 
 	@Override
 	public void onMultiblockValidated (MultiblockInstance instance) {
-		multiblockPowerProfile = resolveMultiblockPowerProfile(instance);
+		MachineUpgradeProfile resolvedProfile = resolveMultiblockUpgradeProfile(instance);
+		boolean profileChanged = !multiblockProfileResolved || !resolvedProfile.equals(multiblockUpgradeProfile);
+		multiblockUpgradeProfile = resolvedProfile;
 		multiblockProfileResolved = true;
+		if (profileChanged) setChanged();
+		if (level instanceof ServerLevel serverLevel && formed) refreshOperatingProfile(serverLevel, isMultiblockOperational());
 	}
 
 	@Override
@@ -446,26 +488,30 @@ public class ElectricFurnaceBlockEntity extends BaseBlockEntity implements Multi
 		if (level instanceof ServerLevel serverLevel) MultiblockHandler.spawnFormationParticles(serverLevel, instance);
 	}
 
-	private MachinePowerProfile resolveMultiblockPowerProfile (MultiblockInstance instance) {
-		if (level == null) return BASE_POWER_PROFILE;
+	private MachineUpgradeProfile resolveMultiblockUpgradeProfile (MultiblockInstance instance) {
+		if (level == null) return MachineUpgradeProfile.identity();
 		var matrixPositions = instance.definition().get().pattern().getWorldPositions('U', instance.anchor(), instance.facing());
-		if (matrixPositions.isEmpty()) return BASE_POWER_PROFILE;
+		if (matrixPositions.isEmpty()) return MachineUpgradeProfile.identity();
 		Block matrixBlock = level.getBlockState(matrixPositions.getFirst()).getBlock();
-		double speed = matrixBlock instanceof CoreMatrixBlock matrix ? matrix.getProcessingSpeedMultiplier() : 1.0D;
-		return BASE_POWER_PROFILE.withSpeed(speed);
+		return matrixBlock instanceof MachineUpgradeProvider provider ? Objects.requireNonNull(provider.getUpgradeProfile(), "Machine upgrade provider returned null") : MachineUpgradeProfile.identity();
 	}
 
-	private static MachinePowerProfile profileWithSpeed (double speed, MachinePowerProfile fallback) {
-		return Double.isFinite(speed) && speed > 0.0D ? BASE_POWER_PROFILE.withSpeed(speed) : fallback;
+	private static MachineUpgradeProfile legacyUpgradeProfile (double speed) {
+		return Double.isFinite(speed) && speed > 0.0D ? MachineUpgradeProfile.speed(speed) : MachineUpgradeProfile.identity();
 	}
 
-	private void refreshOperatingPowerProfile (ServerLevel level) {
-		MachinePowerProfile next = isMultiblockOperational() ? multiblockPowerProfile : STANDALONE_POWER_PROFILE;
-		if (next.equals(operatingPowerProfile)) return;
+	private void refreshOperatingProfile (ServerLevel level, boolean multiblockOperational) {
+		MachineUpgradeProfile next = multiblockOperational ? multiblockUpgradeProfile : MachineUpgradeProfile.identity();
+		if (next.equals(operatingUpgradeProfile)) return;
 
-		operatingPowerProfile = next;
+		operatingUpgradeProfile = next;
+		operatingPowerProfile = BASE_POWER_PROFILE.upgradedBy(next);
 		recipeProcessor.reset();
 		setLit(level, false);
 		setChanged();
+		level.invalidateCapabilities(worldPosition);
+		level.updateNeighborsAt(worldPosition, getBlockState().getBlock());
+		BlockState state = getBlockState();
+		level.sendBlockUpdated(worldPosition, state, state, Block.UPDATE_CLIENTS);
 	}
 }

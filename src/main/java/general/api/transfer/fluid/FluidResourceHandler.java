@@ -8,7 +8,7 @@ import net.neoforged.neoforge.transfer.fluid.FluidResource;
 /**
  * Definition-backed transactional fluid storage.
  */
-public final class FluidResourceHandler extends DefinitionBackedResourceHandler<FluidStack, FluidResource> {
+public class FluidResourceHandler extends DefinitionBackedResourceHandler<FluidStack, FluidResource> {
 
 	public FluidResourceHandler (FluidInventoryDefinition definition, ResourceChangeListener<FluidResource> changeListener) {
 		super(definition.genericDefinition(), FluidStack.EMPTY, FluidStack.OPTIONAL_CODEC, changeListener);

@@ -158,14 +158,7 @@ public class HeatingElementBlock extends BaseBlock implements EntityBlock, Block
 
 	@Override
 	public void generateRecipes (RecipeGenerationContext context) {
-		context.save(ShapedRecipeBuilder.shaped(context.items(), RecipeCategory.MISC, this, 1)
-				.pattern("SSS")
-				.pattern("BEB")
-				.pattern("SSS")
-				.define('E', GenBlocks.ENCASED_LAVA.get())
-				.define('S', GenItems.STEEL.get().getPlateItem())
-				.define('B', GenItems.STEEL),
-				"heating_element");
+		context.save(ShapedRecipeBuilder.shaped(context.items(), RecipeCategory.MISC, this, 1).pattern("SSS").pattern("BEB").pattern("SSS").define('E', GenBlocks.ENCASED_LAVA.get()).define('S', GenItems.STEEL.get().getPlateItem()).define('B', GenItems.STEEL), "heating_element");
 	}
 
 	@Override

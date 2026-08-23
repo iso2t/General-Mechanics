@@ -32,7 +32,8 @@ public class ElectricFurnaceMenu extends AbstractMenu<ElectricFurnaceBlock, Elec
 	private static final int DATA_ENERGY_CAPACITY_LOW  = 6;
 	private static final int DATA_ENERGY_CAPACITY_HIGH = 7;
 	private static final int DATA_SIDE_MODE_START      = 8;
-	private static final int DATA_COUNT                = DATA_SIDE_MODE_START + MachineFace.values().length;
+	private static final int DATA_FORMED               = DATA_SIDE_MODE_START + MachineFace.values().length;
+	private static final int DATA_COUNT                = DATA_FORMED + 1;
 
 	private static final int INPUT_X    = 56;
 	private static final int INPUT_Y    = 35;
@@ -48,7 +49,7 @@ public class ElectricFurnaceMenu extends AbstractMenu<ElectricFurnaceBlock, Elec
 	 * Client-side construction from the block position sent by the menu provider.
 	 */
 	public ElectricFurnaceMenu (int containerId, Inventory inventory, RegistryFriendlyByteBuf buffer) {
-		this(containerId, inventory, findBlockEntity(inventory, buffer), new SimpleContainerData(DATA_COUNT));
+		this(containerId, inventory, findBlockEntity(inventory, buffer), true);
 	}
 
 	/**
@@ -58,11 +59,15 @@ public class ElectricFurnaceMenu extends AbstractMenu<ElectricFurnaceBlock, Elec
 		this(containerId, inventory, blockEntity, createServerData(blockEntity));
 	}
 
+	private ElectricFurnaceMenu (int containerId, Inventory inventory, ElectricFurnaceBlockEntity blockEntity, boolean initializeClientData) {
+		this(containerId, inventory, blockEntity, createClientData(blockEntity));
+	}
+
 	private ElectricFurnaceMenu (int containerId, Inventory inventory, ElectricFurnaceBlockEntity blockEntity, ContainerData data) {
 		super(GenMenus.ELECTRIC_FURNACE.get(), containerId, inventory, GenBlocks.ELECTRIC_FURNACE.get(), blockEntity, data, ElectricFurnaceBlock.getRecipeDefinition());
 		checkContainerDataCount(data, DATA_COUNT);
 		enableItemSlotLocking(blockEntity.getItemHandler());
-		enableMachineSideConfiguration(ElectricFurnaceBlockEntity.SIDES, this::getSideMode, blockEntity::setSideMode);
+		enableMachineSideConfiguration(ElectricFurnaceBlockEntity.SIDES, this::getSideMode, blockEntity::setSideMode, () -> !isMultiblockFormed());
 	}
 
 	@Override
@@ -107,6 +112,10 @@ public class ElectricFurnaceMenu extends AbstractMenu<ElectricFurnaceBlock, Elec
 		return MachineSideMode.byId(getData().get(DATA_SIDE_MODE_START + face.id())).orElse(MachineSideMode.NONE);
 	}
 
+	public boolean isMultiblockFormed () {
+		return getData().get(DATA_FORMED) != 0;
+	}
+
 	private void addOutputSlot (LockableItemResourceHandler handler, int handlerSlot, int x, int y) {
 		addSlot(new ResourceHandlerSlot(handler, handler::set, handlerSlot, x, y) {
 			@Override
@@ -132,6 +141,7 @@ public class ElectricFurnaceMenu extends AbstractMenu<ElectricFurnaceBlock, Elec
 		return new ContainerData() {
 			@Override
 			public int get (int index) {
+				if (index == DATA_FORMED) return blockEntity.isMultiblockFormed() ? 1 : 0;
 				return switch (index) {
 					case DATA_PROGRESS_LOW -> ContainerDataInts.lowWord(blockEntity.getProgress());
 					case DATA_PROGRESS_HIGH -> ContainerDataInts.highWord(blockEntity.getProgress());
@@ -159,5 +169,20 @@ public class ElectricFurnaceMenu extends AbstractMenu<ElectricFurnaceBlock, Elec
 				return DATA_COUNT;
 			}
 		};
+	}
+
+	private static ContainerData createClientData (ElectricFurnaceBlockEntity blockEntity) {
+		SimpleContainerData data = new SimpleContainerData(DATA_COUNT);
+		data.set(DATA_PROGRESS_LOW, ContainerDataInts.lowWord(blockEntity.getProgress()));
+		data.set(DATA_PROGRESS_HIGH, ContainerDataInts.highWord(blockEntity.getProgress()));
+		data.set(DATA_MAX_PROGRESS_LOW, ContainerDataInts.lowWord(blockEntity.getMaxProgress()));
+		data.set(DATA_MAX_PROGRESS_HIGH, ContainerDataInts.highWord(blockEntity.getMaxProgress()));
+		data.set(DATA_ENERGY_LOW, ContainerDataInts.lowWord(blockEntity.getEnergyStored()));
+		data.set(DATA_ENERGY_HIGH, ContainerDataInts.highWord(blockEntity.getEnergyStored()));
+		data.set(DATA_ENERGY_CAPACITY_LOW, ContainerDataInts.lowWord(blockEntity.getEnergyCapacity()));
+		data.set(DATA_ENERGY_CAPACITY_HIGH, ContainerDataInts.highWord(blockEntity.getEnergyCapacity()));
+		for (MachineFace face : MachineFace.values()) data.set(DATA_SIDE_MODE_START + face.id(), blockEntity.getSideMode(face).id());
+		data.set(DATA_FORMED, blockEntity.isMultiblockFormed() ? 1 : 0);
+		return data;
 	}
 }

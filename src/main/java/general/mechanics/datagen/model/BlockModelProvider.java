@@ -25,11 +25,7 @@ import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.MultiVariant;
 import net.minecraft.client.data.models.blockstates.*;
-import net.minecraft.client.data.models.model.ItemModelUtils;
-import net.minecraft.client.data.models.model.ModelTemplates;
-import net.minecraft.client.data.models.model.TextureMapping;
-import net.minecraft.client.data.models.model.TextureSlot;
-import net.minecraft.client.data.models.model.TexturedModel;
+import net.minecraft.client.data.models.model.*;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelDispatcher;
 import net.minecraft.client.renderer.block.dispatch.VariantMutator;
 import net.minecraft.client.resources.model.sprite.Material;
@@ -60,8 +56,8 @@ public final class BlockModelProvider extends ModelProviders {
 	public static final Identifier MACHINE_SIDE   = Resource.get("block/machine/machine_side");
 
 	// Custom texture slots used by layered encased-fluid, ore, and machine-frame models.
-	private static final TextureSlot BASE    = TextureSlot.create("base");
-	private static final TextureSlot OVERLAY = TextureSlot.create("overlay");
+	private static final TextureSlot BASE                = TextureSlot.create("base");
+	private static final TextureSlot OVERLAY             = TextureSlot.create("overlay");
 	// Resin-spot face texture for a full rubber log.
 	private static final TextureSlot RESIN               = TextureSlot.create("resin");
 	private static final int         DEFAULT_WATER_COLOR = 0xFF3F76E4;
@@ -134,19 +130,11 @@ public final class BlockModelProvider extends ModelProviders {
 
 		var stillTexture = Resource.getMinecraftResource(isWater ? "block/water_still" : "block/lava_still");
 		var fluidMaterial = mat(stillTexture).withForceTranslucent(isWater);
-		var itemModel = ExtendedModelTemplateBuilder.builder()
-				.parent(Resource.getMinecraftResource("block/block"))
-				.requiredTextureSlot(BASE)
-				.requiredTextureSlot(OVERLAY)
-				.requiredTextureSlot(TextureSlot.PARTICLE)
-				.element(element -> element.from(0.01F, 0.01F, 0.01F).to(15.99F, 15.99F, 15.99F).allFaces((_, face) -> {
-					face.texture(BASE).uvs(0, 0, 16, 16);
-					if (isWater) face.tintindex(0);
-					if (isLava) face.lightEmission(15);
-				}))
-				.element(element -> element.from(0, 0, 0).to(16, 16, 16).textureAll(OVERLAY))
-				.build()
-				.create(Resource.get("block/" + definition.getId().getPath() + "_item"), new TextureMapping().put(BASE, fluidMaterial).put(OVERLAY, casing).put(TextureSlot.PARTICLE, casing), generators.modelOutput);
+		var itemModel = ExtendedModelTemplateBuilder.builder().parent(Resource.getMinecraftResource("block/block")).requiredTextureSlot(BASE).requiredTextureSlot(OVERLAY).requiredTextureSlot(TextureSlot.PARTICLE).element(element -> element.from(0.01F, 0.01F, 0.01F).to(15.99F, 15.99F, 15.99F).allFaces((_, face) -> {
+			face.texture(BASE).uvs(0, 0, 16, 16);
+			if (isWater) face.tintindex(0);
+			if (isLava) face.lightEmission(15);
+		})).element(element -> element.from(0, 0, 0).to(16, 16, 16).textureAll(OVERLAY)).build().create(Resource.get("block/" + definition.getId().getPath() + "_item"), new TextureMapping().put(BASE, fluidMaterial).put(OVERLAY, casing).put(TextureSlot.PARTICLE, casing), generators.modelOutput);
 
 		if (isWater) {
 			generators.itemModelOutput.accept(definition.get().asItem(), ItemModelUtils.tintedModel(itemModel, ItemModelUtils.constantTint(DEFAULT_WATER_COLOR)));

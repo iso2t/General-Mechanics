@@ -1,12 +1,7 @@
 package general.mechanics.datagen.model;
 
 import general.api.item.ToolItem;
-import general.api.item.materials.DustItem;
-import general.api.item.materials.GearItem;
-import general.api.item.materials.IngotItem;
-import general.api.item.materials.NuggetItem;
-import general.api.item.materials.PlateItem;
-import general.api.item.materials.RawItem;
+import general.api.item.materials.*;
 import general.api.mod.GenAPI;
 import general.api.resources.Resource;
 import general.mechanics.client.color.ElementItemTintSource;

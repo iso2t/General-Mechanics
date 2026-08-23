@@ -5,6 +5,7 @@ import general.api.block.IOBlock;
 import general.api.block.RecipeProviderBlock;
 import general.api.crafting.RecipeGenerationContext;
 import general.api.definitions.BlockDefinition;
+import general.api.machine.upgrade.MachineUpgradeProfile;
 import general.api.mod.GenAPI;
 import general.api.registry.RegistryString;
 import general.api.registry.block.BlockRegistry;
@@ -61,16 +62,16 @@ public class GenBlocks extends BlockRegistry {
 	public static final BlockDefinition<IOFluidHatch>              FLUID_INPUT_HATCH     = registerBlock("Fluid Input Hatch", properties -> new IOFluidHatch(properties, IOBlock.IOMode.INPUT));
 	public static final BlockDefinition<IOFluidHatch>              FLUID_OUTPUT_HATCH    = registerBlock("Fluid Output Hatch", properties -> new IOFluidHatch(properties, IOBlock.IOMode.OUTPUT));
 	public static final BlockDefinition<IOPowerHatch>              POWER_HATCH           = registerBlock("Power Hatch", IOPowerHatch::new);
-	public static final BlockDefinition<IONetworkHatch>    NETWORK_HATCH = registerBlock("Network Hatch", IONetworkHatch::new);
-	public static final BlockDefinition<EncasedFluidBlock> ENCASED_WATER = registerBlock("Encased Water", properties -> new EncasedFluidBlock(properties, Fluids.WATER));
-	public static final BlockDefinition<EncasedFluidBlock> ENCASED_LAVA  = registerBlock("Encased Lava", properties -> new EncasedFluidBlock(properties, Fluids.LAVA));
+	public static final BlockDefinition<IONetworkHatch>            NETWORK_HATCH         = registerBlock("Network Hatch", IONetworkHatch::new);
+	public static final BlockDefinition<EncasedFluidBlock>         ENCASED_WATER         = registerBlock("Encased Water", properties -> new EncasedFluidBlock(properties, Fluids.WATER));
+	public static final BlockDefinition<EncasedFluidBlock>         ENCASED_LAVA          = registerBlock("Encased Lava", properties -> new EncasedFluidBlock(properties, Fluids.LAVA));
 
 	// Upgrade blocks
-	public static final BlockDefinition<CoreMatrixBlock> IRON_CORE_MATRIX     = registerBlock("Iron Core Matrix", properties -> new CoreMatrixBlock(1.25D, properties));
-	public static final BlockDefinition<CoreMatrixBlock> STEEL_CORE_MATRIX    = registerBlock("Steel Core Matrix", properties -> new CoreMatrixBlock(2.0D, properties));
-	public static final BlockDefinition<CoreMatrixBlock> TITANIUM_CORE_MATRIX = registerBlock("Titanium Core Matrix", properties -> new CoreMatrixBlock(4.0D, properties));
-	public static final BlockDefinition<CoreMatrixBlock> TUNGSTEN_CORE_MATRIX = registerBlock("Tungsten Core Matrix", properties -> new CoreMatrixBlock(32.0D, properties));
-	public static final BlockDefinition<CoreMatrixBlock> QUANTUM_CORE_MATRIX  = registerBlock("Quantum Core Matrix", properties -> new CoreMatrixBlock(64.0D, properties));
+	public static final BlockDefinition<CoreMatrixBlock> IRON_CORE_MATRIX     = registerBlock("Iron Core Matrix", properties -> new CoreMatrixBlock(coreMatrixProfile(1.25D), properties));
+	public static final BlockDefinition<CoreMatrixBlock> STEEL_CORE_MATRIX    = registerBlock("Steel Core Matrix", properties -> new CoreMatrixBlock(coreMatrixProfile(2.0D), properties));
+	public static final BlockDefinition<CoreMatrixBlock> TITANIUM_CORE_MATRIX = registerBlock("Titanium Core Matrix", properties -> new CoreMatrixBlock(coreMatrixProfile(4.0D), properties));
+	public static final BlockDefinition<CoreMatrixBlock> TUNGSTEN_CORE_MATRIX = registerBlock("Tungsten Core Matrix", properties -> new CoreMatrixBlock(coreMatrixProfile(32.0D), properties));
+	public static final BlockDefinition<CoreMatrixBlock> QUANTUM_CORE_MATRIX  = registerBlock("Quantum Core Matrix", properties -> new CoreMatrixBlock(coreMatrixProfile(64.0D), properties));
 
 	// Misc Multiblock
 	public static final BlockDefinition<DecorativeBlock>   MACHINE_CASING = registerBlock("Machine Casing", DecorativeBlock::new, () -> BlockBehaviour.Properties.of().requiresCorrectToolForDrops().strength(5.0F, 6.0F).sound(SoundType.STONE));
@@ -93,6 +94,10 @@ public class GenBlocks extends BlockRegistry {
 	// Machines
 	public static final BlockDefinition<ElectricFurnaceBlock> ELECTRIC_FURNACE = registerBlock("Electric Furnace", ElectricFurnaceBlock::new);
 	public static final BlockDefinition<HeatingElementBlock>  HEATING_ELEMENT  = registerBlock("Heating Element", HeatingElementBlock::new);
+
+	private static MachineUpgradeProfile coreMatrixProfile (double multiplier) {
+		return MachineUpgradeProfile.builder().processingSpeed(multiplier).energy(multiplier, multiplier, multiplier).fluid(multiplier, multiplier).build();
+	}
 
 	private static String formatColorName (String colorName) {
 		String[] words = colorName.split("_");

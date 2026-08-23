@@ -105,8 +105,8 @@ public final class MultiblockPattern {
 
 		private final Map<Character, MultiblockElement> palette = new HashMap<>();
 
-		private final List<List<String>> layers = new ArrayList<>();
-		private final Set<Character>      uniformSymbols = new HashSet<>();
+		private final List<List<String>> layers         = new ArrayList<>();
+		private final Set<Character>     uniformSymbols = new HashSet<>();
 
 		private Character anchorSymbol;
 

@@ -117,6 +117,7 @@ public abstract class AbstractScreen<T extends AbstractMenu<?, ?>> extends Abstr
 			minecraft.gameMode.handleInventoryButtonClick(menu.containerId, AbstractMenu.machineSideConfigurationButton(face, mode));
 			return true;
 		})) : null;
+		refreshMachineSideConfigurationAvailability();
 	}
 
 	public AbstractScreen (T menu, Inventory inventory, String title) {
@@ -163,6 +164,7 @@ public abstract class AbstractScreen<T extends AbstractMenu<?, ?>> extends Abstr
 
 	@Override
 	public void extractContents (@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+		refreshMachineSideConfigurationAvailability();
 		super.extractContents(graphics, mouseX, mouseY, partialTick);
 		if (overlayWidgets.isEmpty()) return;
 		graphics.nextStratum();
@@ -171,6 +173,7 @@ public abstract class AbstractScreen<T extends AbstractMenu<?, ?>> extends Abstr
 
 	@Override
 	public boolean mouseClicked (@NonNull MouseButtonEvent event, boolean doubleClick) {
+		refreshMachineSideConfigurationAvailability();
 		for (int index = overlayWidgets.size() - 1; index >= 0; index--) {
 			if (overlayWidgets.get(index).mouseClicked(event, leftPos, topPos)) return true;
 		}
@@ -187,6 +190,7 @@ public abstract class AbstractScreen<T extends AbstractMenu<?, ?>> extends Abstr
 
 	@Override
 	public boolean mouseDragged (@NonNull MouseButtonEvent event, double dragX, double dragY) {
+		refreshMachineSideConfigurationAvailability();
 		for (int index = overlayWidgets.size() - 1; index >= 0; index--) {
 			if (overlayWidgets.get(index).mouseDragged(event, dragX, dragY, leftPos, topPos)) return true;
 		}
@@ -195,10 +199,20 @@ public abstract class AbstractScreen<T extends AbstractMenu<?, ?>> extends Abstr
 
 	@Override
 	public boolean mouseReleased (@NonNull MouseButtonEvent event) {
+		refreshMachineSideConfigurationAvailability();
 		for (int index = overlayWidgets.size() - 1; index >= 0; index--) {
 			if (overlayWidgets.get(index).mouseReleased(event, leftPos, topPos)) return true;
 		}
 		return super.mouseReleased(event);
+	}
+
+	private void refreshMachineSideConfigurationAvailability () {
+		WidgetMachineSideConfiguration widget = machineSideConfigurationWidget;
+		if (widget == null) return;
+		boolean available = menu.isMachineSideConfigurationAvailable();
+		widget.setVisible(available);
+		widget.setActive(available);
+		if (!available && widget.isOpen()) widget.setOpen(false);
 	}
 
 	@Override
