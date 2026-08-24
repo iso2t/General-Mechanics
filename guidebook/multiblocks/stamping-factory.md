@@ -57,13 +57,13 @@ automation. GenTech recommends completing this step before sealing the factory a
 ## Matrix Performance
 
 | Middle-Ring Material | Processing Speed |
-| --- | ---: |
-| Machine Frame | 1× |
-| Iron Core Matrix | 1.25× |
-| Steel Core Matrix | 2× |
-| Titanium Core Matrix | 4× |
-| Tungsten Core Matrix | 32× |
-| Quantum Core Matrix | 64× |
+|----------------------|-----------------:|
+| Machine Frame        |               1× |
+| Iron Core Matrix     |            1.25× |
+| Steel Core Matrix    |               2× |
+| Titanium Core Matrix |               4× |
+| Tungsten Core Matrix |              32× |
+| Quantum Core Matrix  |              64× |
 
 All eight middle-ring blocks must match. Mixing Machine Frames or matrix tiers invalidates the factory rather than
 averaging their performance, because the Stamping Factory applies pressure to metal—not organizational disagreements.

@@ -48,12 +48,12 @@ item and fluid services directly to the Machine Network.
 
 ## Approved Carbon Processing
 
-| Input | Output | Creosote Oil | Processing Time |
-| --- | --- | ---: | ---: |
-| 1 Coal | 1 Coal Coke | 250 mB | 60 seconds |
-| 1 Coal Block | 9 Coal Coke | 2,250 mB | 9 minutes |
-| 1 Charcoal | 1 Coal Coke | 500 mB | 60 seconds |
-| 1 burnable Log | 1 Coal Coke | 250 mB | 75 seconds |
+| Input          | Output      | Creosote Oil | Processing Time |
+|----------------|-------------|-------------:|----------------:|
+| 1 Coal         | 1 Coal Coke |       250 mB |      60 seconds |
+| 1 Coal Block   | 9 Coal Coke |     2,250 mB |       9 minutes |
+| 1 Charcoal     | 1 Coal Coke |       500 mB |      60 seconds |
+| 1 burnable Log | 1 Coal Coke |       250 mB |      75 seconds |
 
 GenTech acknowledges that converting wood directly into Coal Coke raises several material-science questions. These
 questions have been forwarded to the oven, which has declined to answer while continuing to meet production quotas.

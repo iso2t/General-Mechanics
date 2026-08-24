@@ -23,11 +23,11 @@ the **Honey Bun™**.
 
 ## Certified Nutritional Performance
 
-| Evaluated Property | Approved Result |
-| --- | --- |
-| Hunger Restored | 3 points, or 1.5 hunger icons |
-| Saturation Modifier | 0.25 |
-| Consumption Eligibility | Always |
+| Evaluated Property      | Approved Result               |
+|-------------------------|-------------------------------|
+| Hunger Restored         | 3 points, or 1.5 hunger icons |
+| Saturation Modifier     | 0.25                          |
+| Consumption Eligibility | Always                        |
 
 Unlike conventional food, the Honey Bun™ may be eaten even when your hunger bar is already full. GenTech understands that
 some problems are emotional, some are industrial, and some can be postponed by eating a glazed pastry despite being

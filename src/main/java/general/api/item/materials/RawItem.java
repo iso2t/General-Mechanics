@@ -1,17 +1,22 @@
 package general.api.item.materials;
 
 import lombok.Getter;
-import net.minecraft.world.item.Item;
+import org.jspecify.annotations.Nullable;
 
-public class RawItem extends Item {
+public class RawItem extends MaterialPartItem {
 
 	@Getter
-	private final IngotItem parent;
+	private final @Nullable IngotItem parent;
 
 	public RawItem (IngotItem parent, Properties properties) {
-		super(properties);
+		super(properties, parent.getColor());
 		this.parent = parent;
 		parent.setRawItem(this);
+	}
+
+	public RawItem (int color, Properties properties) {
+		super(properties, color);
+		this.parent = null;
 	}
 
 }

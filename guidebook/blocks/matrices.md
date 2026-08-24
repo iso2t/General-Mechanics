@@ -28,13 +28,13 @@ and a valuable lesson about teamwork.
 
 ## Approved Performance Tiers
 
-| Matrix | Processing Speed | GenTech Classification |
-| --- | ---: | --- |
-| Iron Core Matrix | 1.25× | Patiently improved |
-| Steel Core Matrix | 2× | Twice the progress, same number of meetings |
-| Titanium Core Matrix | 4× | Management-visible acceleration |
-| Tungsten Core Matrix | 32× | Results before the paperwork is ready |
-| Quantum Core Matrix | 64× | Causality pending departmental approval |
+| Matrix               | Processing Speed | GenTech Classification                      |
+|----------------------|-----------------:|---------------------------------------------|
+| Iron Core Matrix     |            1.25× | Patiently improved                          |
+| Steel Core Matrix    |               2× | Twice the progress, same number of meetings |
+| Titanium Core Matrix |               4× | Management-visible acceleration             |
+| Tungsten Core Matrix |              32× | Results before the paperwork is ready       |
+| Quantum Core Matrix  |              64× | Causality pending departmental approval     |
 
 Factory Matrices reduce processing time, but they do not reduce the total energy required for a job. Faster processing
 delivers that energy over a shorter period, so ensure your power infrastructure can support the selected tier. A 64×

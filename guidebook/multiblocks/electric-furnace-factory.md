@@ -1,7 +1,7 @@
 ---
 navigation:
     parent: multiblocks/multiblocks-index.md
-    title: Electric Furnace Factory
+    title: Furnace Factory
     icon: electric_furnace
     position: 220
 item_ids:
@@ -16,7 +16,7 @@ item_ids:
     </GameScene>
 </Column>
 
-# Electric Furnace Factory
+# Furnace Factory
 
 ## A Furnace With an Organizational Structure
 
@@ -24,7 +24,7 @@ The standalone [Electric Furnace](../blocks/electric-furnace.md) successfully re
 leadership reviewed this achievement and asked the natural follow-up question: “Can we surround it with an entire building
 until it becomes faster?”
 
-The **Electric Furnace Factory** is a 3×3×5 multiblock built around an Electric Furnace controller. It processes the same
+The **Furnace Factory** is a 3×3×5 multiblock built around an Electric Furnace controller. It processes the same
 recipes as the standalone machine, but its uniform [Factory Matrix](../blocks/matrices.md) core increases processing speed
 from a responsible 1.25× to a management-approved 64×.
 
@@ -63,12 +63,12 @@ the factory from outside its newly constructed walls.
 ## Matrix Performance
 
 | Matrix Tier | Processing Speed |
-| --- | ---: |
-| Iron | 1.25× |
-| Steel | 2× |
-| Titanium | 4× |
-| Tungsten | 32× |
-| Quantum | 64× |
+|-------------|-----------------:|
+| Iron        |            1.25× |
+| Steel       |               2× |
+| Titanium    |               4× |
+| Tungsten    |              32× |
+| Quantum     |              64× |
 
 All 24 matrix positions must use the same tier. Mixing tiers invalidates the factory instead of averaging their speeds,
 because compromise is an administrative tool rather than a structural material.

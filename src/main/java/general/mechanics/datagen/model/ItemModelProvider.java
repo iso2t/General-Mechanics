@@ -48,12 +48,20 @@ public final class ItemModelProvider extends ModelProviders {
 				registerFluidBucket(bucket, itemModels);
 			} else if (registeredItem instanceof ToolItem) {
 				itemModels.generateFlatItem(registeredItem, ModelTemplates.FLAT_HANDHELD_ITEM);
-			} else if (registeredItem instanceof IngotItem ingot) {
-				registerPartModels(ingot, itemModels);
+			} else if (registeredItem instanceof IngotItem) {
+				partModel(registeredItem, "item/material/ingot", itemModels);
 			} else if (registeredItem instanceof StampingDieItem die) {
 				partModel(die, die.getShape().getTexture(), itemModels);
-			} else if (registeredItem instanceof RawItem || registeredItem instanceof NuggetItem || registeredItem instanceof DustItem || registeredItem instanceof PlateItem || registeredItem instanceof GearItem) {
-				// These are emitted with their parent ingot so each form can share a common model and texture.
+			} else if (registeredItem instanceof RawItem) {
+				partModel(registeredItem, "item/material/raw_ore", itemModels);
+			} else if (registeredItem instanceof NuggetItem) {
+				partModel(registeredItem, "item/material/nugget", itemModels);
+			} else if (registeredItem instanceof DustItem) {
+				partModel(registeredItem, "item/material/dust", itemModels);
+			} else if (registeredItem instanceof PlateItem) {
+				partModel(registeredItem, "item/material/plate", itemModels);
+			} else if (registeredItem instanceof GearItem) {
+				partModel(registeredItem, "item/material/gear", itemModels);
 			} else itemModels.generateFlatItem(registeredItem, ModelTemplates.FLAT_HANDHELD_ITEM);
 		}
 	}
@@ -61,16 +69,6 @@ public final class ItemModelProvider extends ModelProviders {
 	private void registerFluidBucket (BucketItem bucket, ItemModelGenerators items) {
 		var textures = new DynamicFluidContainerModel.Textures(Optional.empty(), Optional.of(new Material(Resource.getMinecraftResource("item/bucket"))), Optional.of(new Material(Resource.getCustomResource("neoforge", "item/mask/bucket_fluid"))), Optional.empty());
 		items.itemModelOutput.accept(bucket, new DynamicFluidContainerModel.Unbaked(textures, bucket.getContent(), true, true, true));
-	}
-
-	private void registerPartModels (IngotItem ingot, ItemModelGenerators items) {
-		// The ingot is always present; every other form is emitted only when GenParts created it.
-		partModel(ingot, "item/material/ingot", items);
-		if (ingot.getNuggetItem() != null) partModel(ingot.getNuggetItem(), "item/material/nugget", items);
-		if (ingot.getRawItem() != null) partModel(ingot.getRawItem(), "item/material/raw_ore", items);
-		if (ingot.getDustItem() != null) partModel(ingot.getDustItem(), "item/material/dust", items);
-		if (ingot.getPlateItem() != null) partModel(ingot.getPlateItem(), "item/material/plate", items);
-		if (ingot.getGearItem() != null) partModel(ingot.getGearItem(), "item/material/gear", items);
 	}
 
 	private void partModel (Item item, String path, ItemModelGenerators items) {

@@ -31,11 +31,11 @@ the machine's professionally reshaped response.
 
 ## Approved Forming Operations
 
-| Operation | Material Input | Required Die | Output | Steel | Titanium | Tungsten |
-| --- | ---: | --- | ---: | ---: | ---: | ---: |
-| Plate | 1 Ingot | None | 1 Plate | 10 seconds | 12 seconds | 15 seconds |
-| Nuggets | 1 Ingot | Nugget Die | 9 Nuggets | 5 seconds | 6 seconds | 7.5 seconds |
-| Gear | 4 Ingots | Gear Die | 1 Gear | 20 seconds | 24 seconds | 30 seconds |
+| Operation | Material Input | Required Die |    Output |      Steel |   Titanium |    Tungsten |
+|-----------|---------------:|--------------|----------:|-----------:|-----------:|------------:|
+| Plate     |        1 Ingot | None         |   1 Plate | 10 seconds | 12 seconds |  15 seconds |
+| Nuggets   |        1 Ingot | Nugget Die   | 9 Nuggets |  5 seconds |  6 seconds | 7.5 seconds |
+| Gear      |       4 Ingots | Gear Die     |    1 Gear | 20 seconds | 24 seconds |  30 seconds |
 
 Stamping Dies are reusable catalysts and are not consumed by recipes. GenTech recommends leaving the appropriate die in
 its assigned slot instead of repeatedly verifying that it remains reusable.
@@ -53,14 +53,14 @@ progress. The unfinished material will wait indefinitely; Productivity Accountin
 
 The Stamping Press begins with the following GenTech-approved side configuration:
 
-| Machine Face | Default Function |
-| --- | --- |
-| Front | Disabled and locked |
-| Back | Energy Input |
-| Left | Item Input |
-| Right | Item Output |
-| Top | Machine Network |
-| Bottom | Disabled |
+| Machine Face | Default Function    |
+|--------------|---------------------|
+| Front        | Disabled and locked |
+| Back         | Energy Input        |
+| Left         | Item Input          |
+| Right        | Item Output         |
+| Top          | Machine Network     |
+| Bottom       | Disabled            |
 
 While operating as a standalone machine, every face except the front may be configured as disabled, item input, item
 output, energy input, or Machine Network. Item Input can access both the material and die slots; Item Output extracts the

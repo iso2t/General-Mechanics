@@ -2,6 +2,8 @@ package general.mechanics.datagen.tags;
 
 import general.api.item.IItemTagsProvider;
 import general.api.item.ToolItem;
+import general.api.item.materials.DustItem;
+import general.api.item.materials.NuggetItem;
 import general.api.mod.GenAPI;
 import general.api.tag.CoreTags;
 import general.mechanics.item.tools.SawItem;
@@ -29,6 +31,9 @@ public class GenItemTagGenerator extends ItemTagsProvider {
 	@Override
 	protected void addTags (HolderLookup.@NonNull Provider provider) {
 		for (var item : GenItems.INSTANCE.getItems()) {
+			if (item.get() instanceof DustItem) this.tag(Tags.Items.DUSTS).add(item.get());
+			if (item.get() instanceof NuggetItem) this.tag(Tags.Items.NUGGETS).add(item.get());
+
 			if (item.get() instanceof ToolItem toolItem) {
 				if (toolItem instanceof SawItem) this.tag(CoreTags.Items.SAWS).add(toolItem);
 				if (toolItem instanceof WireCuttersItem) this.tag(CoreTags.Items.WIRE_CUTTERS).add(toolItem);
@@ -44,6 +49,7 @@ public class GenItemTagGenerator extends ItemTagsProvider {
 		}
 
 		this.tag(ItemTags.PLANKS).add(GenBlocks.RUBBER_PLANKS.asItem());
+		this.tag(Tags.Items.NUGGETS_COPPER).add(GenItems.COPPER_NUGGET.get());
 
 		for (var block : GenBlocks.INSTANCE.getBlocks()) {
 			if (block.get() instanceof SlabBlock) this.tag(ItemTags.SLABS).add(block.asItem());

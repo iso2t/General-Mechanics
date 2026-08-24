@@ -61,6 +61,21 @@ public class GenItems extends ItemRegistry {
 	public static final ItemDefinition<IngotItem> TITANIUM = Ingot.registerIngot("Titanium", 0xFF5B798E);
 	public static final ItemDefinition<IngotItem> TUNGSTEN = Ingot.registerIngot("Tungsten", 0xFFB5AC9F);
 
+	// Material forms backed by vanilla ingots. Iron and gold reuse Minecraft's existing nuggets.
+	public static final ItemDefinition<DustItem>   COPPER_DUST    = Ingot.itemDust("Copper Dust", "copper_dust", properties -> new DustItem(0xFFC47C52, properties));
+	public static final ItemDefinition<NuggetItem> COPPER_NUGGET  = Ingot.itemElementNugget("Copper Nugget", "copper_nugget", properties -> new NuggetItem(0xFFC47C52, properties));
+	public static final ItemDefinition<PlateItem>  COPPER_PLATE   = Ingot.itemPlate("Copper Plate", "copper_plate", properties -> new PlateItem(0xFFC47C52, properties));
+	public static final ItemDefinition<GearItem>   COPPER_GEAR    = Ingot.itemGear("Copper Gear", "copper_gear", properties -> new GearItem(0xFFC47C52, properties));
+	public static final ItemDefinition<DustItem>   IRON_DUST      = Ingot.itemDust("Iron Dust", "iron_dust", properties -> new DustItem(0xFFD8D8D8, properties));
+	public static final ItemDefinition<PlateItem>  IRON_PLATE     = Ingot.itemPlate("Iron Plate", "iron_plate", properties -> new PlateItem(0xFFD8D8D8, properties));
+	public static final ItemDefinition<GearItem>   IRON_GEAR      = Ingot.itemGear("Iron Gear", "iron_gear", properties -> new GearItem(0xFFD8D8D8, properties));
+	public static final ItemDefinition<DustItem>   GOLD_DUST      = Ingot.itemDust("Gold Dust", "gold_dust", properties -> new DustItem(0xFFFFD34E, properties));
+	public static final ItemDefinition<PlateItem>  GOLD_PLATE     = Ingot.itemPlate("Gold Plate", "gold_plate", properties -> new PlateItem(0xFFFFD34E, properties));
+	public static final ItemDefinition<GearItem>   GOLD_GEAR      = Ingot.itemGear("Gold Gear", "gold_gear", properties -> new GearItem(0xFFFFD34E, properties));
+	public static final ItemDefinition<DustItem>   NETHERITE_DUST = Ingot.itemDust("Netherite Dust", "netherite_dust", properties -> new DustItem(0xFF4A3F42, properties));
+	public static final ItemDefinition<PlateItem>  NETHERITE_PLATE = Ingot.itemPlate("Netherite Plate", "netherite_plate", properties -> new PlateItem(0xFF4A3F42, properties));
+	public static final ItemDefinition<GearItem>   NETHERITE_GEAR = Ingot.itemGear("Netherite Gear", "netherite_gear", properties -> new GearItem(0xFF4A3F42, properties));
+
 	// Reusable Stamping Press tools
 	public static final ItemDefinition<StampingDieItem> GEAR_DIE   = registerItem("Gear Die", properties -> new StampingDieItem(properties, StampingDieItem.Shape.GEAR));
 	public static final ItemDefinition<StampingDieItem> NUGGET_DIE = registerItem("Nugget Die", properties -> new StampingDieItem(properties, StampingDieItem.Shape.NUGGET));

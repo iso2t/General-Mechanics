@@ -23,11 +23,11 @@ operator requested it, planned for it, or has recently discovered that the fluid
 ## Production Yields
 
 | Coke Oven Input | Creosote Oil Produced |
-| --- | ---: |
-| 1 Coal | 250 mB |
-| 1 Coal Block | 2,250 mB |
-| 1 Charcoal | 500 mB |
-| 1 burnable Log | 250 mB |
+|-----------------|----------------------:|
+| 1 Coal          |                250 mB |
+| 1 Coal Block    |              2,250 mB |
+| 1 Charcoal      |                500 mB |
+| 1 burnable Log  |                250 mB |
 
 The Primitive Coke Oven stores up to **32 buckets** of Creosote Oil internally. If its tank cannot accept the full recipe
 output, processing pauses until storage becomes available. GenTech recommends extracting Creosote through a Fluid Output

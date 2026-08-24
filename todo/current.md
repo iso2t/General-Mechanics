@@ -3,6 +3,6 @@
 - [ ] Add fluid pump
 - [ ] Add fluid tank
 - [ ] Add sawmill + factory for increasing plank output from normal logs, with chance to output sawdust.
-- [ ] Add electric press + factory for making plates
+- [x] Add electric press (stamping machine) + factory for making plates
 - [ ] Fix encased block overlay texture as it is ugly.
 - [ ] Add macerator + factory for dusts 

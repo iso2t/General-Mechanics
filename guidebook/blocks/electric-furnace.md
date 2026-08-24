@@ -45,14 +45,14 @@ management rather than a machine refusing to work in a cluttered environment.
 Each side may be assigned an approved function from the machine interface. Sides are defined relative to the front of the
 furnace and begin with the following configuration:
 
-| Machine Face | Default Function |
-| --- | --- |
-| Front | Disabled and locked |
-| Back | Energy Input |
-| Left | Item Input |
-| Right | Item Output |
-| Top | Machine Network |
-| Bottom | Disabled |
+| Machine Face | Default Function    |
+|--------------|---------------------|
+| Front        | Disabled and locked |
+| Back         | Energy Input        |
+| Left         | Item Input          |
+| Right        | Item Output         |
+| Top          | Machine Network     |
+| Bottom       | Disabled            |
 
 Every face except the front may be configured as disabled, item input, item output, energy input, or Machine Network. Item
 Input can access the primary input and catalyst slots; Item Output can extract from all four output slots.

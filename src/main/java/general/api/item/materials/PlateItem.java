@@ -1,17 +1,22 @@
 package general.api.item.materials;
 
 import lombok.Getter;
-import net.minecraft.world.item.Item;
+import org.jspecify.annotations.Nullable;
 
-public class PlateItem extends Item {
+public class PlateItem extends MaterialPartItem {
 
 	@Getter
-	private final IngotItem parent;
+	private final @Nullable IngotItem parent;
 
 	public PlateItem (IngotItem parent, Properties properties) {
-		super(properties);
+		super(properties, parent.getColor());
 		this.parent = parent;
 		parent.setPlateItem(this);
+	}
+
+	public PlateItem (int color, Properties properties) {
+		super(properties, color);
+		this.parent = null;
 	}
 
 }

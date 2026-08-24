@@ -26,12 +26,8 @@ public final class ElementItemTintSource implements ItemTintSource {
 			return metal.getColor();
 		}
 		if (item instanceof IngotItem ingot) return ingot.getColor();
-		if (item instanceof DustItem dust) return dust.getParent().getColor();
-		if (item instanceof GearItem gear) return gear.getParent().getColor();
-		if (item instanceof NuggetItem nugget) return nugget.getParent().getColor();
-		if (item instanceof PlateItem plate) return plate.getParent().getColor();
+		if (item instanceof MaterialPartItem part) return part.getColor();
 		if (item instanceof StampingDieItem die) return die.getColor();
-		if (item instanceof RawItem raw) return raw.getParent().getColor();
 		return 0xFFFFFFFF;
 	}
 

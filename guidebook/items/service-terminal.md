@@ -36,9 +36,9 @@ connected network and reports:
 Cables are used while tracing the network but are omitted from the final equipment list. GenTech determined that listing
 every segment of cable was less diagnostic and more autobiographical.
 
-| Approved Action | Result |
-| --- | --- |
-| Right-click without targeting a block | Open the GenTech Guidebook |
+| Approved Action                            | Result                                   |
+|--------------------------------------------|------------------------------------------|
+| Right-click without targeting a block      | Open the GenTech Guidebook               |
 | Crouch-right-click a network-enabled block | Display that network's diagnostic report |
 
 > **GENTECH SERVICE NOTICE:** The terminal identifies network conditions; it does not repair them. Discovering that every

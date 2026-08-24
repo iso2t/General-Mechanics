@@ -24,17 +24,17 @@ convert future life directly into a hard yellow substance safe for consumption?
 Place one Egg into a Furnace, provide fuel, and heat that bad boy for **10 seconds**. Watch as possibility becomes protein
 and the miracle of life is professionally redirected into lunch.
 
-| Furnace Input | Processing Time | Experience | Result |
-| --- | ---: | ---: | --- |
-| 1 Egg | 10 seconds | 0 | 1 Hard Boiled Egg |
+| Furnace Input | Processing Time | Experience | Result            |
+|---------------|----------------:|-----------:|-------------------|
+| 1 Egg         |      10 seconds |          0 | 1 Hard Boiled Egg |
 
 ## Certified Nutritional Performance
 
-| Evaluated Property | Approved Result |
-| --- | --- |
-| Hunger Restored | 1 point, or 0.5 hunger icons |
-| Saturation Modifier | 0 |
-| Consumption Eligibility | Always |
+| Evaluated Property      | Approved Result              |
+|-------------------------|------------------------------|
+| Hunger Restored         | 1 point, or 0.5 hunger icons |
+| Saturation Modifier     | 0                            |
+| Consumption Eligibility | Always                       |
 
 The Hard Boiled Egg may be eaten even when your hunger bar is full. It provides no saturation whatsoever, ensuring that
 the employee will eventually return for another company-approved meal.
