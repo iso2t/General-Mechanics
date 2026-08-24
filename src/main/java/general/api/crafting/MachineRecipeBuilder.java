@@ -55,11 +55,11 @@ public final class MachineRecipeBuilder<D> {
 	public static final String FLUID_OUTPUT = MachineRecipeSlots.FLUID_OUTPUT.name();
 
 	private final MachineRecipeDefinition<D>        definition;
-	private final Map<String, SizedIngredient>      itemInputs   = new LinkedHashMap<>();
-	private final Map<String, ItemStackTemplate>    itemOutputs  = new LinkedHashMap<>();
-	private final Map<String, Double>               itemOutputChances = new LinkedHashMap<>();
-	private final Map<String, SizedFluidIngredient> fluidInputs  = new LinkedHashMap<>();
-	private final Map<String, FluidStackTemplate>   fluidOutputs = new LinkedHashMap<>();
+	private final Map<String, SizedIngredient>      itemInputs         = new LinkedHashMap<>();
+	private final Map<String, ItemStackTemplate>    itemOutputs        = new LinkedHashMap<>();
+	private final Map<String, Double>               itemOutputChances  = new LinkedHashMap<>();
+	private final Map<String, SizedFluidIngredient> fluidInputs        = new LinkedHashMap<>();
+	private final Map<String, FluidStackTemplate>   fluidOutputs       = new LinkedHashMap<>();
 	private final Map<String, Double>               fluidOutputChances = new LinkedHashMap<>();
 	private       int                               duration;
 	private       D                                 data;

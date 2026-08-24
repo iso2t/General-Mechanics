@@ -7,9 +7,9 @@ import general.api.transfer.fluid.FluidInventoryDefinition;
 import general.api.transfer.fluid.FluidResourceHandler;
 import general.api.transfer.item.ItemInventoryDefinition;
 import general.api.transfer.item.ItemResourceHandler;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.util.RandomSource;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
@@ -346,9 +346,9 @@ public final class MachineRecipeBinding {
 	public static final class Builder {
 
 		private final     MachineRecipeDefinition<?>                 definition;
-		private final     Map<String, String>                        itemMappings  = new LinkedHashMap<>();
-		private final     Map<String, String>                        fluidMappings = new LinkedHashMap<>();
-		private final     Map<String, IntSupplier>                   itemOutputMultipliers = new LinkedHashMap<>();
+		private final     Map<String, String>                        itemMappings           = new LinkedHashMap<>();
+		private final     Map<String, String>                        fluidMappings          = new LinkedHashMap<>();
+		private final     Map<String, IntSupplier>                   itemOutputMultipliers  = new LinkedHashMap<>();
 		private final     Map<String, IntSupplier>                   fluidOutputMultipliers = new LinkedHashMap<>();
 		private @Nullable ResourceHandler<ItemResource>              items;
 		private @Nullable ResourceInventoryDefinition<ItemResource>  itemDefinition;

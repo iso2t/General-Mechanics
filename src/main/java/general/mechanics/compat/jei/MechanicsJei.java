@@ -17,7 +17,6 @@ import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.ItemLike;
-import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;

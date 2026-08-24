@@ -13,18 +13,18 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.neoforged.neoforge.fluids.FluidStack;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.text.NumberFormat;
 
 /**
  * Builds GuideME recipe panels directly from a machine recipe schema.
  */
 final class MachineRecipeGuideRenderer {
 
-	private static final int    MAX_ROWS                = 3;
-	private static final String DURATION_DESCRIPTION_ID = "guide.generalmechanics.machine_recipe.duration";
+	private static final int    MAX_ROWS                     = 3;
+	private static final String DURATION_DESCRIPTION_ID      = "guide.generalmechanics.machine_recipe.duration";
 	private static final String OUTPUT_CHANCE_DESCRIPTION_ID = "guide.generalmechanics.machine_recipe.output_chance";
 
 	private MachineRecipeGuideRenderer () {

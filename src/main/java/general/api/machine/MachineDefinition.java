@@ -20,11 +20,7 @@ import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jspecify.annotations.Nullable;
 
-import java.util.LinkedHashSet;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.function.ToIntFunction;
@@ -38,16 +34,16 @@ import java.util.function.ToIntFunction;
  */
 public final class MachineDefinition {
 
-	private final @Nullable ItemSpec                           items;
-	private final @Nullable FluidSpec                          fluids;
-	private final @Nullable EnergySpec                         energy;
-	private final @Nullable MachineSideConfigurationDefinition sideConfiguration;
-	private final @Nullable RecipeSpec                         recipes;
-	private final @Nullable NetworkSpec                        network;
-	private final @Nullable MultiblockSpec                     multiblock;
+	private final @Nullable ItemSpec                                   items;
+	private final @Nullable FluidSpec                                  fluids;
+	private final @Nullable EnergySpec                                 energy;
+	private final @Nullable MachineSideConfigurationDefinition         sideConfiguration;
+	private final @Nullable RecipeSpec                                 recipes;
+	private final @Nullable NetworkSpec                                network;
+	private final @Nullable MultiblockSpec                             multiblock;
 	private final           Map<String, ToIntFunction<MachineRuntime>> itemRecipeOutputMultipliers;
 	private final           Map<String, ToIntFunction<MachineRuntime>> fluidRecipeOutputMultipliers;
-	private final           boolean                            litState;
+	private final           boolean                                    litState;
 
 	private MachineDefinition (Builder builder) {
 		this.items = builder.items;
@@ -108,16 +104,16 @@ public final class MachineDefinition {
 
 	public static final class Builder {
 
-		private @Nullable ItemSpec                           items;
-		private @Nullable FluidSpec                          fluids;
-		private @Nullable EnergySpec                         energy;
-		private @Nullable MachineSideConfigurationDefinition sideConfiguration;
-		private @Nullable RecipeSpec                         recipes;
-		private @Nullable NetworkSpec                        network;
-		private @Nullable MultiblockSpec                     multiblock;
-		private final Map<String, ToIntFunction<MachineRuntime>> itemRecipeOutputMultipliers = new LinkedHashMap<>();
-		private final Map<String, ToIntFunction<MachineRuntime>> fluidRecipeOutputMultipliers = new LinkedHashMap<>();
-		private           boolean                            litState;
+		private @Nullable ItemSpec                                   items;
+		private @Nullable FluidSpec                                  fluids;
+		private @Nullable EnergySpec                                 energy;
+		private @Nullable MachineSideConfigurationDefinition         sideConfiguration;
+		private @Nullable RecipeSpec                                 recipes;
+		private @Nullable NetworkSpec                                network;
+		private @Nullable MultiblockSpec                             multiblock;
+		private final     Map<String, ToIntFunction<MachineRuntime>> itemRecipeOutputMultipliers  = new LinkedHashMap<>();
+		private final     Map<String, ToIntFunction<MachineRuntime>> fluidRecipeOutputMultipliers = new LinkedHashMap<>();
+		private           boolean                                    litState;
 
 		private Builder () {
 		}
@@ -182,13 +178,15 @@ public final class MachineDefinition {
 		 */
 		public Builder recipeItemOutputMultiplier (MachineRecipeSlot.ItemOutput slot, ToIntFunction<MachineRuntime> multiplier) {
 			Objects.requireNonNull(slot, "slot");
-			if (itemRecipeOutputMultipliers.putIfAbsent(slot.name(), Objects.requireNonNull(multiplier, "multiplier")) != null) throw new IllegalArgumentException("Recipe item output multiplier for '" + slot.name() + "' is already defined");
+			if (itemRecipeOutputMultipliers.putIfAbsent(slot.name(), Objects.requireNonNull(multiplier, "multiplier")) != null)
+				throw new IllegalArgumentException("Recipe item output multiplier for '" + slot.name() + "' is already defined");
 			return this;
 		}
 
 		public Builder recipeFluidOutputMultiplier (MachineRecipeSlot.FluidOutput slot, ToIntFunction<MachineRuntime> multiplier) {
 			Objects.requireNonNull(slot, "slot");
-			if (fluidRecipeOutputMultipliers.putIfAbsent(slot.name(), Objects.requireNonNull(multiplier, "multiplier")) != null) throw new IllegalArgumentException("Recipe fluid output multiplier for '" + slot.name() + "' is already defined");
+			if (fluidRecipeOutputMultipliers.putIfAbsent(slot.name(), Objects.requireNonNull(multiplier, "multiplier")) != null)
+				throw new IllegalArgumentException("Recipe fluid output multiplier for '" + slot.name() + "' is already defined");
 			return this;
 		}
 

@@ -39,11 +39,11 @@ public final class MachineRecipeDefinition<D> {
 
 	private static final int MAX_RESOURCE_FIELDS = 256;
 
-	private static final Codec<Map<String, SizedIngredient>>      ITEM_INPUTS_CODEC   = Codec.unboundedMap(Codec.STRING, SizedIngredient.NESTED_CODEC);
-	private static final Codec<Map<String, ItemStackTemplate>>    ITEM_OUTPUTS_CODEC  = Codec.unboundedMap(Codec.STRING, ItemStackTemplate.CODEC);
-	private static final Codec<Map<String, SizedFluidIngredient>> FLUID_INPUTS_CODEC  = Codec.unboundedMap(Codec.STRING, SizedFluidIngredient.CODEC);
-	private static final Codec<Map<String, FluidStackTemplate>>   FLUID_OUTPUTS_CODEC = Codec.unboundedMap(Codec.STRING, FluidStackTemplate.CODEC);
-	private static final Codec<Double>                            OUTPUT_CHANCE_CODEC = Codec.DOUBLE.validate(chance -> Double.isFinite(chance) && chance > 0.0D && chance <= 1.0D ? DataResult.success(chance) : DataResult.error(() -> "Output chance must be greater than 0 and at most 1: " + chance));
+	private static final Codec<Map<String, SizedIngredient>>      ITEM_INPUTS_CODEC    = Codec.unboundedMap(Codec.STRING, SizedIngredient.NESTED_CODEC);
+	private static final Codec<Map<String, ItemStackTemplate>>    ITEM_OUTPUTS_CODEC   = Codec.unboundedMap(Codec.STRING, ItemStackTemplate.CODEC);
+	private static final Codec<Map<String, SizedFluidIngredient>> FLUID_INPUTS_CODEC   = Codec.unboundedMap(Codec.STRING, SizedFluidIngredient.CODEC);
+	private static final Codec<Map<String, FluidStackTemplate>>   FLUID_OUTPUTS_CODEC  = Codec.unboundedMap(Codec.STRING, FluidStackTemplate.CODEC);
+	private static final Codec<Double>                            OUTPUT_CHANCE_CODEC  = Codec.DOUBLE.validate(chance -> Double.isFinite(chance) && chance > 0.0D && chance <= 1.0D ? DataResult.success(chance) : DataResult.error(() -> "Output chance must be greater than 0 and at most 1: " + chance));
 	private static final Codec<Map<String, Double>>               OUTPUT_CHANCES_CODEC = Codec.unboundedMap(Codec.STRING, OUTPUT_CHANCE_CODEC);
 
 	private final Identifier                                                           id;
@@ -494,6 +494,7 @@ public final class MachineRecipeDefinition<D> {
 		return Map.copyOf(checked);
 	}
 
-	private record Serialized<D>(Map<String, SizedIngredient> itemInputs, Map<String, ItemStackTemplate> itemOutputs, Map<String, Double> itemOutputChances, Map<String, SizedFluidIngredient> fluidInputs, Map<String, FluidStackTemplate> fluidOutputs, Map<String, Double> fluidOutputChances, int duration, D data) {
+	private record Serialized<D>(Map<String, SizedIngredient> itemInputs, Map<String, ItemStackTemplate> itemOutputs, Map<String, Double> itemOutputChances, Map<String, SizedFluidIngredient> fluidInputs,
+	                             Map<String, FluidStackTemplate> fluidOutputs, Map<String, Double> fluidOutputChances, int duration, D data) {
 	}
 }
