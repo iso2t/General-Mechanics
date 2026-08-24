@@ -23,8 +23,9 @@ public class StampingDieItem extends Item {
 	}
 
 	public enum Shape {
-		GEAR("item/material/gear"),
-		NUGGET("item/material/nugget");
+		GEAR("item/die/die_gear"),
+		NUGGET("item/die/die_nugget"),
+		BLANK("item/die/die_blank");
 
 		@Getter
 		private final String texture;

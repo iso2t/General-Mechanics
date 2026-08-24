@@ -77,6 +77,7 @@ public class GenItems extends ItemRegistry {
 	public static final ItemDefinition<GearItem>   NETHERITE_GEAR = Ingot.itemGear("Netherite Gear", "netherite_gear", properties -> new GearItem(0xFF4A3F42, properties));
 
 	// Reusable Stamping Press tools
+	public static final ItemDefinition<StampingDieItem> BLANK_DIE = registerItem("Blank Die", properties -> new StampingDieItem(properties, StampingDieItem.Shape.BLANK));
 	public static final ItemDefinition<StampingDieItem> GEAR_DIE   = registerItem("Gear Die", properties -> new StampingDieItem(properties, StampingDieItem.Shape.GEAR));
 	public static final ItemDefinition<StampingDieItem> NUGGET_DIE = registerItem("Nugget Die", properties -> new StampingDieItem(properties, StampingDieItem.Shape.NUGGET));
 
