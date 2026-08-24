@@ -14,6 +14,8 @@ import general.mechanics.Mechanics;
 import general.mechanics.common.item.NetworkDebuggerItem;
 import general.mechanics.common.item.StampingDieItem;
 import general.mechanics.item.WireSpoolItem;
+import general.mechanics.item.food.HardBoiledEggItem;
+import general.mechanics.item.food.HoneyBunItem;
 import general.mechanics.item.tools.SawItem;
 import general.mechanics.item.tools.WireCuttersItem;
 import general.mechanics.item.tools.WrenchItem;
@@ -64,6 +66,8 @@ public class GenItems extends ItemRegistry {
 	public static final ItemDefinition<StampingDieItem> NUGGET_DIE = registerItem("Nugget Die", properties -> new StampingDieItem(properties, StampingDieItem.Shape.NUGGET));
 
 	// Misc
+	public static final ItemDefinition<HoneyBunItem>       HONEY_BUN        = registerItem("Honey Bun", HoneyBunItem::new);
+	public static final ItemDefinition<HardBoiledEggItem>  HARD_BOILED_EGG  = registerItem("Hard Boiled Egg", HardBoiledEggItem::new);
 	public static final ItemDefinition<Item>               TREE_SAP         = registerItem("Tree Sap", Item::new);
 	public static final ItemDefinition<Item>               UNTREATED_RUBBER = registerItem("Untreated Rubber", Item::new);
 	public static final ItemDefinition<Item>               RUBBER           = registerItem("Rubber", Item::new);

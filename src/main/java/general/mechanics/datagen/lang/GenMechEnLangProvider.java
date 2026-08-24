@@ -64,7 +64,7 @@ public class GenMechEnLangProvider extends LanguageProvider {
 			add("gui.generalmechanics.machine.side_config.mode_short." + mode.getSerializedName(), shortModeName(mode));
 		}
 		add("guide.generalmechanics.machine_recipe.duration", "Time: %s s");
-		add("death.attack.heating_element", "Heating Element is hot.");
+		add("death.attack.heating_element", "Turns out we weren't lying. Heating Element is hot. GenTech™ thanks you for continuing our research.");
 	}
 
 	private static String titleCase (String value) {
