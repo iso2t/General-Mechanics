@@ -30,6 +30,7 @@ prepared to turn it into a procedure.
 Please review the following approved resources before operating company equipment, approaching company equipment, or
 thinking confidently near company equipment:
 
+* [What Is GenTech?](what-is-gentech.md) — Review the completely official history of the company now responsible for you.
 * [Getting Started](getting-started.md) — Begin your approved transition from survivor to industrial asset.
 * [Tips and Tricks](tips-and-tricks.md) — Benefit from lessons learned during previous, fully documented outcomes.
 * [Example Setups](example-setups/example-setups-index.md) — Observe arrangements that have already passed basic reality checks.
