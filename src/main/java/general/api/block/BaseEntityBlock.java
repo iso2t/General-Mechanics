@@ -17,7 +17,7 @@ import java.util.Objects;
  */
 public abstract class BaseEntityBlock<T extends BlockEntity> extends BaseBlock implements EntityBlock, BlockEntityTypeOwner<T> {
 
-	private final Class<T>              blockEntityClass;
+	private final     Class<T>           blockEntityClass;
 	private @Nullable BlockEntityType<T> blockEntityType;
 
 	protected BaseEntityBlock (Properties properties, Class<T> blockEntityClass) {

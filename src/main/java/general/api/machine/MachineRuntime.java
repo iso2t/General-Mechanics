@@ -66,10 +66,10 @@ public final class MachineRuntime implements INetworkInterface {
 	private static final String MULTIBLOCK_SPEED_TAG   = "multiblock_speed";
 	private static final String OPERATING_SPEED_TAG    = "operating_speed";
 
-	private final           MachineBlockEntity       owner;
+	private final           MachineBlockEntity                   owner;
 	@Getter
-	private final           MachineDefinition        definition;
-	private final @Nullable MachineSideConfiguration sideConfiguration;
+	private final           MachineDefinition                    definition;
+	private final @Nullable MachineSideConfiguration             sideConfiguration;
 	private final @Nullable ItemResourceHandler                  items;
 	private final @Nullable SidedResourceHandlers<ItemResource>  sidedItems;
 	private final @Nullable ResourceHandler<ItemResource>        networkItems;
@@ -84,12 +84,12 @@ public final class MachineRuntime implements INetworkInterface {
 	private final @Nullable NetworkNode                          networkNode;
 
 	@Getter
-	private boolean formed;
-	private boolean multiblockProfileResolved = true;
+	private           boolean               formed;
+	private           boolean               multiblockProfileResolved = true;
 	@Getter
-	private           MachineUpgradeProfile multiblockUpgradeProfile = MachineUpgradeProfile.identity();
+	private           MachineUpgradeProfile multiblockUpgradeProfile  = MachineUpgradeProfile.identity();
 	@Getter
-	private           MachineUpgradeProfile operatingUpgradeProfile  = MachineUpgradeProfile.identity();
+	private           MachineUpgradeProfile operatingUpgradeProfile   = MachineUpgradeProfile.identity();
 	private @Nullable MachinePowerProfile   operatingPowerProfile;
 
 	MachineRuntime (MachineBlockEntity owner, MachineDefinition definition) {

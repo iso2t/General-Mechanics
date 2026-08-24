@@ -2,7 +2,8 @@ package general.mechanics.client.color;
 
 import com.mojang.serialization.MapCodec;
 import general.api.block.materials.MetalBlock;
-import general.api.item.materials.*;
+import general.api.item.materials.IngotItem;
+import general.api.item.materials.MaterialPartItem;
 import general.mechanics.common.item.StampingDieItem;
 import net.minecraft.client.color.item.ItemTintSource;
 import net.minecraft.client.multiplayer.ClientLevel;

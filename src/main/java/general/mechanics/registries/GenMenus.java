@@ -16,7 +16,7 @@ public final class GenMenus {
 
 	public static final DeferredHolder<MenuType<?>, MenuType<CokeOvenMenu>>        COKE_OVEN        = REGISTRY.register("coke_oven", () -> IMenuTypeExtension.create(CokeOvenMenu::new));
 	public static final DeferredHolder<MenuType<?>, MenuType<ElectricFurnaceMenu>> ELECTRIC_FURNACE = REGISTRY.register("electric_furnace", () -> IMenuTypeExtension.create(ElectricFurnaceMenu::new));
-	public static final DeferredHolder<MenuType<?>, MenuType<StampingPressMenu>>    STAMPING_PRESS   = REGISTRY.register("stamping_press", () -> IMenuTypeExtension.create(StampingPressMenu::new));
+	public static final DeferredHolder<MenuType<?>, MenuType<StampingPressMenu>>   STAMPING_PRESS   = REGISTRY.register("stamping_press", () -> IMenuTypeExtension.create(StampingPressMenu::new));
 
 	private GenMenus () {
 	}

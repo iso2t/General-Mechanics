@@ -27,9 +27,7 @@ public class MachineFrameBlock extends BaseBlock implements IMachineModel, IWren
 
 	@Override
 	public void generateRecipes (RecipeGenerationContext context) {
-		context.save(ShapedRecipeBuilder.shaped(context.items(), RecipeCategory.MISC, this, 1).pattern("LLL").pattern("SLS").pattern("SSS")
-				.define('L', GenBlocks.LIMESTONE_POLISHED)
-				.define('S', GenItems.STEEL), "machine_frame_block");
+		context.save(ShapedRecipeBuilder.shaped(context.items(), RecipeCategory.MISC, this, 1).pattern("LLL").pattern("SLS").pattern("SSS").define('L', GenBlocks.LIMESTONE_POLISHED).define('S', GenItems.STEEL), "machine_frame_block");
 	}
 
 	@Override

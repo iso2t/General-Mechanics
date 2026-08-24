@@ -34,7 +34,7 @@ public class GenBlockTagGenerator extends BlockTagsProvider {
 		}
 
 		for (var family : GenBlocks.LIMESTONE_FAMILIES) {
-			addTags(new Block[]{family.slab().get(), family.stairs().get()}, tagsFor(family.base().get()));
+			addTags(new Block[] { family.slab().get(), family.stairs().get() }, tagsFor(family.base().get()));
 		}
 	}
 
@@ -60,7 +60,7 @@ public class GenBlockTagGenerator extends BlockTagsProvider {
 	}
 
 	private void addTags (Block block, Set<TagKey<Block>> tags) {
-		addTags(new Block[]{block}, tags);
+		addTags(new Block[] { block }, tags);
 	}
 
 	private void addTags (Block[] blocks, Set<TagKey<Block>> tags) {

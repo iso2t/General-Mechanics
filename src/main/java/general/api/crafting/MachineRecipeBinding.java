@@ -25,10 +25,10 @@ import java.util.stream.Collectors;
  * and fluid handlers.
  *
  * <p>The binding always uses unrestricted internal handlers, never sided
-	 * capability views. A completion extracts every consumable input, retains
-	 * declared catalysts, and inserts every output under one NeoForge root
-	 * transaction. Any partial transfer aborts the entire operation, including
-	 * changes already made to another handler.</p>
+ * capability views. A completion extracts every consumable input, retains
+ * declared catalysts, and inserts every output under one NeoForge root
+ * transaction. Any partial transfer aborts the entire operation, including
+ * changes already made to another handler.</p>
  */
 public final class MachineRecipeBinding {
 

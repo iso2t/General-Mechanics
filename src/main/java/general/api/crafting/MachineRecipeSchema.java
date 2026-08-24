@@ -12,10 +12,10 @@ import java.util.*;
  */
 public final class MachineRecipeSchema {
 
-	private final List<Slot> itemInputs;
-	private final List<Slot> itemOutputs;
-	private final List<Slot> fluidInputs;
-	private final List<Slot> fluidOutputs;
+	private final List<Slot>  itemInputs;
+	private final List<Slot>  itemOutputs;
+	private final List<Slot>  fluidInputs;
+	private final List<Slot>  fluidOutputs;
 	private final Set<String> retainedItemInputs;
 	private final Set<String> retainedFluidInputs;
 
@@ -161,10 +161,10 @@ public final class MachineRecipeSchema {
 	 */
 	public static final class Builder {
 
-		private final List<Slot> itemInputs   = new ArrayList<>();
-		private final List<Slot> itemOutputs  = new ArrayList<>();
-		private final List<Slot> fluidInputs  = new ArrayList<>();
-		private final List<Slot> fluidOutputs = new ArrayList<>();
+		private final List<Slot>  itemInputs          = new ArrayList<>();
+		private final List<Slot>  itemOutputs         = new ArrayList<>();
+		private final List<Slot>  fluidInputs         = new ArrayList<>();
+		private final List<Slot>  fluidOutputs        = new ArrayList<>();
 		private final Set<String> retainedItemInputs  = new LinkedHashSet<>();
 		private final Set<String> retainedFluidInputs = new LinkedHashSet<>();
 

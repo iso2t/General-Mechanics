@@ -25,12 +25,7 @@ import net.minecraft.world.level.levelgen.feature.configurations.TreeConfigurati
 import net.minecraft.world.level.levelgen.feature.featuresize.TwoLayersFeatureSize;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.minecraft.world.level.levelgen.feature.trunkplacers.StraightTrunkPlacer;
-import net.minecraft.world.level.levelgen.placement.BiomeFilter;
-import net.minecraft.world.level.levelgen.placement.CountPlacement;
-import net.minecraft.world.level.levelgen.placement.HeightRangePlacement;
-import net.minecraft.world.level.levelgen.placement.InSquarePlacement;
-import net.minecraft.world.level.levelgen.placement.PlacedFeature;
-import net.minecraft.world.level.levelgen.placement.RarityFilter;
+import net.minecraft.world.level.levelgen.placement.*;
 import net.minecraft.world.level.levelgen.structure.templatesystem.TagMatchTest;
 import net.neoforged.neoforge.common.world.BiomeModifier;
 import net.neoforged.neoforge.common.world.BiomeModifiers;
@@ -44,16 +39,16 @@ public final class GenFeatures {
 	}
 
 	public static final ResourceKey<ConfiguredFeature<?, ?>> RUBBER_TREE = ResourceKey.create(Registries.CONFIGURED_FEATURE, Resource.get("rubber_tree"));
-	public static final ResourceKey<ConfiguredFeature<?, ?>> LIMESTONE = ResourceKey.create(Registries.CONFIGURED_FEATURE, Resource.get("limestone"));
+	public static final ResourceKey<ConfiguredFeature<?, ?>> LIMESTONE   = ResourceKey.create(Registries.CONFIGURED_FEATURE, Resource.get("limestone"));
 
 	public static final TreeGrower RUBBER = new TreeGrower("rubber", Optional.empty(), Optional.of(RUBBER_TREE), Optional.empty());
 
-	public static final ResourceKey<PlacedFeature> RUBBER_TREE_PLACED = ResourceKey.create(Registries.PLACED_FEATURE, Resource.get("rubber_tree"));
+	public static final ResourceKey<PlacedFeature> RUBBER_TREE_PLACED     = ResourceKey.create(Registries.PLACED_FEATURE, Resource.get("rubber_tree"));
 	public static final ResourceKey<PlacedFeature> LIMESTONE_UPPER_PLACED = ResourceKey.create(Registries.PLACED_FEATURE, Resource.get("limestone_upper"));
 	public static final ResourceKey<PlacedFeature> LIMESTONE_LOWER_PLACED = ResourceKey.create(Registries.PLACED_FEATURE, Resource.get("limestone_lower"));
 
 	public static final ResourceKey<BiomeModifier> ADD_RUBBER_TREES = ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, Resource.get("add_rubber_trees"));
-	public static final ResourceKey<BiomeModifier> ADD_LIMESTONE = ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, Resource.get("add_limestone"));
+	public static final ResourceKey<BiomeModifier> ADD_LIMESTONE    = ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, Resource.get("add_limestone"));
 
 	public static void bootstrap (BootstrapContext<ConfiguredFeature<?, ?>> context) {
 		FeatureUtils.register(context, RUBBER_TREE, Feature.TREE, rubberTree().build());
