@@ -12,6 +12,7 @@ import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.category.AbstractRecipeCategory;
 import mezz.jei.api.recipe.types.IRecipeHolderType;
 import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -24,6 +25,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.text.NumberFormat;
 
 /**
  * Default JEI category generated entirely from a machine recipe schema.
@@ -38,6 +40,7 @@ final class MachineRecipeCategory extends AbstractRecipeCategory<RecipeHolder<Ma
 	private static final int    MIN_HEIGHT               = 36;
 	private static final String TIME_SECONDS_KEY         = "gui.generalmechanics.machine_recipe.time.seconds";
 	private static final String TIME_MINUTES_SECONDS_KEY = "gui.generalmechanics.machine_recipe.time.minutes_seconds";
+	private static final String OUTPUT_CHANCE_KEY        = "gui.generalmechanics.machine_recipe.output_chance";
 
 	private final MachineRecipeDefinition<?> definition;
 	private final List<ItemLike>             craftingStations;
@@ -100,10 +103,12 @@ final class MachineRecipeCategory extends AbstractRecipeCategory<RecipeHolder<Ma
 			addFluidInput(builder, slot.name(), recipe.fluidInputs().get(slot.name()), inputIndex++);
 		}
 		for (MachineRecipeSchema.Slot slot : definition.schema().itemOutputs()) {
-			addItemOutput(builder, slot.name(), itemOutputs.get(slot.name()), outputIndex++);
+			ItemStack stack = itemOutputs.get(slot.name());
+			addItemOutput(builder, slot.name(), stack, stack == null ? 1.0D : recipe.itemOutputChance(slot.name()), outputIndex++);
 		}
 		for (MachineRecipeSchema.Slot slot : definition.schema().fluidOutputs()) {
-			addFluidOutput(builder, slot.name(), fluidOutputs.get(slot.name()), outputIndex++);
+			FluidStack stack = fluidOutputs.get(slot.name());
+			addFluidOutput(builder, slot.name(), stack, stack == null ? 1.0D : recipe.fluidOutputChance(slot.name()), outputIndex++);
 		}
 	}
 
@@ -139,16 +144,24 @@ final class MachineRecipeCategory extends AbstractRecipeCategory<RecipeHolder<Ma
 		builder.addInputSlot(position.x(), position.y()).setStandardSlotBackground().setSlotName("fluid_input/" + name).setFluidRenderer(ingredient.amount(), true, 16, 16).addIngredients(NeoForgeTypes.FLUID_STACK, stacks);
 	}
 
-	private void addItemOutput (IRecipeLayoutBuilder builder, String name, ItemStack stack, int index) {
+	private void addItemOutput (IRecipeLayoutBuilder builder, String name, ItemStack stack, double chance, int index) {
 		if (stack == null || stack.isEmpty()) return;
 		Position position = outputPosition(index);
-		builder.addOutputSlot(position.x(), position.y()).setStandardSlotBackground().setSlotName("item_output/" + name).add(stack);
+		var slot = builder.addOutputSlot(position.x(), position.y()).setStandardSlotBackground().setSlotName("item_output/" + name).add(stack);
+		addChanceTooltip(slot, chance);
 	}
 
-	private void addFluidOutput (IRecipeLayoutBuilder builder, String name, FluidStack stack, int index) {
+	private void addFluidOutput (IRecipeLayoutBuilder builder, String name, FluidStack stack, double chance, int index) {
 		if (stack == null || stack.isEmpty()) return;
 		Position position = outputPosition(index);
-		builder.addOutputSlot(position.x(), position.y()).setStandardSlotBackground().setSlotName("fluid_output/" + name).setFluidRenderer(stack.getAmount(), true, 16, 16).add(NeoForgeTypes.FLUID_STACK, stack);
+		var slot = builder.addOutputSlot(position.x(), position.y()).setStandardSlotBackground().setSlotName("fluid_output/" + name).setFluidRenderer(stack.getAmount(), true, 16, 16).add(NeoForgeTypes.FLUID_STACK, stack);
+		addChanceTooltip(slot, chance);
+	}
+
+	private static void addChanceTooltip (mezz.jei.api.gui.builder.IRecipeSlotBuilder slot, double chance) {
+		if (chance >= 1.0D) return;
+		Component tooltip = Component.translatableWithFallback(OUTPUT_CHANCE_KEY, "Chance: %s", NumberFormat.getPercentInstance().format(chance)).withStyle(ChatFormatting.GRAY);
+		slot.addRichTooltipCallback((view, builder) -> builder.add(tooltip));
 	}
 
 	private Position inputPosition (int index) {

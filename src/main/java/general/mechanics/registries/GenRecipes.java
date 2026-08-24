@@ -7,6 +7,7 @@ import general.api.crafting.NoRecipeData;
 import general.api.mod.GenAPI;
 import general.mechanics.common.block.machine.CokeOvenController;
 import general.mechanics.common.block.machine.ElectricFurnaceBlock;
+import general.mechanics.common.block.machine.MaceratorBlock;
 import general.mechanics.common.block.machine.StampingPressBlock;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.neoforged.bus.api.IEventBus;
@@ -22,6 +23,7 @@ public final class GenRecipes {
 
 	public static final MachineRecipeDefinition<NoRecipeData> COKE_OVEN        = REGISTRY.register("coke_oven", MachineRecipeSchema.builder().itemInput(CokeOvenController.RecipeSlots.INPUT).itemOutput(CokeOvenController.RecipeSlots.OUTPUT).fluidOutput(CokeOvenController.RecipeSlots.CREOSOTE).build()).craftingStation(() -> GenBlocks.COKE_OVEN_CONTROLLER);
 	public static final MachineRecipeDefinition<NoRecipeData> STAMPING_PRESS   = REGISTRY.register("stamping_press", MachineRecipeSchema.builder().itemInput(StampingPressBlock.RecipeSlots.INPUT).optionalItemCatalyst(StampingPressBlock.RecipeSlots.DIE).itemOutput(StampingPressBlock.RecipeSlots.OUTPUT).build()).craftingStation(() -> GenBlocks.STAMPING_PRESS);
+	public static final MachineRecipeDefinition<NoRecipeData> MACERATOR        = REGISTRY.register("macerator", MachineRecipeSchema.builder().itemInput(MaceratorBlock.RecipeSlots.INPUT).itemOutput(MaceratorBlock.RecipeSlots.OUTPUT).optionalItemOutput(MaceratorBlock.RecipeSlots.CHANCE_OUTPUT).build()).craftingStation(() -> GenBlocks.MACERATOR);
 	public static final MachineRecipeDefinition<NoRecipeData> ELECTRIC_FURNACE = REGISTRY.register("electric_furnace", MachineRecipeSchema.builder().itemInput(ElectricFurnaceBlock.RecipeSlots.INPUT).optionalItemInput(ElectricFurnaceBlock.RecipeSlots.CATALYST).itemOutput(ElectricFurnaceBlock.RecipeSlots.OUTPUT_1).optionalItemOutput(ElectricFurnaceBlock.RecipeSlots.OUTPUT_2).optionalItemOutput(ElectricFurnaceBlock.RecipeSlots.OUTPUT_3).optionalItemOutput(ElectricFurnaceBlock.RecipeSlots.OUTPUT_4).build()).craftingStation(() -> GenBlocks.ELECTRIC_FURNACE).interchangeableItemOutputs(ElectricFurnaceBlock.RecipeSlots.OUTPUT_1, ElectricFurnaceBlock.RecipeSlots.OUTPUT_2, ElectricFurnaceBlock.RecipeSlots.OUTPUT_3, ElectricFurnaceBlock.RecipeSlots.OUTPUT_4).cookingRecipes(RecipeType.SMELTING, ElectricFurnaceBlock.RecipeSlots.INPUT, ElectricFurnaceBlock.RecipeSlots.OUTPUT_1, input -> input.item(ElectricFurnaceBlock.RecipeSlots.CATALYST).isEmpty());
 
 	private GenRecipes () {

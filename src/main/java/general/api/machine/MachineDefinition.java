@@ -2,6 +2,7 @@ package general.api.machine;
 
 import general.api.crafting.MachineEnergyWorkRequirement;
 import general.api.crafting.MachineRecipeDefinition;
+import general.api.crafting.MachineRecipeSlot;
 import general.api.crafting.MachineWorkRequirement;
 import general.api.definitions.MultiblockDefinition;
 import general.api.machine.config.MachineSideConfigurationDefinition;
@@ -20,10 +21,13 @@ import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jspecify.annotations.Nullable;
 
 import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.function.ToIntFunction;
 
 /**
  * Immutable type-level declaration used to construct one machine's runtime.
@@ -41,6 +45,8 @@ public final class MachineDefinition {
 	private final @Nullable RecipeSpec                         recipes;
 	private final @Nullable NetworkSpec                        network;
 	private final @Nullable MultiblockSpec                     multiblock;
+	private final           Map<String, ToIntFunction<MachineRuntime>> itemRecipeOutputMultipliers;
+	private final           Map<String, ToIntFunction<MachineRuntime>> fluidRecipeOutputMultipliers;
 	private final           boolean                            litState;
 
 	private MachineDefinition (Builder builder) {
@@ -51,6 +57,8 @@ public final class MachineDefinition {
 		this.recipes = builder.recipes;
 		this.network = builder.network;
 		this.multiblock = builder.multiblock;
+		this.itemRecipeOutputMultipliers = Map.copyOf(builder.itemRecipeOutputMultipliers);
+		this.fluidRecipeOutputMultipliers = Map.copyOf(builder.fluidRecipeOutputMultipliers);
 		this.litState = builder.litState;
 	}
 
@@ -86,6 +94,14 @@ public final class MachineDefinition {
 		return multiblock;
 	}
 
+	public Map<String, ToIntFunction<MachineRuntime>> itemRecipeOutputMultipliers () {
+		return itemRecipeOutputMultipliers;
+	}
+
+	public Map<String, ToIntFunction<MachineRuntime>> fluidRecipeOutputMultipliers () {
+		return fluidRecipeOutputMultipliers;
+	}
+
 	public boolean hasLitState () {
 		return litState;
 	}
@@ -99,6 +115,8 @@ public final class MachineDefinition {
 		private @Nullable RecipeSpec                         recipes;
 		private @Nullable NetworkSpec                        network;
 		private @Nullable MultiblockSpec                     multiblock;
+		private final Map<String, ToIntFunction<MachineRuntime>> itemRecipeOutputMultipliers = new LinkedHashMap<>();
+		private final Map<String, ToIntFunction<MachineRuntime>> fluidRecipeOutputMultipliers = new LinkedHashMap<>();
 		private           boolean                            litState;
 
 		private Builder () {
@@ -158,6 +176,22 @@ public final class MachineDefinition {
 			return recipes(definition, runtime -> MachineEnergyWorkRequirement.fromProfile(runtime.requireEnergyHandler(), runtime::getPowerProfile));
 		}
 
+		/**
+		 * Scales one logical item result at execution time. The multiplier participates
+		 * in output-space simulation and the final atomic transfer.
+		 */
+		public Builder recipeItemOutputMultiplier (MachineRecipeSlot.ItemOutput slot, ToIntFunction<MachineRuntime> multiplier) {
+			Objects.requireNonNull(slot, "slot");
+			if (itemRecipeOutputMultipliers.putIfAbsent(slot.name(), Objects.requireNonNull(multiplier, "multiplier")) != null) throw new IllegalArgumentException("Recipe item output multiplier for '" + slot.name() + "' is already defined");
+			return this;
+		}
+
+		public Builder recipeFluidOutputMultiplier (MachineRecipeSlot.FluidOutput slot, ToIntFunction<MachineRuntime> multiplier) {
+			Objects.requireNonNull(slot, "slot");
+			if (fluidRecipeOutputMultipliers.putIfAbsent(slot.name(), Objects.requireNonNull(multiplier, "multiplier")) != null) throw new IllegalArgumentException("Recipe fluid output multiplier for '" + slot.name() + "' is already defined");
+			return this;
+		}
+
 		public Builder network (String nodeName, NetworkRegistrar registrar) {
 			if (network != null) throw new IllegalStateException("Machine network behavior is already defined");
 			network = new NetworkSpec(nodeName, registrar);
@@ -184,6 +218,7 @@ public final class MachineDefinition {
 				throw new IllegalStateException("Machine recipe processing requires item or fluid storage");
 			}
 			if (recipes != null) litState = true;
+			if (recipes == null && (!itemRecipeOutputMultipliers.isEmpty() || !fluidRecipeOutputMultipliers.isEmpty())) throw new IllegalStateException("Recipe output multipliers require recipe processing");
 			return new MachineDefinition(this);
 		}
 	}

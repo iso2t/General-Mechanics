@@ -298,6 +298,23 @@ public abstract class AbstractScreen<T extends AbstractMenu<?, ?>> extends Abstr
 	}
 
 	/**
+	 * Whether the expandable machine side-configuration panel is currently open.
+	 */
+	public final boolean isMachineSideConfigurationOpen () {
+		WidgetMachineSideConfiguration widget = machineSideConfigurationWidget;
+		return widget != null && widget.isVisible() && widget.isOpen();
+	}
+
+	/**
+	 * Absolute screen-space area occupied by the open machine side-configuration panel.
+	 */
+	public final Rect2i getMachineSideConfigurationArea () {
+		WidgetMachineSideConfiguration widget = machineSideConfigurationWidget;
+		if (widget == null) throw new IllegalStateException("This screen does not expose machine side configuration");
+		return widget.getOpenPanelArea(leftPos, topPos);
+	}
+
+	/**
 	 * The texture to use for this screen.
 	 *
 	 * @return {@link Identifier} path to the texture.

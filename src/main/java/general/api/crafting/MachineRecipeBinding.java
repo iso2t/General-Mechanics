@@ -9,6 +9,7 @@ import general.api.transfer.item.ItemInventoryDefinition;
 import general.api.transfer.item.ItemResourceHandler;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.util.RandomSource;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
@@ -18,6 +19,7 @@ import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jspecify.annotations.Nullable;
 
 import java.util.*;
+import java.util.function.IntSupplier;
 import java.util.stream.Collectors;
 
 /**
@@ -37,6 +39,8 @@ public final class MachineRecipeBinding {
 	private final @Nullable ResourceHandler<FluidResource> fluids;
 	private final           Map<String, Integer>           itemSlots;
 	private final           Map<String, Integer>           fluidSlots;
+	private final           Map<String, IntSupplier>       itemOutputMultipliers;
+	private final           Map<String, IntSupplier>       fluidOutputMultipliers;
 	private final           List<ItemOutputGroup>          interchangeableItemOutputGroups;
 	private final           Set<String>                    interchangeableItemOutputNames;
 	private final @Nullable VersionedResourceHandler<?>    itemRevisionSource;
@@ -49,11 +53,13 @@ public final class MachineRecipeBinding {
 		this.fluids = builder.fluids;
 		this.itemSlots = resolve("item", definition.schema().itemSlots(), builder.itemMappings, builder.itemDefinition, items);
 		this.fluidSlots = resolve("fluid", definition.schema().fluidSlots(), builder.fluidMappings, builder.fluidDefinition, fluids);
+		this.itemOutputMultipliers = Map.copyOf(builder.itemOutputMultipliers);
+		this.fluidOutputMultipliers = Map.copyOf(builder.fluidOutputMultipliers);
 		this.interchangeableItemOutputGroups = resolveInterchangeableItemOutputGroups();
 		this.interchangeableItemOutputNames = interchangeableItemOutputGroups.stream().flatMap(group -> group.recipeSlots().stream()).collect(Collectors.toUnmodifiableSet());
 		this.itemRevisionSource = items instanceof VersionedResourceHandler<?> handler ? handler : null;
 		this.fluidRevisionSource = fluids instanceof VersionedResourceHandler<?> handler ? handler : null;
-		this.tracksContentRevisions = (items == null || itemRevisionSource != null) && (fluids == null || fluidRevisionSource != null);
+		this.tracksContentRevisions = itemOutputMultipliers.isEmpty() && fluidOutputMultipliers.isEmpty() && (items == null || itemRevisionSource != null) && (fluids == null || fluidRevisionSource != null);
 	}
 
 	public MachineRecipeDefinition<?> definition () {
@@ -147,7 +153,7 @@ public final class MachineRecipeBinding {
 	public boolean tryExecute (MachineRecipe recipe, MachineRecipeInput input, Level level) {
 		if (!matches(recipe, input, level)) return false;
 		try (Transaction transaction = Transaction.openRoot()) {
-			if (!transfer(recipe, transaction)) return false;
+			if (!transfer(recipe, transaction, level.getRandom())) return false;
 			transaction.commit();
 			return true;
 		}
@@ -197,6 +203,10 @@ public final class MachineRecipeBinding {
 	}
 
 	boolean transfer (MachineRecipe recipe, TransactionContext transaction) {
+		return transfer(recipe, transaction, null);
+	}
+
+	boolean transfer (MachineRecipe recipe, TransactionContext transaction, @Nullable RandomSource random) {
 		requireRecipe(recipe);
 		if (items != null) {
 			for (MachineRecipeSchema.Slot slot : definition.schema().itemInputs()) {
@@ -221,7 +231,7 @@ public final class MachineRecipeBinding {
 				var outputs = new ArrayList<ItemStack>();
 				for (String recipeSlot : group.recipeSlots()) {
 					ItemStack stack = recipe.internalItemOutput(recipeSlot);
-					if (stack != null) outputs.add(stack);
+					if (stack != null && shouldProduce(recipe.itemOutputChance(recipeSlot), random)) outputs.add(stack.copyWithCount(scaledItemAmount(recipeSlot, stack.getCount())));
 				}
 				if (!insertInterchangeableItemOutputs(outputs, 0, group.handlerSlots(), transaction)) return false;
 			}
@@ -229,19 +239,46 @@ public final class MachineRecipeBinding {
 				if (interchangeableItemOutputNames.contains(slot.name())) continue;
 				ItemStack stack = recipe.internalItemOutput(slot.name());
 				if (stack == null) continue;
+				if (!shouldProduce(recipe.itemOutputChance(slot.name()), random)) continue;
 				int index = itemSlots.get(slot.name());
-				if (items.insert(index, ItemResource.of(stack), stack.getCount(), transaction) != stack.getCount()) return false;
+				int amount = scaledItemAmount(slot.name(), stack.getCount());
+				if (items.insert(index, ItemResource.of(stack), amount, transaction) != amount) return false;
 			}
 		}
 		if (fluids != null) {
 			for (MachineRecipeSchema.Slot slot : definition.schema().fluidOutputs()) {
 				FluidStack stack = recipe.internalFluidOutput(slot.name());
 				if (stack == null) continue;
+				if (!shouldProduce(recipe.fluidOutputChance(slot.name()), random)) continue;
 				int index = fluidSlots.get(slot.name());
-				if (fluids.insert(index, FluidResource.of(stack), stack.getAmount(), transaction) != stack.getAmount()) return false;
+				int amount = scaledFluidAmount(slot.name(), stack.getAmount());
+				if (fluids.insert(index, FluidResource.of(stack), amount, transaction) != amount) return false;
 			}
 		}
 		return true;
+	}
+
+	private int scaledItemAmount (String slot, int amount) {
+		return scaledAmount("item", slot, amount, itemOutputMultipliers.get(slot));
+	}
+
+	private int scaledFluidAmount (String slot, int amount) {
+		return scaledAmount("fluid", slot, amount, fluidOutputMultipliers.get(slot));
+	}
+
+	private static int scaledAmount (String resourceName, String slot, int amount, @Nullable IntSupplier multiplierSupplier) {
+		if (multiplierSupplier == null) return amount;
+		int multiplier = multiplierSupplier.getAsInt();
+		if (multiplier <= 0) throw new IllegalStateException("Machine recipe " + resourceName + " output multiplier for '" + slot + "' must be positive: " + multiplier);
+		try {
+			return Math.multiplyExact(amount, multiplier);
+		} catch (ArithmeticException exception) {
+			throw new IllegalStateException("Machine recipe " + resourceName + " output amount overflow for '" + slot + "'", exception);
+		}
+	}
+
+	private static boolean shouldProduce (double chance, @Nullable RandomSource random) {
+		return random == null || chance >= 1.0D || random.nextDouble() < chance;
 	}
 
 	private boolean insertInterchangeableItemOutputs (List<ItemStack> outputs, int outputIndex, List<Integer> handlerSlots, TransactionContext transaction) {
@@ -311,6 +348,8 @@ public final class MachineRecipeBinding {
 		private final     MachineRecipeDefinition<?>                 definition;
 		private final     Map<String, String>                        itemMappings  = new LinkedHashMap<>();
 		private final     Map<String, String>                        fluidMappings = new LinkedHashMap<>();
+		private final     Map<String, IntSupplier>                   itemOutputMultipliers = new LinkedHashMap<>();
+		private final     Map<String, IntSupplier>                   fluidOutputMultipliers = new LinkedHashMap<>();
 		private @Nullable ResourceHandler<ItemResource>              items;
 		private @Nullable ResourceInventoryDefinition<ItemResource>  itemDefinition;
 		private @Nullable ResourceHandler<FluidResource>             fluids;
@@ -370,6 +409,26 @@ public final class MachineRecipeBinding {
 			return mapFluid(Objects.requireNonNull(recipeSlot, "recipeSlot").name(), Objects.requireNonNull(physicalSlot, "physicalSlot").name());
 		}
 
+		public Builder itemOutputMultiplier (MachineRecipeSlot.ItemOutput slot, IntSupplier multiplier) {
+			return itemOutputMultiplier(Objects.requireNonNull(slot, "slot").name(), multiplier);
+		}
+
+		public Builder itemOutputMultiplier (String slot, IntSupplier multiplier) {
+			requireOutputSlot(definition.schema().itemOutputs(), slot, "item");
+			if (itemOutputMultipliers.putIfAbsent(slot, Objects.requireNonNull(multiplier, "multiplier")) != null) throw new IllegalArgumentException("Item output multiplier for '" + slot + "' is already defined");
+			return this;
+		}
+
+		public Builder fluidOutputMultiplier (MachineRecipeSlot.FluidOutput slot, IntSupplier multiplier) {
+			return fluidOutputMultiplier(Objects.requireNonNull(slot, "slot").name(), multiplier);
+		}
+
+		public Builder fluidOutputMultiplier (String slot, IntSupplier multiplier) {
+			requireOutputSlot(definition.schema().fluidOutputs(), slot, "fluid");
+			if (fluidOutputMultipliers.putIfAbsent(slot, Objects.requireNonNull(multiplier, "multiplier")) != null) throw new IllegalArgumentException("Fluid output multiplier for '" + slot + "' is already defined");
+			return this;
+		}
+
 		public MachineRecipeBinding build () {
 			return new MachineRecipeBinding(this);
 		}
@@ -379,6 +438,11 @@ public final class MachineRecipeBinding {
 			Objects.requireNonNull(physicalSlot, "physicalSlot");
 			if (physicalSlot.isBlank()) throw new IllegalArgumentException("Physical " + resourceName + " slot name must not be blank");
 			if (mappings.putIfAbsent(recipeSlot, physicalSlot) != null) throw new IllegalArgumentException("Recipe " + resourceName + " slot '" + recipeSlot + "' is already mapped");
+		}
+
+		private static void requireOutputSlot (List<MachineRecipeSchema.Slot> outputs, String slot, String resourceName) {
+			Objects.requireNonNull(slot, "slot");
+			if (outputs.stream().noneMatch(output -> output.name().equals(slot))) throw new IllegalArgumentException("Unknown " + resourceName + " recipe output slot '" + slot + "'");
 		}
 	}
 }

@@ -10,6 +10,7 @@ import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -99,6 +100,14 @@ public final class WidgetMachineSideConfiguration extends AbstractWidget {
 			dragMoved = false;
 			consumedButton = -1;
 		}
+	}
+
+	/**
+	 * Absolute bounds of the panel that extends beyond the owning container GUI.
+	 */
+	public Rect2i getOpenPanelArea (int originX, int originY) {
+		if (!isVisible() || !isOpen()) throw new IllegalStateException("The machine side-configuration panel is not open");
+		return new Rect2i(originX + getX() + PANEL_X, originY + getY(), PANEL_WIDTH, OPEN_HEIGHT);
 	}
 
 	@Override

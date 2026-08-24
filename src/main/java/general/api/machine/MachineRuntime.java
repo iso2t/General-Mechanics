@@ -153,6 +153,8 @@ public final class MachineRuntime implements INetworkInterface {
 			MachineRecipeBinding.Builder binding = recipeSpec.definition().bindingBuilder();
 			if (items != null) binding.items(items, requireItemDefinition());
 			if (fluidStorage != null) binding.fluids(fluidStorage, requireFluidDefinition());
+			definition.itemRecipeOutputMultipliers().forEach((slot, multiplier) -> binding.itemOutputMultiplier(slot, () -> multiplier.applyAsInt(this)));
+			definition.fluidRecipeOutputMultipliers().forEach((slot, multiplier) -> binding.fluidOutputMultiplier(slot, () -> multiplier.applyAsInt(this)));
 			this.recipeProcessor = binding.build().processor(recipeSpec.workFactory().create(this), owner::setChanged);
 		}
 

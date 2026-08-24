@@ -248,7 +248,7 @@ public final class MachineRecipeProcessor {
 	private boolean tryComplete (MachineRecipe recipe, MachineRecipeInput input, ServerLevel level, int completedTicks) {
 		if (!binding.matches(recipe, input, level)) return false;
 		try (Transaction transaction = Transaction.openRoot()) {
-			if (!binding.transfer(recipe, transaction)) return false;
+			if (!binding.transfer(recipe, transaction, level.getRandom())) return false;
 			if (!workRequirement.consume(recipe, completedTicks, transaction)) return false;
 			transaction.commit();
 			return true;

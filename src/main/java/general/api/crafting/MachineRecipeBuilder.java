@@ -57,8 +57,10 @@ public final class MachineRecipeBuilder<D> {
 	private final MachineRecipeDefinition<D>        definition;
 	private final Map<String, SizedIngredient>      itemInputs   = new LinkedHashMap<>();
 	private final Map<String, ItemStackTemplate>    itemOutputs  = new LinkedHashMap<>();
+	private final Map<String, Double>               itemOutputChances = new LinkedHashMap<>();
 	private final Map<String, SizedFluidIngredient> fluidInputs  = new LinkedHashMap<>();
 	private final Map<String, FluidStackTemplate>   fluidOutputs = new LinkedHashMap<>();
+	private final Map<String, Double>               fluidOutputChances = new LinkedHashMap<>();
 	private       int                               duration;
 	private       D                                 data;
 
@@ -139,6 +141,33 @@ public final class MachineRecipeBuilder<D> {
 		return itemOutput(slot, new ItemStackTemplate(Objects.requireNonNull(item, "item").asItem(), count));
 	}
 
+	public MachineRecipeBuilder<D> chanceItemOutput (MachineRecipeSlot.ItemOutput slot, ItemStackTemplate template, double chance) {
+		return chanceItemOutput(Objects.requireNonNull(slot, "slot").name(), template, chance);
+	}
+
+	public MachineRecipeBuilder<D> chanceItemOutput (String slot, ItemStackTemplate template, double chance) {
+		double checkedChance = requireChance(chance);
+		itemOutput(slot, template);
+		putUnique(itemOutputChances, slot, checkedChance, "item output chance");
+		return this;
+	}
+
+	public MachineRecipeBuilder<D> chanceItemOutput (MachineRecipeSlot.ItemOutput slot, ItemStack stack, double chance) {
+		return chanceItemOutput(Objects.requireNonNull(slot, "slot").name(), stack, chance);
+	}
+
+	public MachineRecipeBuilder<D> chanceItemOutput (String slot, ItemStack stack, double chance) {
+		return chanceItemOutput(slot, ItemStackTemplate.fromNonEmptyStack(Objects.requireNonNull(stack, "stack")), chance);
+	}
+
+	public MachineRecipeBuilder<D> chanceItemOutput (MachineRecipeSlot.ItemOutput slot, ItemLike item, int count, double chance) {
+		return chanceItemOutput(Objects.requireNonNull(slot, "slot").name(), item, count, chance);
+	}
+
+	public MachineRecipeBuilder<D> chanceItemOutput (String slot, ItemLike item, int count, double chance) {
+		return chanceItemOutput(slot, new ItemStackTemplate(Objects.requireNonNull(item, "item").asItem(), count), chance);
+	}
+
 	public MachineRecipeBuilder<D> fluidInput (MachineRecipeSlot.FluidInput slot, SizedFluidIngredient ingredient) {
 		return fluidInput(Objects.requireNonNull(slot, "slot").name(), ingredient);
 	}
@@ -209,6 +238,33 @@ public final class MachineRecipeBuilder<D> {
 		return fluidOutput(slot, new FluidStackTemplate(Objects.requireNonNull(fluid, "fluid"), amount));
 	}
 
+	public MachineRecipeBuilder<D> chanceFluidOutput (MachineRecipeSlot.FluidOutput slot, FluidStackTemplate template, double chance) {
+		return chanceFluidOutput(Objects.requireNonNull(slot, "slot").name(), template, chance);
+	}
+
+	public MachineRecipeBuilder<D> chanceFluidOutput (String slot, FluidStackTemplate template, double chance) {
+		double checkedChance = requireChance(chance);
+		fluidOutput(slot, template);
+		putUnique(fluidOutputChances, slot, checkedChance, "fluid output chance");
+		return this;
+	}
+
+	public MachineRecipeBuilder<D> chanceFluidOutput (MachineRecipeSlot.FluidOutput slot, FluidStack stack, double chance) {
+		return chanceFluidOutput(Objects.requireNonNull(slot, "slot").name(), stack, chance);
+	}
+
+	public MachineRecipeBuilder<D> chanceFluidOutput (String slot, FluidStack stack, double chance) {
+		return chanceFluidOutput(slot, FluidStackTemplate.fromNonEmptyStack(Objects.requireNonNull(stack, "stack")), chance);
+	}
+
+	public MachineRecipeBuilder<D> chanceFluidOutput (MachineRecipeSlot.FluidOutput slot, Fluid fluid, int amount, double chance) {
+		return chanceFluidOutput(Objects.requireNonNull(slot, "slot").name(), fluid, amount, chance);
+	}
+
+	public MachineRecipeBuilder<D> chanceFluidOutput (String slot, Fluid fluid, int amount, double chance) {
+		return chanceFluidOutput(slot, new FluidStackTemplate(Objects.requireNonNull(fluid, "fluid"), amount), chance);
+	}
+
 	public MachineRecipeBuilder<D> duration (int ticks) {
 		if (ticks <= 0) throw new IllegalArgumentException("Machine recipe duration must be positive: " + ticks);
 		this.duration = ticks;
@@ -221,7 +277,7 @@ public final class MachineRecipeBuilder<D> {
 	}
 
 	public MachineRecipe build () {
-		return definition.create(itemInputs, itemOutputs, fluidInputs, fluidOutputs, duration, data);
+		return definition.create(itemInputs, itemOutputs, itemOutputChances, fluidInputs, fluidOutputs, fluidOutputChances, duration, data);
 	}
 
 	public void save (RecipeOutput output, Identifier id) {
@@ -240,5 +296,12 @@ public final class MachineRecipeBuilder<D> {
 		Objects.requireNonNull(slot, "slot");
 		if (slot.isBlank()) throw new IllegalArgumentException("Machine recipe " + description + " slot name must not be blank");
 		if (values.putIfAbsent(slot, value) != null) throw new IllegalArgumentException("Duplicate machine recipe " + description + " slot '" + slot + "'");
+	}
+
+	private static double requireChance (double chance) {
+		if (!Double.isFinite(chance) || chance <= 0.0D || chance > 1.0D) {
+			throw new IllegalArgumentException("Machine recipe output chance must be greater than 0 and at most 1: " + chance);
+		}
+		return chance;
 	}
 }

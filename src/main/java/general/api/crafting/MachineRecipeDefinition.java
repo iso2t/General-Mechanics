@@ -43,6 +43,8 @@ public final class MachineRecipeDefinition<D> {
 	private static final Codec<Map<String, ItemStackTemplate>>    ITEM_OUTPUTS_CODEC  = Codec.unboundedMap(Codec.STRING, ItemStackTemplate.CODEC);
 	private static final Codec<Map<String, SizedFluidIngredient>> FLUID_INPUTS_CODEC  = Codec.unboundedMap(Codec.STRING, SizedFluidIngredient.CODEC);
 	private static final Codec<Map<String, FluidStackTemplate>>   FLUID_OUTPUTS_CODEC = Codec.unboundedMap(Codec.STRING, FluidStackTemplate.CODEC);
+	private static final Codec<Double>                            OUTPUT_CHANCE_CODEC = Codec.DOUBLE.validate(chance -> Double.isFinite(chance) && chance > 0.0D && chance <= 1.0D ? DataResult.success(chance) : DataResult.error(() -> "Output chance must be greater than 0 and at most 1: " + chance));
+	private static final Codec<Map<String, Double>>               OUTPUT_CHANCES_CODEC = Codec.unboundedMap(Codec.STRING, OUTPUT_CHANCE_CODEC);
 
 	private final Identifier                                                           id;
 	private final MachineRecipeSchema                                                  schema;
@@ -295,7 +297,7 @@ public final class MachineRecipeDefinition<D> {
 		return additionalMatcher.matches(data(recipe), input, level);
 	}
 
-	MachineRecipe create (Map<String, SizedIngredient> itemInputs, Map<String, ItemStackTemplate> itemOutputs, Map<String, SizedFluidIngredient> fluidInputs, Map<String, FluidStackTemplate> fluidOutputs, int duration, D data) {
+	MachineRecipe create (Map<String, SizedIngredient> itemInputs, Map<String, ItemStackTemplate> itemOutputs, Map<String, Double> itemOutputChances, Map<String, SizedFluidIngredient> fluidInputs, Map<String, FluidStackTemplate> fluidOutputs, Map<String, Double> fluidOutputChances, int duration, D data) {
 		if (duration <= 0) throw new IllegalArgumentException("Machine recipe duration must be positive: " + duration);
 		Objects.requireNonNull(data, "Machine recipe data is required for type " + id);
 
@@ -303,6 +305,8 @@ public final class MachineRecipeDefinition<D> {
 		Map<String, ItemStackTemplate> checkedItemOutputs = validateFields("item output", schema.itemOutputs(), itemOutputs);
 		Map<String, SizedFluidIngredient> checkedFluidInputs = validateFields("fluid input", schema.fluidInputs(), fluidInputs);
 		Map<String, FluidStackTemplate> checkedFluidOutputs = validateFields("fluid output", schema.fluidOutputs(), fluidOutputs);
+		Map<String, Double> checkedItemOutputChances = validateOutputChances("item", checkedItemOutputs.keySet(), itemOutputChances);
+		Map<String, Double> checkedFluidOutputChances = validateOutputChances("fluid", checkedFluidOutputs.keySet(), fluidOutputChances);
 
 		// Ingredient constructors/codecs validate directly resolvable empty sets. Do not enumerate
 		// values here: named holder sets cannot be dereferenced while datagen recipes are constructed.
@@ -323,15 +327,15 @@ public final class MachineRecipeDefinition<D> {
 			if (template.amount() <= 0) throw new IllegalArgumentException("Fluid output '" + entry.getKey() + "' must be non-empty");
 		}
 
-		return new MachineRecipe(this, checkedItemInputs, checkedItemOutputs, checkedFluidInputs, checkedFluidOutputs, duration, data);
+		return new MachineRecipe(this, checkedItemInputs, checkedItemOutputs, checkedItemOutputChances, checkedFluidInputs, checkedFluidOutputs, checkedFluidOutputChances, duration, data);
 	}
 
 	private MapCodec<MachineRecipe> createRecipeCodec () {
-		MapCodec<Serialized<D>> serializedCodec = RecordCodecBuilder.mapCodec(instance -> instance.group(ITEM_INPUTS_CODEC.optionalFieldOf("item_inputs", Map.of()).forGetter(Serialized<D>::itemInputs), ITEM_OUTPUTS_CODEC.optionalFieldOf("item_outputs", Map.of()).forGetter(Serialized<D>::itemOutputs), FLUID_INPUTS_CODEC.optionalFieldOf("fluid_inputs", Map.of()).forGetter(Serialized<D>::fluidInputs), FLUID_OUTPUTS_CODEC.optionalFieldOf("fluid_outputs", Map.of()).forGetter(Serialized<D>::fluidOutputs), ExtraCodecs.POSITIVE_INT.fieldOf("duration").forGetter(Serialized<D>::duration), dataCodec.forGetter(Serialized<D>::data)).apply(instance, Serialized::new));
+		MapCodec<Serialized<D>> serializedCodec = RecordCodecBuilder.mapCodec(instance -> instance.group(ITEM_INPUTS_CODEC.optionalFieldOf("item_inputs", Map.of()).forGetter(Serialized<D>::itemInputs), ITEM_OUTPUTS_CODEC.optionalFieldOf("item_outputs", Map.of()).forGetter(Serialized<D>::itemOutputs), OUTPUT_CHANCES_CODEC.optionalFieldOf("item_output_chances", Map.of()).forGetter(Serialized<D>::itemOutputChances), FLUID_INPUTS_CODEC.optionalFieldOf("fluid_inputs", Map.of()).forGetter(Serialized<D>::fluidInputs), FLUID_OUTPUTS_CODEC.optionalFieldOf("fluid_outputs", Map.of()).forGetter(Serialized<D>::fluidOutputs), OUTPUT_CHANCES_CODEC.optionalFieldOf("fluid_output_chances", Map.of()).forGetter(Serialized<D>::fluidOutputChances), ExtraCodecs.POSITIVE_INT.fieldOf("duration").forGetter(Serialized<D>::duration), dataCodec.forGetter(Serialized<D>::data)).apply(instance, Serialized::new));
 
 		return serializedCodec.flatXmap(serialized -> {
 			try {
-				return DataResult.success(create(serialized.itemInputs(), serialized.itemOutputs(), serialized.fluidInputs(), serialized.fluidOutputs(), serialized.duration(), serialized.data()));
+				return DataResult.success(create(serialized.itemInputs(), serialized.itemOutputs(), serialized.itemOutputChances(), serialized.fluidInputs(), serialized.fluidOutputs(), serialized.fluidOutputChances(), serialized.duration(), serialized.data()));
 			} catch (IllegalArgumentException exception) {
 				return DataResult.error(exception::getMessage);
 			}
@@ -349,11 +353,13 @@ public final class MachineRecipeDefinition<D> {
 			public MachineRecipe decode (RegistryFriendlyByteBuf buffer) {
 				Map<String, SizedIngredient> itemInputs = readMap(buffer, SizedIngredient.STREAM_CODEC);
 				Map<String, ItemStackTemplate> itemOutputs = readMap(buffer, ItemStackTemplate.STREAM_CODEC);
+				Map<String, Double> itemOutputChances = readDoubleMap(buffer);
 				Map<String, SizedFluidIngredient> fluidInputs = readMap(buffer, SizedFluidIngredient.STREAM_CODEC);
 				Map<String, FluidStackTemplate> fluidOutputs = readMap(buffer, FluidStackTemplate.STREAM_CODEC);
+				Map<String, Double> fluidOutputChances = readDoubleMap(buffer);
 				int duration = buffer.readVarInt();
 				D data = dataStreamCodec.decode(buffer);
-				return create(itemInputs, itemOutputs, fluidInputs, fluidOutputs, duration, data);
+				return create(itemInputs, itemOutputs, itemOutputChances, fluidInputs, fluidOutputs, fluidOutputChances, duration, data);
 			}
 
 			@Override
@@ -361,8 +367,10 @@ public final class MachineRecipeDefinition<D> {
 				requireOwner(recipe);
 				writeMap(buffer, recipe.itemInputs(), SizedIngredient.STREAM_CODEC);
 				writeMap(buffer, internalItemOutputs(recipe), ItemStackTemplate.STREAM_CODEC);
+				writeDoubleMap(buffer, recipe.internalItemOutputChances());
 				writeMap(buffer, recipe.fluidInputs(), SizedFluidIngredient.STREAM_CODEC);
 				writeMap(buffer, internalFluidOutputs(recipe), FluidStackTemplate.STREAM_CODEC);
+				writeDoubleMap(buffer, recipe.internalFluidOutputChances());
 				buffer.writeVarInt(recipe.duration());
 				dataStreamCodec.encode(buffer, data(recipe));
 			}
@@ -370,7 +378,7 @@ public final class MachineRecipeDefinition<D> {
 	}
 
 	private Serialized<D> serialized (MachineRecipe recipe) {
-		return new Serialized<>(recipe.itemInputs(), internalItemOutputs(recipe), recipe.fluidInputs(), internalFluidOutputs(recipe), recipe.duration(), data(recipe));
+		return new Serialized<>(recipe.itemInputs(), internalItemOutputs(recipe), recipe.internalItemOutputChances(), recipe.fluidInputs(), internalFluidOutputs(recipe), recipe.internalFluidOutputChances(), recipe.duration(), data(recipe));
 	}
 
 	private Map<String, ItemStackTemplate> internalItemOutputs (MachineRecipe recipe) {
@@ -452,6 +460,40 @@ public final class MachineRecipeDefinition<D> {
 		}
 	}
 
-	private record Serialized<D>(Map<String, SizedIngredient> itemInputs, Map<String, ItemStackTemplate> itemOutputs, Map<String, SizedFluidIngredient> fluidInputs, Map<String, FluidStackTemplate> fluidOutputs, int duration, D data) {
+	private static Map<String, Double> readDoubleMap (RegistryFriendlyByteBuf buffer) {
+		int size = buffer.readVarInt();
+		if (size < 0 || size > MAX_RESOURCE_FIELDS) throw new IllegalArgumentException("Invalid machine recipe chance field count: " + size);
+		var result = new LinkedHashMap<String, Double>(size);
+		for (int index = 0; index < size; index++) {
+			String name = buffer.readUtf(256);
+			double chance = buffer.readDouble();
+			if (!Double.isFinite(chance) || chance <= 0.0D || chance > 1.0D) throw new IllegalArgumentException("Invalid machine recipe output chance for '" + name + "': " + chance);
+			if (result.put(name, chance) != null) throw new IllegalArgumentException("Duplicate machine recipe output chance field '" + name + "'");
+		}
+		return result;
+	}
+
+	private static void writeDoubleMap (RegistryFriendlyByteBuf buffer, Map<String, Double> values) {
+		if (values.size() > MAX_RESOURCE_FIELDS) throw new IllegalArgumentException("Too many machine recipe chance fields: " + values.size());
+		buffer.writeVarInt(values.size());
+		for (var entry : values.entrySet()) {
+			buffer.writeUtf(entry.getKey(), 256);
+			buffer.writeDouble(entry.getValue());
+		}
+	}
+
+	private static Map<String, Double> validateOutputChances (String resourceName, Set<String> outputs, Map<String, Double> supplied) {
+		Objects.requireNonNull(supplied, resourceName + " output chances");
+		var checked = new LinkedHashMap<String, Double>();
+		for (var entry : supplied.entrySet()) {
+			if (!outputs.contains(entry.getKey())) throw new IllegalArgumentException("Chance declared for missing machine recipe " + resourceName + " output '" + entry.getKey() + "'");
+			double chance = Objects.requireNonNull(entry.getValue(), resourceName + " output chance '" + entry.getKey() + "'");
+			if (!Double.isFinite(chance) || chance <= 0.0D || chance > 1.0D) throw new IllegalArgumentException("Machine recipe " + resourceName + " output chance must be greater than 0 and at most 1: " + chance);
+			checked.put(entry.getKey(), chance);
+		}
+		return Map.copyOf(checked);
+	}
+
+	private record Serialized<D>(Map<String, SizedIngredient> itemInputs, Map<String, ItemStackTemplate> itemOutputs, Map<String, Double> itemOutputChances, Map<String, SizedFluidIngredient> fluidInputs, Map<String, FluidStackTemplate> fluidOutputs, Map<String, Double> fluidOutputChances, int duration, D data) {
 	}
 }

@@ -16,6 +16,7 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.text.NumberFormat;
 
 /**
  * Builds GuideME recipe panels directly from a machine recipe schema.
@@ -24,6 +25,7 @@ final class MachineRecipeGuideRenderer {
 
 	private static final int    MAX_ROWS                = 3;
 	private static final String DURATION_DESCRIPTION_ID = "guide.generalmechanics.machine_recipe.duration";
+	private static final String OUTPUT_CHANCE_DESCRIPTION_ID = "guide.generalmechanics.machine_recipe.output_chance";
 
 	private MachineRecipeGuideRenderer () {
 	}
@@ -51,7 +53,29 @@ final class MachineRecipeGuideRenderer {
 
 		int seconds = Math.max(1, Mth.ceil(recipe.duration() / 20.0));
 		builder.addBottom(LytParagraph.of(Component.translatableWithFallback(DURATION_DESCRIPTION_ID, "Time: %s s", seconds).getString()));
+		addChanceDescriptions(builder, definition.schema(), recipe);
 		return builder.build(holder);
+	}
+
+	private static void addChanceDescriptions (LytStandardRecipeBox.Builder builder, MachineRecipeSchema schema, MachineRecipe recipe) {
+		Map<String, ItemStack> itemOutputs = recipe.itemOutputs();
+		for (MachineRecipeSchema.Slot slot : schema.itemOutputs()) {
+			ItemStack output = itemOutputs.get(slot.name());
+			if (output == null || output.isEmpty()) continue;
+			double chance = recipe.itemOutputChance(slot.name());
+			if (chance < 1.0D) builder.addBottom(chanceParagraph(output.getHoverName(), chance));
+		}
+		Map<String, FluidStack> fluidOutputs = recipe.fluidOutputs();
+		for (MachineRecipeSchema.Slot slot : schema.fluidOutputs()) {
+			FluidStack output = fluidOutputs.get(slot.name());
+			if (output == null || output.isEmpty()) continue;
+			double chance = recipe.fluidOutputChance(slot.name());
+			if (chance < 1.0D) builder.addBottom(chanceParagraph(output.getHoverName(), chance));
+		}
+	}
+
+	private static LytParagraph chanceParagraph (Component output, double chance) {
+		return LytParagraph.of(Component.translatableWithFallback(OUTPUT_CHANCE_DESCRIPTION_ID, "%s chance: %s", output, NumberFormat.getPercentInstance().format(chance)).getString());
 	}
 
 	private static List<LytBlock> createInputs (MachineRecipeSchema schema, MachineRecipe recipe) {

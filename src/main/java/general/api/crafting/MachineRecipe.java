@@ -29,17 +29,21 @@ public final class MachineRecipe implements Recipe<MachineRecipeInput> {
 	private final MachineRecipeDefinition<?>        definition;
 	private final Map<String, SizedIngredient>      itemInputs;
 	private final Map<String, ItemStackTemplate>    itemOutputs;
+	private final Map<String, Double>               itemOutputChances;
 	private final Map<String, SizedFluidIngredient> fluidInputs;
 	private final Map<String, FluidStackTemplate>   fluidOutputs;
+	private final Map<String, Double>               fluidOutputChances;
 	private final int                               duration;
 	private final Object                            data;
 
-	MachineRecipe (MachineRecipeDefinition<?> definition, Map<String, SizedIngredient> itemInputs, Map<String, ItemStackTemplate> itemOutputs, Map<String, SizedFluidIngredient> fluidInputs, Map<String, FluidStackTemplate> fluidOutputs, int duration, Object data) {
+	MachineRecipe (MachineRecipeDefinition<?> definition, Map<String, SizedIngredient> itemInputs, Map<String, ItemStackTemplate> itemOutputs, Map<String, Double> itemOutputChances, Map<String, SizedFluidIngredient> fluidInputs, Map<String, FluidStackTemplate> fluidOutputs, Map<String, Double> fluidOutputChances, int duration, Object data) {
 		this.definition = Objects.requireNonNull(definition, "definition");
 		this.itemInputs = Map.copyOf(new LinkedHashMap<>(Objects.requireNonNull(itemInputs, "itemInputs")));
 		this.itemOutputs = copyTemplates(itemOutputs, "itemOutputs");
+		this.itemOutputChances = Map.copyOf(new LinkedHashMap<>(Objects.requireNonNull(itemOutputChances, "itemOutputChances")));
 		this.fluidInputs = Map.copyOf(new LinkedHashMap<>(Objects.requireNonNull(fluidInputs, "fluidInputs")));
 		this.fluidOutputs = copyTemplates(fluidOutputs, "fluidOutputs");
+		this.fluidOutputChances = Map.copyOf(new LinkedHashMap<>(Objects.requireNonNull(fluidOutputChances, "fluidOutputChances")));
 		this.duration = duration;
 		this.data = Objects.requireNonNull(data, "data");
 	}
@@ -61,6 +65,16 @@ public final class MachineRecipe implements Recipe<MachineRecipeInput> {
 		return Map.copyOf(result);
 	}
 
+	public double itemOutputChance (String name) {
+		Objects.requireNonNull(name, "name");
+		if (!itemOutputs.containsKey(name)) throw new IllegalArgumentException("Recipe has no item output '" + name + "'");
+		return itemOutputChances.getOrDefault(name, 1.0D);
+	}
+
+	public double itemOutputChance (MachineRecipeSlot.ItemOutput slot) {
+		return itemOutputChance(Objects.requireNonNull(slot, "slot").name());
+	}
+
 	public Map<String, SizedFluidIngredient> fluidInputs () {
 		return fluidInputs;
 	}
@@ -72,6 +86,16 @@ public final class MachineRecipe implements Recipe<MachineRecipeInput> {
 		var result = new LinkedHashMap<String, FluidStack>(fluidOutputs.size());
 		fluidOutputs.forEach((name, template) -> result.put(name, template.create()));
 		return Map.copyOf(result);
+	}
+
+	public double fluidOutputChance (String name) {
+		Objects.requireNonNull(name, "name");
+		if (!fluidOutputs.containsKey(name)) throw new IllegalArgumentException("Recipe has no fluid output '" + name + "'");
+		return fluidOutputChances.getOrDefault(name, 1.0D);
+	}
+
+	public double fluidOutputChance (MachineRecipeSlot.FluidOutput slot) {
+		return fluidOutputChance(Objects.requireNonNull(slot, "slot").name());
 	}
 
 	public int duration () {
@@ -98,6 +122,14 @@ public final class MachineRecipe implements Recipe<MachineRecipeInput> {
 
 	FluidStackTemplate internalFluidOutputTemplate (String name) {
 		return fluidOutputs.get(name);
+	}
+
+	Map<String, Double> internalItemOutputChances () {
+		return itemOutputChances;
+	}
+
+	Map<String, Double> internalFluidOutputChances () {
+		return fluidOutputChances;
 	}
 
 	@Override
