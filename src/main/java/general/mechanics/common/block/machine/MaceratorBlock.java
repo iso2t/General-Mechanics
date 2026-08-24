@@ -37,6 +37,7 @@ public class MaceratorBlock extends MachineBlock<MaceratorBlockEntity> implement
 		macerate(context, GenItems.STEEL.get(), GenItems.STEEL.get().getDustItem(), 200, "steel");
 		macerate(context, GenItems.TITANIUM.get(), GenItems.TITANIUM.get().getDustItem(), 240, "titanium");
 		macerate(context, GenItems.TUNGSTEN.get(), GenItems.TUNGSTEN.get().getDustItem(), 300, "tungsten");
+		macerate(context, Items.BLAZE_ROD, 1, Items.BLAZE_POWDER, 3, Items.BLAZE_POWDER, 1, 0.05D, 350, "blaze_rod");
 	}
 
 	@Override
@@ -49,7 +50,11 @@ public class MaceratorBlock extends MachineBlock<MaceratorBlockEntity> implement
 	}
 
 	private static void macerate (RecipeGenerationContext context, ItemLike ingot, ItemLike dust, int duration, String material) {
-		context.save(getRecipeDefinition().recipeBuilder().itemInput(RecipeSlots.INPUT, ingot, 1).itemOutput(RecipeSlots.OUTPUT, dust, 1).chanceItemOutput(RecipeSlots.CHANCE_OUTPUT, dust, 1, 0.10D).duration(duration), "macerator/" + material + "_dust");
+		macerate(context, ingot,1, dust, 1, dust, 1, 0.10D, duration, material);
+	}
+
+	private static void macerate (RecipeGenerationContext context, ItemLike input, int inputCount, ItemLike output, int outputCount, ItemLike chanceOutput, int chanceOutputCount, double chanceOutputYield, int duration, String material) {
+		context.save(getRecipeDefinition().recipeBuilder().itemInput(RecipeSlots.INPUT, input, inputCount).itemOutput(RecipeSlots.OUTPUT, output, outputCount).chanceItemOutput(RecipeSlots.CHANCE_OUTPUT, chanceOutput, chanceOutputCount, chanceOutputYield).duration(duration), "macerator/" + material + "_dust");
 	}
 
 	public static final class RecipeSlots {

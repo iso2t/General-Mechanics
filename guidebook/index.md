@@ -6,6 +6,8 @@ navigation:
 
 # GenTech, Inc.
 
+![GenTech Logo](assets/gentech.png)
+
 ## Congratulations, Prospective Success Asset!
 
 GenTech is pleased to announce that you have been assigned to prosper in this exciting new world. Your appointment was
@@ -30,8 +32,10 @@ thinking confidently near company equipment:
 
 * [Getting Started](getting-started.md) — Begin your approved transition from survivor to industrial asset.
 * [Tips and Tricks](tips-and-tricks.md) — Benefit from lessons learned during previous, fully documented outcomes.
-* [AE2 Mechanics](ae2-mechanics/ae2-mechanics-index.md) — Integrate Applied Energistics 2 with GenTech-certified efficiency.
 * [Example Setups](example-setups/example-setups-index.md) — Observe arrangements that have already passed basic reality checks.
 * [Blocks](blocks/blocks-index.md) — Review the equipment you are now trusted to operate responsibly.
+* [Fluids](fluids/fluids-index.md)
+* [Items](items/items-index.md)
+* [Multiblocks](multiblocks/multiblocks-index.md)
 
 Thank you for choosing GenTech. Your cooperation has already been recorded.
