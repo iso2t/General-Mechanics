@@ -11,6 +11,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.SoundType;
+import org.jetbrains.annotations.Nullable;
 
 public class MaceratorBlock extends MachineBlock<MaceratorBlockEntity> implements IConfigurableMachineModel, RecipeDataProvider {
 
@@ -53,8 +54,9 @@ public class MaceratorBlock extends MachineBlock<MaceratorBlockEntity> implement
 		macerate(context, ingot,1, dust, 1, dust, 1, 0.10D, duration, material);
 	}
 
-	private static void macerate (RecipeGenerationContext context, ItemLike input, int inputCount, ItemLike output, int outputCount, ItemLike chanceOutput, int chanceOutputCount, double chanceOutputYield, int duration, String material) {
-		context.save(getRecipeDefinition().recipeBuilder().itemInput(RecipeSlots.INPUT, input, inputCount).itemOutput(RecipeSlots.OUTPUT, output, outputCount).chanceItemOutput(RecipeSlots.CHANCE_OUTPUT, chanceOutput, chanceOutputCount, chanceOutputYield).duration(duration), "macerator/" + material + "_dust");
+	private static void macerate (RecipeGenerationContext context, ItemLike input, int inputCount, ItemLike output, int outputCount, @Nullable ItemLike chanceOutput, int chanceOutputCount, double chanceOutputYield, int duration, String material) {
+		if (chanceOutput != null) context.save(getRecipeDefinition().recipeBuilder().itemInput(RecipeSlots.INPUT, input, inputCount).itemOutput(RecipeSlots.OUTPUT, output, outputCount).chanceItemOutput(RecipeSlots.CHANCE_OUTPUT, chanceOutput, chanceOutputCount, chanceOutputYield).duration(duration), "macerator/" + material + "_dust");
+		else context.save(getRecipeDefinition().recipeBuilder().itemInput(RecipeSlots.INPUT, input, inputCount).itemOutput(RecipeSlots.OUTPUT, output, outputCount).duration(duration), "macerator/" + material + "_dust");
 	}
 
 	public static final class RecipeSlots {
