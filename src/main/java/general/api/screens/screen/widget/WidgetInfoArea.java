@@ -119,8 +119,10 @@ public class WidgetInfoArea extends AbstractWidget {
 		int childY = CONTENT_TOP_INSET;
 		for (AbstractWidget child : children) {
 			if (!child.isVisible()) continue;
-			child.setPosition((WIDTH - child.getWidth()) / 2, childY);
-			childY += child.getHeight();
+			int childHeight = child.getHeight();
+			int rowHeight = Math.max(childHeight, 16);
+			child.setPosition((WIDTH - child.getWidth()) / 2, childY + (rowHeight - childHeight) / 2 + (children.size() > 1 ? 0 : 1));
+			childY += rowHeight;
 		}
 		int panelHeight = Math.max(TOP_HEIGHT + BOTTOM_HEIGHT, childY + CONTENT_BOTTOM_INSET);
 		setHeight(panelHeight);
