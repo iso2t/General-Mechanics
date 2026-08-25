@@ -1,5 +1,6 @@
 package general.api.screens.slot;
 
+import general.api.transfer.item.LockableItemResourceHandler;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.transfer.IndexModifier;
 import net.neoforged.neoforge.transfer.ResourceHandler;
@@ -17,12 +18,20 @@ import java.util.function.Supplier;
  */
 public class MachineItemSlot extends ResourceHandlerSlot implements ILockableSlot {
 
+	private final LockableItemResourceHandler  handler;
+	private final IndexModifier<ItemResource> slotModifier;
+
 	private BooleanSupplier     lockedSupplier = () -> false;
 	private Supplier<ItemStack> ghostSupplier  = () -> ItemStack.EMPTY;
 	private boolean             lockStateBound;
 
 	public MachineItemSlot (ResourceHandler<ItemResource> handler, IndexModifier<ItemResource> slotModifier, int handlerSlot, int x, int y) {
 		super(handler, slotModifier, handlerSlot, x, y);
+		if (!(handler instanceof LockableItemResourceHandler lockableHandler)) {
+			throw new IllegalArgumentException("MachineItemSlot requires a LockableItemResourceHandler");
+		}
+		this.handler = lockableHandler;
+		this.slotModifier = Objects.requireNonNull(slotModifier, "slotModifier");
 	}
 
 	/**
@@ -48,9 +57,21 @@ public class MachineItemSlot extends ResourceHandlerSlot implements ILockableSlo
 
 	@Override
 	public boolean mayPlace (@NonNull ItemStack stack) {
-		if (!super.mayPlace(stack)) return false;
+		if (stack.isEmpty()) return false;
+		ItemResource resource = ItemResource.of(stack);
+		if (!handler.isDefinitionValid(getSlotIndex(), resource)) return false;
 		if (!isLocked()) return true;
 		ItemStack ghost = getGhostStack();
 		return !ghost.isEmpty() && ItemStack.isSameItemSameComponents(ghost, stack);
+	}
+
+	@Override
+	protected void setStackCopy (ItemStack stack) {
+		ItemResource resource = ItemResource.of(stack);
+		// A rejected client-side click can briefly be echoed back through a slot
+		// synchronization packet. Never let that transient state violate the
+		// handler definition or crash the render thread.
+		if (!resource.isEmpty() && !handler.isDefinitionValid(getSlotIndex(), resource)) return;
+		slotModifier.set(getSlotIndex(), resource, stack.getCount());
 	}
 }

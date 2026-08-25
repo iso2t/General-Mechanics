@@ -22,6 +22,7 @@ geometry.
 * [Electric Furnace Factory](electric-furnace-factory.md) — Promote one furnace into an accelerated industrial complex.
 * [Stamping Factory](stamping-factory.md) — Apply industrial pressure across three fully budgeted floors.
 * [Macerator Factory](macerator-factory.md) — Begin ore duplication by professionally disputing conservation of mass.
+* [Fluid Infuser Factory](fluid-infuser-factory.md) — Place liquids into containers with department-scale urgency.
 
 > **GENTECH SCALE NOTICE:** A larger machine does not eliminate operational problems. It provides sufficient interior
 > volume for those problems to become departments.

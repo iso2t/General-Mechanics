@@ -60,7 +60,17 @@ public abstract class DefinitionBackedResourceHandler<S, R extends Resource> ext
 
 	@Override
 	public final boolean isValid (int index, @NonNull R resource) {
-		return definition.get(index).accepts(resource) && acceptsRuntimeInsertion(index, resource);
+		return isDefinitionValid(index, resource) && acceptsRuntimeInsertion(index, resource);
+	}
+
+	/**
+	 * Tests only the immutable physical rules of a storage location. Unlike
+	 * {@link #isValid(int, Resource)}, this deliberately excludes live insertion
+	 * policies such as an item-slot lock.
+	 */
+	public final boolean isDefinitionValid (int index, @NonNull R resource) {
+		Objects.requireNonNull(resource, "resource");
+		return definition.get(index).accepts(resource);
 	}
 
 	/**
@@ -100,7 +110,7 @@ public abstract class DefinitionBackedResourceHandler<S, R extends Resource> ext
 		if (resource.isEmpty() && amount > 0) {
 			throw new IllegalArgumentException("Cannot store a positive amount of an empty resource in slot '" + displayName(index) + "'");
 		}
-		if (amount > 0 && !isValid(index, resource)) {
+		if (amount > 0 && !isDefinitionValid(index, resource)) {
 			throw new IllegalArgumentException("Resource " + resource + " is not valid for slot '" + displayName(index) + "'");
 		}
 		int capacity = getEffectiveCapacity(slot, resource);

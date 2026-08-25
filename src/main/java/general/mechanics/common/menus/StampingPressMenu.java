@@ -59,6 +59,7 @@ public class StampingPressMenu extends AbstractMenu<StampingPressBlock, Stamping
 		checkContainerDataCount(data, DATA_COUNT);
 		enableItemSlotLocking(blockEntity.getItemHandler());
 		enableMachineSideConfiguration(StampingPressBlockEntity.SIDES, this::getSideMode, blockEntity::setSideMode, () -> !isMultiblockFormed());
+		enableFactoryPresentation(this::isMultiblockFormed);
 	}
 
 	@Override

@@ -59,6 +59,7 @@ public class MaceratorMenu extends AbstractMenu<MaceratorBlock, MaceratorBlockEn
 		checkContainerDataCount(data, DATA_COUNT);
 		enableItemSlotLocking(blockEntity.getItemHandler());
 		enableMachineSideConfiguration(MaceratorBlockEntity.SIDES, this::getSideMode, blockEntity::setSideMode, () -> !isMultiblockFormed());
+		enableFactoryPresentation(this::isMultiblockFormed);
 	}
 
 	@Override

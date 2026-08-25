@@ -77,6 +77,15 @@ public abstract class AbstractScreen<T extends AbstractMenu<?, ?>> extends Abstr
 	public static final Identifier STATUS_ACTIVE   = Resource.getMainMod("textures/gui/elements/status_active.png");
 	public static final Identifier STATUS_INACTIVE = Resource.getMainMod("textures/gui/elements/status_inactive.png");
 	public static final Identifier STATUS_ERROR    = Resource.getMainMod("textures/gui/elements/status_error.png");
+	private static final Identifier EMPTY_LOCKED_SLOT_ICON = Resource.getMainMod("textures/gui/elements/locked.png");
+	private static final Identifier FACTORY_TITLE          = Resource.getMainMod("textures/gui/elements/factory_title.png");
+	private static final int        LOCK_ICON_TEXTURE_SIZE  = 16;
+	private static final int        LOCK_ICON_RENDER_SIZE   = 4;
+	private static final int        FACTORY_TITLE_X         = 1;
+	private static final int        FACTORY_TITLE_Y         = -16;
+	private static final int        FACTORY_TITLE_WIDTH     = 173;
+	private static final int        FACTORY_TITLE_HEIGHT    = 16;
+	private static final int        FACTORY_TITLE_TEXT_COLOR = 0xFFE6E6E6;
 
 	private final WidgetInfoArea       infoArea;
 	private final List<AbstractWidget> overlayWidgets = new ArrayList<>();
@@ -155,11 +164,26 @@ public abstract class AbstractScreen<T extends AbstractMenu<?, ?>> extends Abstr
 	public void extractBackground (@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
 		super.extractBackground(graphics, mouseX, mouseY, a);
 		graphics.blit(RenderPipelines.GUI_TEXTURED, getTexture(), leftPos, topPos, 0.f, 0.f, imageWidth, imageHeight, 256, 256);
+		if (menu.isFactoryPresentationActive()) {
+			graphics.blit(RenderPipelines.GUI_TEXTURED, FACTORY_TITLE, leftPos + FACTORY_TITLE_X, topPos + FACTORY_TITLE_Y, 0.0F, 0.0F, FACTORY_TITLE_WIDTH, FACTORY_TITLE_HEIGHT, FACTORY_TITLE_WIDTH, FACTORY_TITLE_HEIGHT);
+		}
 		infoArea.render(graphics, mouseX, mouseY, leftPos, topPos + 1); // Move down one to align tops
 
 		if (getPowerRenderer() != null) getPowerRenderer().renderRelative(graphics, leftPos, topPos, mouseX, mouseY);
 		if (getProgressBarRenderer() != null) getProgressBarRenderer().render(graphics, leftPos, topPos, mouseX, mouseY);
 		if (getFluidRenderer() != null) getFluidRenderer().render(graphics, leftPos, topPos, mouseX, mouseY);
+	}
+
+	@Override
+	protected void extractLabels (@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+		if (!menu.isFactoryPresentationActive()) {
+			super.extractLabels(graphics, mouseX, mouseY);
+			return;
+		}
+		int factoryTitleX = FACTORY_TITLE_X + (FACTORY_TITLE_WIDTH - font.width(title)) / 2;
+		int factoryTitleY = (FACTORY_TITLE_Y + (FACTORY_TITLE_HEIGHT - font.lineHeight) / 2) + 1;
+		graphics.text(font, title, factoryTitleX, factoryTitleY, FACTORY_TITLE_TEXT_COLOR, true);
+		graphics.text(font, playerInventoryTitle, inventoryLabelX, inventoryLabelY, -12566464, false);
 	}
 
 	@Override
@@ -179,9 +203,9 @@ public abstract class AbstractScreen<T extends AbstractMenu<?, ?>> extends Abstr
 		}
 		if (infoArea.mouseClicked(event, leftPos, topPos)) return true;
 		GuiFluidRenderer renderer = getFluidRenderer();
-		if (event.button() == 0 && renderer != null && menu.hasFluidContainerSource() && !menu.getCarried().isEmpty() && renderer.isMouseOver(event.x(), event.y(), leftPos, topPos)) {
+		if (event.button() == 0 && renderer != null && menu.hasFluidContainerInteraction() && !menu.getCarried().isEmpty() && renderer.isMouseOver(event.x(), event.y(), leftPos, topPos)) {
 			if (minecraft.gameMode != null) {
-				minecraft.gameMode.handleInventoryButtonClick(menu.containerId, AbstractMenu.FILL_FLUID_CONTAINER_BUTTON);
+				minecraft.gameMode.handleInventoryButtonClick(menu.containerId, AbstractMenu.TRANSFER_FLUID_CONTAINER_BUTTON);
 			}
 			return true;
 		}
@@ -224,6 +248,10 @@ public abstract class AbstractScreen<T extends AbstractMenu<?, ?>> extends Abstr
 				graphics.fill(slot.x, slot.y, slot.x + 16, slot.y + 16, 0x66FFFFFF);
 				return;
 			}
+			super.renderSlotContents(graphics, itemStack, slot, itemCount);
+			// draw lock icon on slot
+			graphics.blit(RenderPipelines.GUI_TEXTURED, EMPTY_LOCKED_SLOT_ICON, slot.x - 2, slot.y + 18 - LOCK_ICON_RENDER_SIZE, 0.0F, 0.0F, LOCK_ICON_RENDER_SIZE, LOCK_ICON_RENDER_SIZE, LOCK_ICON_TEXTURE_SIZE, LOCK_ICON_TEXTURE_SIZE, LOCK_ICON_TEXTURE_SIZE, LOCK_ICON_TEXTURE_SIZE);
+			return;
 		}
 		super.renderSlotContents(graphics, itemStack, slot, itemCount);
 	}

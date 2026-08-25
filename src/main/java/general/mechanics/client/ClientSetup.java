@@ -7,6 +7,7 @@ import general.mechanics.client.model.CableModelLoader;
 import general.mechanics.client.model.ConfigurableMachineModelLoader;
 import general.mechanics.client.screens.CokeOvenScreen;
 import general.mechanics.client.screens.ElectricFurnaceScreen;
+import general.mechanics.client.screens.FluidInfuserScreen;
 import general.mechanics.client.screens.MaceratorScreen;
 import general.mechanics.client.screens.StampingPressScreen;
 import general.mechanics.registries.GenMenus;
@@ -38,6 +39,7 @@ public class ClientSetup {
 		event.register(GenMenus.ELECTRIC_FURNACE.get(), ElectricFurnaceScreen::new);
 		event.register(GenMenus.STAMPING_PRESS.get(), StampingPressScreen::new);
 		event.register(GenMenus.MACERATOR.get(), MaceratorScreen::new);
+		event.register(GenMenus.FLUID_INFUSER.get(), FluidInfuserScreen::new);
 	}
 
 	@SubscribeEvent

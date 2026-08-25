@@ -112,8 +112,24 @@ public abstract class MachineBlockEntity extends BaseBlockEntity implements Mach
 		return machine.getMaxEnergyInput();
 	}
 
-	public final MachineRecipeProcessor.TickResult serverTick (ServerLevel level) {
+	public MachineRecipeProcessor.TickResult serverTick (ServerLevel level) {
 		return machine.serverTick(level);
+	}
+
+	/**
+	 * Applies shared multiblock validation and operating-profile changes before a
+	 * custom processor advances. A {@code false} result means processing must halt
+	 * for this tick; the runtime has already updated the lit state.
+	 */
+	protected final boolean prepareMachineProcessing (ServerLevel level) {
+		return machine.prepareProcessing(level);
+	}
+
+	/**
+	 * Updates the standard machine lit state for non-recipe processing logic.
+	 */
+	protected final void setMachineActive (ServerLevel level, boolean active) {
+		machine.setProcessingActive(level, active);
 	}
 
 	public final void resetProcessing () {
@@ -179,6 +195,17 @@ public abstract class MachineBlockEntity extends BaseBlockEntity implements Mach
 	}
 
 	protected void loadMachineAdditional (ValueInput input) {
+	}
+
+	/**
+	 * Resets state owned by a custom, non-recipe processor. The runtime invokes
+	 * this whenever structure or upgrade changes invalidate active work.
+	 */
+	protected void resetCustomProcessing () {
+	}
+
+	final void resetCustomProcessingFromRuntime () {
+		resetCustomProcessing();
 	}
 
 	protected void onMachineLoaded () {

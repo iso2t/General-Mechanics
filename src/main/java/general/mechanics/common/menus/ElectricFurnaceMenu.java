@@ -68,6 +68,7 @@ public class ElectricFurnaceMenu extends AbstractMenu<ElectricFurnaceBlock, Elec
 		checkContainerDataCount(data, DATA_COUNT);
 		enableItemSlotLocking(blockEntity.getItemHandler());
 		enableMachineSideConfiguration(ElectricFurnaceBlockEntity.SIDES, this::getSideMode, blockEntity::setSideMode, () -> !isMultiblockFormed());
+		enableFactoryPresentation(this::isMultiblockFormed);
 	}
 
 	@Override

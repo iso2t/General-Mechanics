@@ -19,6 +19,7 @@ import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.text.NumberFormat;
 import java.util.List;
+import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 
 public class GuiFluidRenderer extends AbstractBarRenderer {
@@ -35,8 +36,7 @@ public class GuiFluidRenderer extends AbstractBarRenderer {
 	@Getter
 	private static final int minFluidHeight = 1;
 
-	@Getter
-	private final long capacity;
+	private final LongSupplier capacitySupplier;
 
 	private final Supplier<FluidStack> fluidSupplier;
 
@@ -45,17 +45,31 @@ public class GuiFluidRenderer extends AbstractBarRenderer {
 	private TooltipMode tooltipMode;
 
 	public GuiFluidRenderer (int xPos, int yPos, int width, int height, long capacity, Supplier<FluidStack> fluidSupplier, TooltipMode tooltipMode) {
+		this(xPos, yPos, width, height, () -> capacity, fluidSupplier, tooltipMode);
+	}
+
+	/**
+	 * Creates a renderer whose capacity can change while the menu is open, such as
+	 * when a machine begins using a multiblock upgrade profile.
+	 */
+	public GuiFluidRenderer (int xPos, int yPos, int width, int height, LongSupplier capacitySupplier, Supplier<FluidStack> fluidSupplier, TooltipMode tooltipMode) {
 		super(xPos, yPos, width, height);
-
-		Preconditions.checkArgument(capacity > 0, "Capacity must be greater than 0.");
-
-		this.capacity = capacity;
+		this.capacitySupplier = Preconditions.checkNotNull(capacitySupplier, "Capacity supplier cannot be null.");
+		Preconditions.checkArgument(capacitySupplier.getAsLong() > 0, "Capacity must be greater than 0.");
 		this.fluidSupplier = Preconditions.checkNotNull(fluidSupplier, "Fluid supplier cannot be null.");
 		this.tooltipMode = Preconditions.checkNotNull(tooltipMode, "Tooltip mode cannot be null.");
 	}
 
 	public GuiFluidRenderer (int xPos, int yPos, int width, int height, long capacity, Supplier<FluidStack> fluidSupplier, boolean showCapacity) {
 		this(xPos, yPos, width, height, capacity, fluidSupplier, showCapacity ? TooltipMode.SHOW_AMOUNT_AND_CAPACITY : TooltipMode.SHOW_AMOUNT);
+	}
+
+	public GuiFluidRenderer (int xPos, int yPos, int width, int height, LongSupplier capacitySupplier, Supplier<FluidStack> fluidSupplier, boolean showCapacity) {
+		this(xPos, yPos, width, height, capacitySupplier, fluidSupplier, showCapacity ? TooltipMode.SHOW_AMOUNT_AND_CAPACITY : TooltipMode.SHOW_AMOUNT);
+	}
+
+	public long getCapacity () {
+		return Math.max(1L, capacitySupplier.getAsLong());
 	}
 
 	@Override
@@ -137,6 +151,7 @@ public class GuiFluidRenderer extends AbstractBarRenderer {
 			return 0;
 		}
 
+		long capacity = getCapacity();
 		long amount = Math.min(stack.getAmount(), capacity);
 
 		int fluidHeight = (int) Math.ceil((amount / (double) capacity) * getHeight());
@@ -176,7 +191,7 @@ public class GuiFluidRenderer extends AbstractBarRenderer {
 		List<Component> tooltip = stack.isEmpty() ? getEmptyTooltip() : switch (tooltipMode) {
 			case SHOW_AMOUNT -> List.of(stack.getHoverName(), Component.literal(format.format(stack.getAmount()) + " mB").withStyle(ChatFormatting.GRAY));
 
-			case SHOW_AMOUNT_AND_CAPACITY -> List.of(stack.getHoverName(), Component.literal(format.format(stack.getAmount()) + " / " + format.format(capacity) + " mB").withStyle(ChatFormatting.GRAY));
+			case SHOW_AMOUNT_AND_CAPACITY -> List.of(stack.getHoverName(), Component.literal(format.format(stack.getAmount()) + " / " + format.format(getCapacity()) + " mB").withStyle(ChatFormatting.GRAY));
 
 			case ITEM_LIST -> getFluidTooltip(stack);
 		};
@@ -187,7 +202,7 @@ public class GuiFluidRenderer extends AbstractBarRenderer {
 	private List<Component> getEmptyTooltip () {
 		return switch (tooltipMode) {
 			case SHOW_AMOUNT -> List.of(EMPTY_FLUID, Component.literal("0 mB").withStyle(ChatFormatting.GRAY));
-			case SHOW_AMOUNT_AND_CAPACITY -> List.of(EMPTY_FLUID, Component.literal("0 / " + format.format(capacity) + " mB").withStyle(ChatFormatting.GRAY));
+			case SHOW_AMOUNT_AND_CAPACITY -> List.of(EMPTY_FLUID, Component.literal("0 / " + format.format(getCapacity()) + " mB").withStyle(ChatFormatting.GRAY));
 			case ITEM_LIST -> List.of(EMPTY_FLUID);
 		};
 	}

@@ -69,7 +69,7 @@ public class ElectricFurnaceBlockEntity extends MachineBlockEntity implements Ma
 
 	@Override
 	public @NonNull Component getDisplayName () {
-		return !isMultiblockFormed() ? Component.translatable(getBlockState().getBlock().getDescriptionId()) : Component.translatable(getMultiblockDefinition().toString());
+		return !isMultiblockFormed() ? Component.translatable(getBlockState().getBlock().getDescriptionId()) : Component.translatableWithFallback(getMultiblockDefinition().toString(), getMultiblockDefinition().localizedName().getRawString());
 	}
 
 	@Override

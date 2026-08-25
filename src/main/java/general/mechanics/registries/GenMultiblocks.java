@@ -11,6 +11,7 @@ import general.mechanics.common.block.machine.CokeOvenController;
 import general.mechanics.common.block.machine.ElectricFurnaceBlock;
 import general.mechanics.common.block.machine.MaceratorBlock;
 import general.mechanics.common.block.machine.StampingPressBlock;
+import general.mechanics.common.block.entity.FluidInfuserBlockEntity;
 import net.minecraft.core.Registry;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -35,16 +36,26 @@ public class GenMultiblocks {
 
 	public static final MultiblockDefinition MACERATOR = register("Macerator Factory", Multiblock.builder(MultiblockPattern.builder().whereHatchable('B', MultiblockElement.block(GenBlocks.MACHINE_FRAME)).where('C', MultiblockElement.block(GenBlocks.MACERATOR)).whereUniform('U', CoreTags.Blocks.CORE_MATRICES, GenBlocks.MACHINE_FRAME).where('.', MultiblockElement.air()).whereHatchable('T', GenBlocks.MACHINE_CASING).anchor('C').layer("BBB", "BBB", "BCB").layer("UUU", "U.U", "UUU").layer("TTT", "TTT", "TTT").build()).hatch(MultiblockHatchDefinition.builder("item_input", GenBlocks.ITEM_INPUT_HATCH).count(1).itemInsert(MaceratorBlock.RecipeSlots.INPUT).build()).hatch(MultiblockHatchDefinition.builder("item_output", GenBlocks.ITEM_OUTPUT_HATCH).count(1).itemExtract(MaceratorBlock.RecipeSlots.OUTPUT, MaceratorBlock.RecipeSlots.CHANCE_OUTPUT).build()).hatch(MultiblockHatchDefinition.builder("energy", GenBlocks.POWER_HATCH).count(1).energy(ResourceIoMode.INSERT).build()).hatch(MultiblockHatchDefinition.builder("network", GenBlocks.NETWORK_HATCH).count(HatchCount.atMost(1)).itemInsert(MaceratorBlock.RecipeSlots.INPUT).itemExtract(MaceratorBlock.RecipeSlots.OUTPUT, MaceratorBlock.RecipeSlots.CHANCE_OUTPUT).network(NetworkServices.ITEM, NetworkServices.ENERGY, NetworkServices.DATA).build()).build());
 
+	public static final MultiblockDefinition FLUID_INFUSER = register("Fluid Infuser Factory", Multiblock.builder(MultiblockPattern.builder().whereHatchable('B', MultiblockElement.block(GenBlocks.MACHINE_FRAME)).where('C', MultiblockElement.block(GenBlocks.FLUID_INFUSER)).whereUniform('U', CoreTags.Blocks.CORE_MATRICES, GenBlocks.MACHINE_FRAME).where('.', MultiblockElement.air()).whereHatchable('T', GenBlocks.MACHINE_CASING).anchor('C').layer("BBB", "BBB", "BCB").layer("UUU", "U.U", "UUU").layer("TTT", "TTT", "TTT").build()).hatch(MultiblockHatchDefinition.builder("item_input", GenBlocks.ITEM_INPUT_HATCH).count(1).itemInsert(FluidInfuserBlockEntity.StorageSlot.INPUT).build()).hatch(MultiblockHatchDefinition.builder("item_output", GenBlocks.ITEM_OUTPUT_HATCH).count(1).itemExtract(FluidInfuserBlockEntity.StorageSlot.OUTPUT).build()).hatch(MultiblockHatchDefinition.builder("fluid_input", GenBlocks.FLUID_INPUT_HATCH).count(1).fluidInsert(FluidInfuserBlockEntity.StorageSlot.TANK).build()).hatch(MultiblockHatchDefinition.builder("energy", GenBlocks.POWER_HATCH).count(1).energy(ResourceIoMode.INSERT).build()).hatch(MultiblockHatchDefinition.builder("network", GenBlocks.NETWORK_HATCH).count(HatchCount.atMost(1)).itemInsert(FluidInfuserBlockEntity.StorageSlot.INPUT).itemExtract(FluidInfuserBlockEntity.StorageSlot.OUTPUT).fluidInsert(FluidInfuserBlockEntity.StorageSlot.TANK).network(NetworkServices.ITEM, NetworkServices.FLUID, NetworkServices.ENERGY, NetworkServices.DATA).build()).build());
+
 	public static List<MultiblockDefinition> getMultiblocks () {
 		return Collections.unmodifiableList(MULTIBLOCKS);
 	}
 
 	public static MultiblockDefinition register (String name, MultiblockPattern pattern) {
-		return register(name, new Multiblock(pattern));
+		return register(name, name.toLowerCase().replace(" ", ""), new Multiblock(pattern));
+	}
+
+	public static MultiblockDefinition register (String name, String registryName, MultiblockPattern pattern) {
+		return register(name, registryName, new Multiblock(pattern));
 	}
 
 	public static MultiblockDefinition register (String name, Multiblock multiblock) {
-		var definition = new MultiblockDefinition(name, REGISTRY.register(name.toLowerCase().replace(" ", ""), () -> multiblock));
+		return register(name, name.toLowerCase().replace(" ", ""), multiblock);
+	}
+
+	public static MultiblockDefinition register (String name, String registryName, Multiblock multiblock) {
+		var definition = new MultiblockDefinition(name, REGISTRY.register(registryName, () -> multiblock));
 		MULTIBLOCKS.add(definition);
 		return definition;
 	}

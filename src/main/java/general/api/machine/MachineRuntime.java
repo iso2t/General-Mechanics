@@ -363,23 +363,42 @@ public final class MachineRuntime implements INetworkInterface {
 
 	public MachineRecipeProcessor.TickResult serverTick (ServerLevel level) {
 		if (recipeProcessor == null) return new MachineRecipeProcessor.TickResult(MachineRecipeProcessor.Status.IDLE, false);
-
-		MachineDefinition.MultiblockSpec multiblock = definition.multiblock();
-		if (multiblock != null) {
-			if (formed && !multiblockProfileResolved) return haltProcessing(level, false);
-			boolean operational = formed && isMultiblockOperational();
-			refreshOperatingProfile(level, operational);
-			if (formed && !operational) return haltProcessing(level, !multiblock.allowStandaloneOperation());
-			if (!formed && !multiblock.allowStandaloneOperation()) return haltProcessing(level, true);
-		}
+		if (!prepareProcessing(level)) return new MachineRecipeProcessor.TickResult(getProcessingStatus(), false);
 
 		MachineRecipeProcessor.TickResult result = recipeProcessor.tick(level);
-		setLit(level, result.status() == MachineRecipeProcessor.Status.RUNNING || result.crafted());
+		setProcessingActive(level, result.status() == MachineRecipeProcessor.Status.RUNNING || result.crafted());
 		return result;
+	}
+
+	boolean prepareProcessing (ServerLevel level) {
+		Objects.requireNonNull(level, "level");
+		MachineDefinition.MultiblockSpec multiblock = definition.multiblock();
+		if (multiblock != null) {
+			if (formed && !multiblockProfileResolved) {
+				haltProcessing(level, false);
+				return false;
+			}
+			boolean operational = formed && isMultiblockOperational();
+			refreshOperatingProfile(level, operational);
+			if (formed && !operational) {
+				haltProcessing(level, !multiblock.allowStandaloneOperation());
+				return false;
+			}
+			if (!formed && !multiblock.allowStandaloneOperation()) {
+				haltProcessing(level, true);
+				return false;
+			}
+		}
+		return true;
+	}
+
+	void setProcessingActive (ServerLevel level, boolean active) {
+		setLit(Objects.requireNonNull(level, "level"), active);
 	}
 
 	public void resetProcessing () {
 		if (recipeProcessor != null) recipeProcessor.reset();
+		owner.resetCustomProcessingFromRuntime();
 		if (owner.getLevel() instanceof ServerLevel serverLevel) setLit(serverLevel, false);
 	}
 
@@ -517,10 +536,9 @@ public final class MachineRuntime implements INetworkInterface {
 		if (spec != null && directCapabilitiesEnabled()) spec.registrar().register(this, networkNode.getServices());
 	}
 
-	private MachineRecipeProcessor.TickResult haltProcessing (ServerLevel level, boolean reset) {
-		if (reset && recipeProcessor != null) recipeProcessor.reset();
+	private void haltProcessing (ServerLevel level, boolean reset) {
+		if (reset) resetProcessing();
 		setLit(level, false);
-		return new MachineRecipeProcessor.TickResult(getProcessingStatus(), false);
 	}
 
 	private void refreshOperatingProfile (ServerLevel level, boolean multiblockOperational) {
@@ -529,6 +547,7 @@ public final class MachineRuntime implements INetworkInterface {
 		operatingUpgradeProfile = next;
 		operatingPowerProfile = definition.energy() == null ? null : definition.energy().baseProfile().upgradedBy(next);
 		if (recipeProcessor != null) recipeProcessor.reset();
+		owner.resetCustomProcessingFromRuntime();
 		setLit(level, false);
 		owner.setChanged();
 		refreshNetworkServices();

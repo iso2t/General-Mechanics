@@ -7,6 +7,7 @@ import general.api.machine.config.MachineSideMode;
 import general.api.screens.screen.AbstractScreen;
 import general.api.screens.slot.MachineItemSlot;
 import general.api.transfer.item.LockableItemResourceHandler;
+import general.api.transfer.fluid.FluidContainerTransfers;
 import lombok.Getter;
 import lombok.NonNull;
 import net.minecraft.world.SimpleContainer;
@@ -38,7 +39,13 @@ public abstract class AbstractMenu<B extends EntityBlock, T extends BlockEntity>
 	/**
 	 * Reserved menu-button id used by {@link AbstractScreen}.
 	 */
-	public static final  int FILL_FLUID_CONTAINER_BUTTON  = 0x47464C44; // "GFLD"
+	public static final  int TRANSFER_FLUID_CONTAINER_BUTTON = 0x47464C44; // "GFLD"
+	/**
+	 * @deprecated Use {@link #TRANSFER_FLUID_CONTAINER_BUTTON}; fluid-bar interactions
+	 * may now move fluid in either direction.
+	 */
+	@Deprecated(forRemoval = false)
+	public static final  int FILL_FLUID_CONTAINER_BUTTON  = TRANSFER_FLUID_CONTAINER_BUTTON;
 	public static final  int TOGGLE_ITEM_LOCK_BUTTON      = 0x474C4F43; // "GLOC"
 	private static final int CONFIGURE_SIDE_BUTTON_PREFIX = 0x47530000; // "GS"
 	private static final int CONFIGURE_SIDE_BUTTON_MASK   = 0xFFFF0000;
@@ -58,10 +65,15 @@ public abstract class AbstractMenu<B extends EntityBlock, T extends BlockEntity>
 	private FluidContainerSource fluidContainerSource;
 
 	@Nullable
+	private FluidContainerTarget fluidContainerTarget;
+
+	@Nullable
 	private LockableItemResourceHandler lockableItemHandler;
 
 	@Nullable
 	private MachineSideConfigurationSource sideConfigurationSource;
+	@Nullable
+	private BooleanSupplier factoryPresentationState;
 
 	private boolean itemSlotsLocked;
 
@@ -176,6 +188,27 @@ public abstract class AbstractMenu<B extends EntityBlock, T extends BlockEntity>
 	}
 
 	/**
+	 * Enables depositing fluid from the cursor-held container into this menu's
+	 * tank. A successful click transfers exactly one bucket.
+	 */
+	protected final void setFluidContainerTarget (ResourceHandler<FluidResource> handler, int tank) {
+		setFluidContainerTarget(handler, tank, FluidType.BUCKET_VOLUME);
+	}
+
+	/**
+	 * Enables depositing an exact custom amount from the cursor-held container.
+	 * Both the item extraction and tank insertion share one root transaction, so
+	 * incompatible fluids, insufficient contents, or insufficient tank space leave
+	 * both sides unchanged.
+	 */
+	protected final void setFluidContainerTarget (ResourceHandler<FluidResource> handler, int tank, int transferAmount) {
+		Objects.requireNonNull(handler, "handler");
+		Objects.checkIndex(tank, handler.size());
+		if (transferAmount <= 0) throw new IllegalArgumentException("Fluid container transfer amount must be greater than zero");
+		this.fluidContainerTarget = new FluidContainerTarget(handler, tank, transferAmount);
+	}
+
+	/**
 	 * Enables the shared machine input lock for every {@link MachineItemSlot} in
 	 * this menu. The handler is authoritative on the server; hidden inactive slots
 	 * synchronize full ghost item identities to the client without adding custom
@@ -230,6 +263,23 @@ public abstract class AbstractMenu<B extends EntityBlock, T extends BlockEntity>
 	}
 
 	/**
+	 * Enables the shared factory title presentation using synchronized menu state.
+	 * The supplier is evaluated while rendering, allowing a screen to transition
+	 * between standalone and formed-factory presentation without being reopened.
+	 */
+	protected final void enableFactoryPresentation (BooleanSupplier formedState) {
+		if (factoryPresentationState != null) throw new IllegalStateException("Factory presentation is already enabled for this menu");
+		this.factoryPresentationState = Objects.requireNonNull(formedState, "formedState");
+	}
+
+	/**
+	 * Whether this menu should currently use the formed-factory screen title.
+	 */
+	public final boolean isFactoryPresentationActive () {
+		return factoryPresentationState != null && factoryPresentationState.getAsBoolean();
+	}
+
+	/**
 	 * Enables the shared machine-side configuration UI and server action protocol.
 	 * The mode provider should expose synchronized menu state; the setter is only
 	 * invoked after the server validates the requested face and mode.
@@ -281,9 +331,16 @@ public abstract class AbstractMenu<B extends EntityBlock, T extends BlockEntity>
 		return fluidContainerSource != null;
 	}
 
+	/**
+	 * @return whether clicking the fluid renderer can move fluid in either direction.
+	 */
+	public final boolean hasFluidContainerInteraction () {
+		return fluidContainerSource != null || fluidContainerTarget != null;
+	}
+
 	@Override
 	public boolean clickMenuButton (@NonNull Player player, int buttonId) {
-		if (buttonId == FILL_FLUID_CONTAINER_BUTTON) return fillCarriedFluidContainer(player);
+		if (buttonId == TRANSFER_FLUID_CONTAINER_BUTTON) return transferCarriedFluidContainer(player);
 		if (buttonId == TOGGLE_ITEM_LOCK_BUTTON) return toggleItemSlotLock(player);
 		if ((buttonId & CONFIGURE_SIDE_BUTTON_MASK) == CONFIGURE_SIDE_BUTTON_PREFIX) return configureMachineSide(player, buttonId);
 		return super.clickMenuButton(player, buttonId);
@@ -330,6 +387,23 @@ public abstract class AbstractMenu<B extends EntityBlock, T extends BlockEntity>
 		}
 	}
 
+	private boolean transferCarriedFluidContainer (Player player) {
+		if (player.level().isClientSide() || !stillValid(player) || getCarried().isEmpty()) return false;
+		return fillCarriedFluidContainer(player) || drainCarriedFluidContainer(player);
+	}
+
+	private boolean drainCarriedFluidContainer (Player player) {
+		FluidContainerTarget target = fluidContainerTarget;
+		if (target == null) return false;
+
+		var itemAccess = ItemAccess.forPlayerCursor(player, this);
+		try (Transaction transaction = Transaction.openRoot()) {
+			if (!FluidContainerTransfers.drainIntoTank(itemAccess, target.handler(), target.tank(), target.transferAmount(), transaction)) return false;
+			transaction.commit();
+			return true;
+		}
+	}
+
 	@Override
 	public boolean stillValid (@NonNull Player player) {
 		return stillValid(ContainerLevelAccess.create(player.level(), blockEntity.getBlockPos()), player, blockEntity.getBlockState().getBlock());
@@ -364,6 +438,9 @@ public abstract class AbstractMenu<B extends EntityBlock, T extends BlockEntity>
 	}
 
 	private record FluidContainerSource(ResourceHandler<FluidResource> handler, int tank, int transferLimit) {
+	}
+
+	private record FluidContainerTarget(ResourceHandler<FluidResource> handler, int tank, int transferAmount) {
 	}
 
 	private record MachineSideConfigurationSource(MachineSideConfigurationDefinition definition, Function<MachineFace, MachineSideMode> modeProvider, BiPredicate<MachineFace, MachineSideMode> modeSetter, BooleanSupplier availability) {

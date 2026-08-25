@@ -28,7 +28,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Objects;
 
 /**
- * Standard block host for a recipe-backed {@link MachineBlockEntity}.
+ * Standard block host for a processing {@link MachineBlockEntity}.
  *
  * <p>Crafting machines are always lit-capable, horizontally rotatable, wrenchable,
  * and pickaxe-mineable. Their concrete blocks retain texture, recipe, particle,
@@ -41,8 +41,7 @@ public abstract class MachineBlock<T extends MachineBlockEntity> extends BaseEnt
 	public MachineBlock (Properties properties, Class<T> blockEntityClass, MachineDefinition machineDefinition) {
 		super(properties, blockEntityClass);
 		this.machineDefinition = Objects.requireNonNull(machineDefinition, "machineDefinition");
-		if (machineDefinition.recipes() == null) throw new IllegalArgumentException("Machine blocks require a recipe-backed machine definition");
-		if (!machineDefinition.hasLitState()) throw new IllegalArgumentException("Recipe-backed machine definition must support lit state");
+		if (!machineDefinition.hasLitState()) throw new IllegalArgumentException("Processing machine definition must support lit state");
 		registerDefaultState(getStateDefinition().any().setValue(LIT, false));
 	}
 
