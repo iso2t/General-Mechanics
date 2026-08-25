@@ -25,6 +25,7 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public abstract class AbstractScreen<T extends AbstractMenu<?, ?>> extends AbstractContainerScreen<T> {
 
@@ -156,7 +157,7 @@ public abstract class AbstractScreen<T extends AbstractMenu<?, ?>> extends Abstr
 	 * Adds a GUI-relative overlay rendered above container labels and slots.
 	 */
 	protected final <W extends AbstractWidget> W addOverlayWidget (W widget) {
-		overlayWidgets.add(java.util.Objects.requireNonNull(widget, "widget"));
+		overlayWidgets.add(Objects.requireNonNull(widget, "widget"));
 		return widget;
 	}
 
@@ -249,8 +250,9 @@ public abstract class AbstractScreen<T extends AbstractMenu<?, ?>> extends Abstr
 				return;
 			}
 			super.renderSlotContents(graphics, itemStack, slot, itemCount);
-			// draw lock icon on slot
-			graphics.blit(RenderPipelines.GUI_TEXTURED, EMPTY_LOCKED_SLOT_ICON, slot.x - 2, slot.y + 18 - LOCK_ICON_RENDER_SIZE, 0.0F, 0.0F, LOCK_ICON_RENDER_SIZE, LOCK_ICON_RENDER_SIZE, LOCK_ICON_TEXTURE_SIZE, LOCK_ICON_TEXTURE_SIZE, LOCK_ICON_TEXTURE_SIZE, LOCK_ICON_TEXTURE_SIZE);
+			// draw lock icon on slot | +6 on slot.x is for half of the slot minus half the lock icon width so it shows in the middle.
+			// this is for when i inevitably want to change this
+			graphics.blit(RenderPipelines.GUI_TEXTURED, EMPTY_LOCKED_SLOT_ICON, slot.x + 6, slot.y + 18 - LOCK_ICON_RENDER_SIZE, 0.0F, 0.0F, LOCK_ICON_RENDER_SIZE, LOCK_ICON_RENDER_SIZE, LOCK_ICON_TEXTURE_SIZE, LOCK_ICON_TEXTURE_SIZE, LOCK_ICON_TEXTURE_SIZE, LOCK_ICON_TEXTURE_SIZE);
 			return;
 		}
 		super.renderSlotContents(graphics, itemStack, slot, itemCount);
