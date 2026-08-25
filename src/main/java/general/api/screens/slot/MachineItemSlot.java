@@ -18,7 +18,7 @@ import java.util.function.Supplier;
  */
 public class MachineItemSlot extends ResourceHandlerSlot implements ILockableSlot {
 
-	private final LockableItemResourceHandler  handler;
+	private final LockableItemResourceHandler handler;
 	private final IndexModifier<ItemResource> slotModifier;
 
 	private BooleanSupplier     lockedSupplier = () -> false;

@@ -1,11 +1,7 @@
 package general.mechanics.registries;
 
 import general.api.mod.GenAPI;
-import general.mechanics.common.menus.CokeOvenMenu;
-import general.mechanics.common.menus.ElectricFurnaceMenu;
-import general.mechanics.common.menus.FluidInfuserMenu;
-import general.mechanics.common.menus.MaceratorMenu;
-import general.mechanics.common.menus.StampingPressMenu;
+import general.mechanics.common.menus.*;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.inventory.MenuType;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;

@@ -6,8 +6,8 @@ import general.api.machine.config.MachineSideConfigurationDefinition;
 import general.api.machine.config.MachineSideMode;
 import general.api.screens.screen.AbstractScreen;
 import general.api.screens.slot.MachineItemSlot;
-import general.api.transfer.item.LockableItemResourceHandler;
 import general.api.transfer.fluid.FluidContainerTransfers;
+import general.api.transfer.item.LockableItemResourceHandler;
 import lombok.Getter;
 import lombok.NonNull;
 import net.minecraft.world.SimpleContainer;
@@ -45,10 +45,10 @@ public abstract class AbstractMenu<B extends EntityBlock, T extends BlockEntity>
 	 * may now move fluid in either direction.
 	 */
 	@Deprecated(forRemoval = false)
-	public static final  int FILL_FLUID_CONTAINER_BUTTON  = TRANSFER_FLUID_CONTAINER_BUTTON;
-	public static final  int TOGGLE_ITEM_LOCK_BUTTON      = 0x474C4F43; // "GLOC"
-	private static final int CONFIGURE_SIDE_BUTTON_PREFIX = 0x47530000; // "GS"
-	private static final int CONFIGURE_SIDE_BUTTON_MASK   = 0xFFFF0000;
+	public static final  int FILL_FLUID_CONTAINER_BUTTON     = TRANSFER_FLUID_CONTAINER_BUTTON;
+	public static final  int TOGGLE_ITEM_LOCK_BUTTON         = 0x474C4F43; // "GLOC"
+	private static final int CONFIGURE_SIDE_BUTTON_PREFIX    = 0x47530000; // "GS"
+	private static final int CONFIGURE_SIDE_BUTTON_MASK      = 0xFFFF0000;
 
 	@Getter
 	private final B block;
@@ -73,7 +73,7 @@ public abstract class AbstractMenu<B extends EntityBlock, T extends BlockEntity>
 	@Nullable
 	private MachineSideConfigurationSource sideConfigurationSource;
 	@Nullable
-	private BooleanSupplier factoryPresentationState;
+	private BooleanSupplier                factoryPresentationState;
 
 	private boolean itemSlotsLocked;
 

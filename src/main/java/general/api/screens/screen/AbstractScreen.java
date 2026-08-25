@@ -74,17 +74,17 @@ public abstract class AbstractScreen<T extends AbstractMenu<?, ?>> extends Abstr
 	@Deprecated(forRemoval = true)
 	public static final int ITEM_LOCK_BUTTON_HEIGHT     = WidgetItemLockButton.DEFAULT_RENDER_SIZE;
 
-	public static final Identifier STATUS_ACTIVE   = Resource.getMainMod("textures/gui/elements/status_active.png");
-	public static final Identifier STATUS_INACTIVE = Resource.getMainMod("textures/gui/elements/status_inactive.png");
-	public static final Identifier STATUS_ERROR    = Resource.getMainMod("textures/gui/elements/status_error.png");
-	private static final Identifier EMPTY_LOCKED_SLOT_ICON = Resource.getMainMod("textures/gui/elements/locked.png");
-	private static final Identifier FACTORY_TITLE          = Resource.getMainMod("textures/gui/elements/factory_title.png");
-	private static final int        LOCK_ICON_TEXTURE_SIZE  = 16;
-	private static final int        LOCK_ICON_RENDER_SIZE   = 4;
-	private static final int        FACTORY_TITLE_X         = 1;
-	private static final int        FACTORY_TITLE_Y         = -16;
-	private static final int        FACTORY_TITLE_WIDTH     = 173;
-	private static final int        FACTORY_TITLE_HEIGHT    = 16;
+	public static final  Identifier STATUS_ACTIVE            = Resource.getMainMod("textures/gui/elements/status_active.png");
+	public static final  Identifier STATUS_INACTIVE          = Resource.getMainMod("textures/gui/elements/status_inactive.png");
+	public static final  Identifier STATUS_ERROR             = Resource.getMainMod("textures/gui/elements/status_error.png");
+	private static final Identifier EMPTY_LOCKED_SLOT_ICON   = Resource.getMainMod("textures/gui/elements/locked.png");
+	private static final Identifier FACTORY_TITLE            = Resource.getMainMod("textures/gui/elements/factory_title.png");
+	private static final int        LOCK_ICON_TEXTURE_SIZE   = 16;
+	private static final int        LOCK_ICON_RENDER_SIZE    = 4;
+	private static final int        FACTORY_TITLE_X          = 1;
+	private static final int        FACTORY_TITLE_Y          = -16;
+	private static final int        FACTORY_TITLE_WIDTH      = 173;
+	private static final int        FACTORY_TITLE_HEIGHT     = 16;
 	private static final int        FACTORY_TITLE_TEXT_COLOR = 0xFFE6E6E6;
 
 	private final WidgetInfoArea       infoArea;

@@ -11,11 +11,10 @@ import general.api.machine.upgrade.MachineUpgradeResolvers;
 import general.api.network.NetworkServices;
 import general.api.transfer.ResourceIoMode;
 import general.api.transfer.ResourceSlotKey;
-import general.api.transfer.fluid.FluidInventoryDefinition;
 import general.api.transfer.fluid.FluidContainerTransfers;
+import general.api.transfer.fluid.FluidInventoryDefinition;
 import general.api.transfer.fluid.FluidTanks;
 import general.api.transfer.item.ItemInventoryDefinition;
-import general.mechanics.common.block.machine.FluidInfuserBlock;
 import general.mechanics.common.menus.FluidInfuserMenu;
 import general.mechanics.common.network.NetworkConnectorServices;
 import general.mechanics.registries.GenMultiblocks;
@@ -59,7 +58,7 @@ public class FluidInfuserBlockEntity extends MachineBlockEntity implements Machi
 		public static final StorageSlot TANK   = new StorageSlot("fluid_input");
 	}
 
-	public static final ItemInventoryDefinition ITEMS = ItemInventoryDefinition.builder().input(StorageSlot.INPUT, 64, FluidContainerTransfers::isEmptyContainer).output(StorageSlot.OUTPUT).build();
+	public static final ItemInventoryDefinition  ITEMS  = ItemInventoryDefinition.builder().input(StorageSlot.INPUT, 64, FluidContainerTransfers::isEmptyContainer).output(StorageSlot.OUTPUT).build();
 	public static final FluidInventoryDefinition FLUIDS = FluidInventoryDefinition.builder().tank(StorageSlot.TANK, TANK_CAPACITY).build();
 
 	public static final int INPUT_SLOT  = ITEMS.index(StorageSlot.INPUT);

@@ -51,11 +51,12 @@ public class MaceratorBlock extends MachineBlock<MaceratorBlockEntity> implement
 	}
 
 	private static void macerate (RecipeGenerationContext context, ItemLike ingot, ItemLike dust, int duration, String material) {
-		macerate(context, ingot,1, dust, 1, dust, 1, 0.10D, duration, material);
+		macerate(context, ingot, 1, dust, 1, dust, 1, 0.10D, duration, material);
 	}
 
 	private static void macerate (RecipeGenerationContext context, ItemLike input, int inputCount, ItemLike output, int outputCount, @Nullable ItemLike chanceOutput, int chanceOutputCount, double chanceOutputYield, int duration, String material) {
-		if (chanceOutput != null) context.save(getRecipeDefinition().recipeBuilder().itemInput(RecipeSlots.INPUT, input, inputCount).itemOutput(RecipeSlots.OUTPUT, output, outputCount).chanceItemOutput(RecipeSlots.CHANCE_OUTPUT, chanceOutput, chanceOutputCount, chanceOutputYield).duration(duration), "macerator/" + material + "_dust");
+		if (chanceOutput != null)
+			context.save(getRecipeDefinition().recipeBuilder().itemInput(RecipeSlots.INPUT, input, inputCount).itemOutput(RecipeSlots.OUTPUT, output, outputCount).chanceItemOutput(RecipeSlots.CHANCE_OUTPUT, chanceOutput, chanceOutputCount, chanceOutputYield).duration(duration), "macerator/" + material + "_dust");
 		else context.save(getRecipeDefinition().recipeBuilder().itemInput(RecipeSlots.INPUT, input, inputCount).itemOutput(RecipeSlots.OUTPUT, output, outputCount).duration(duration), "macerator/" + material + "_dust");
 	}
 

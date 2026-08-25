@@ -34,14 +34,14 @@ public class FluidInfuserMenu extends AbstractMenu<FluidInfuserBlock, FluidInfus
 	private static final int DATA_ENERGY_HIGH          = 5;
 	private static final int DATA_ENERGY_CAPACITY_LOW  = 6;
 	private static final int DATA_ENERGY_CAPACITY_HIGH = 7;
-	private static final int DATA_FLUID_ID              = 8;
-	private static final int DATA_FLUID_AMOUNT_LOW      = 9;
-	private static final int DATA_FLUID_AMOUNT_HIGH     = 10;
-	private static final int DATA_FLUID_CAPACITY_LOW    = 11;
-	private static final int DATA_FLUID_CAPACITY_HIGH   = 12;
-	private static final int DATA_SIDE_MODE_START       = 13;
-	private static final int DATA_FORMED                = DATA_SIDE_MODE_START + MachineFace.values().length;
-	private static final int DATA_COUNT                 = DATA_FORMED + 1;
+	private static final int DATA_FLUID_ID             = 8;
+	private static final int DATA_FLUID_AMOUNT_LOW     = 9;
+	private static final int DATA_FLUID_AMOUNT_HIGH    = 10;
+	private static final int DATA_FLUID_CAPACITY_LOW   = 11;
+	private static final int DATA_FLUID_CAPACITY_HIGH  = 12;
+	private static final int DATA_SIDE_MODE_START      = 13;
+	private static final int DATA_FORMED               = DATA_SIDE_MODE_START + MachineFace.values().length;
+	private static final int DATA_COUNT                = DATA_FORMED + 1;
 
 	private static final int INPUT_X  = 108;
 	private static final int INPUT_Y  = 9;
